@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.7.6",
+      "version": "1.7.7",
       "versionDate": "2026-08-14",
-      "versionDescription": "Add CCR TTS setting (offset 70: Loop pO₂ / Setpoint pO₂).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.6/SymbiosSettings.ipa",
-      "size": 229703,
+      "versionDescription": "Fix offsets: button lock = 71, ascent warning = 77 (were mislabeled).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.7/SymbiosSettings.ipa",
+      "size": 229706,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.7.7",
+          "date": "2026-08-14",
+          "localizedDescription": "Fix offsets: button lock = 71, ascent warning = 77 (were mislabeled).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.7/SymbiosSettings.ipa",
+          "size": 229706,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.7.6",
           "date": "2026-08-14",

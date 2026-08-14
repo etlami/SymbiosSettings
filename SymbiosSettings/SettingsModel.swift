@@ -67,7 +67,7 @@ enum SymbiosSettings {
         .init(id:"ocMaxPO2Bottom", label:"OC PO₂ Grund", offset:68, kind:.scaledBar, editable:true, group:"Tauchprofil", range:100...160),
         .init(id:"safetyStopEnabled", label:"Sicherheitsstopp", offset:11, kind:.boolean, editable:true, group:"Tauchprofil"),
         .init(id:"lastStopAt6Msw", label:"Letzter Stopp", offset:69, kind:.enumMap(lastStopMap), editable:true, group:"Tauchprofil"),
-        .init(id:"ascentSpeedWarningEnabled", label:"Aufstiegswarnung", offset:71, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
+        .init(id:"ascentSpeedWarningEnabled", label:"Aufstiegswarnung", offset:77, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
         .init(id:"diveTimeoutMin", label:"Dive-Timeout", offset:10, kind:.uint(unit:"min"), editable:true, group:"Timeouts & Alarme", range:1...30),
 
         // — CCR + CCR FSP —
@@ -84,7 +84,7 @@ enum SymbiosSettings {
         .init(id:"gfChartScreen", label:"GF-Chart-Screen", offset:58, kind:.boolean, editable:true, group:"Anzeigen"),
         .init(id:"gpsScreenEnabled", label:"GPS-Screen", offset:74, kind:.boolean, editable:true, group:"Anzeigen"),
         .init(id:"dpvScreenEnabled", label:"DPV-Screen", offset:73, kind:.boolean, editable:true, group:"Anzeigen"),
-        .init(id:"hudSimpleCCRScreenEnabled", label:"HUD einfacher CCR-Screen", offset:77, kind:.boolean, editable:true, group:"Anzeigen"),
+        .init(id:"buttonsOff100msw", label:"Tastensperre ab 100 m", offset:71, kind:.boolean, editable:true, group:"Computer-Einstellungen"),
         .init(id:"wirelessScreen", label:"Wireless-Screen", offset:42, kind:.enumMap(wirelessMap), editable:true, group:"Anzeigen"),
         .init(id:"style", label:"Stil", offset:4, kind:.enumMap(styleMap), editable:true, group:"Anzeigen"),
 
