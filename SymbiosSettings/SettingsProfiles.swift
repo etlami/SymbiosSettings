@@ -234,7 +234,7 @@ struct CustomFieldsView: View {
                     .font(.footnote).foregroundStyle(.secondary)
             }
             ForEach(SymbiosSettings.customFieldGroups, id: \.self) { g in
-                Section(g) {
+                Section(LocalizedStringKey(g)) {
                     ForEach(SymbiosSettings.customFields.filter { $0.group == g }) { cf in
                         let blob = ble.settingsBlob ?? []
                         Toggle(isOn: Binding(
@@ -242,8 +242,8 @@ struct CustomFieldsView: View {
                             set: { onToggle(cf, $0) }
                         )) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(cf.name)
-                                if let n = cf.note { Text(n).font(.caption2).foregroundStyle(.secondary) }
+                                Text(LocalizedStringKey(cf.name))
+                                if let n = cf.note { Text(LocalizedStringKey(n)).font(.caption2).foregroundStyle(.secondary) }
                             }
                         }
                     }
@@ -282,7 +282,7 @@ struct SliderFieldRow: View {
         let r = field.range ?? 0...255
         VStack(alignment: .leading, spacing: 2) {
             HStack {
-                Text(field.label)
+                Text(LocalizedStringKey(field.label))
                 Spacer()
                 Text(display).foregroundStyle(editing ? .primary : .secondary).monospacedDigit()
             }

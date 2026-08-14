@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.6.7",
+      "version": "1.7.0",
       "versionDate": "2026-08-14",
-      "versionDescription": "Compass declination range is −45…+45°.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.7/SymbiosSettings.ipa",
-      "size": 215993,
+      "versionDescription": "Localization: English + German (follows the iPhone language).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.0/SymbiosSettings.ipa",
+      "size": 219818,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.7.0",
+          "date": "2026-08-14",
+          "localizedDescription": "Localization: English + German (follows the iPhone language).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.0/SymbiosSettings.ipa",
+          "size": 219818,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.6.7",
           "date": "2026-08-14",

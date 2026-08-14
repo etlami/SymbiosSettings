@@ -27,7 +27,7 @@ struct ContentView: View {
                     Section("Konfiguration") {
                         ForEach(SymbiosSettings.groups, id: \.self) { g in
                             NavigationLink { groupDetail(g) } label: {
-                                Label(g, systemImage: groupIcon(g))
+                                Label(LocalizedStringKey(g), systemImage: groupIcon(g))
                             }
                         }
                         NavigationLink { gasDetail() } label: {
@@ -213,18 +213,18 @@ struct ContentView: View {
             Toggle(isOn: Binding(
                 get: { SymbiosSettings.rawValue(blob, f) != 0 },
                 set: { setRaw(f, $0 ? 1 : 0) }
-            )) { Text(f.label) }
+            )) { Text(LocalizedStringKey(f.label)) }
             .disabled(!f.editable || busy)
         case .enumMap(let m) where f.editable:
             if m.count <= 2 {
                 // 2 Optionen → Segmented Control (beide sichtbar, ein Tipp)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(f.label)
+                    Text(LocalizedStringKey(f.label))
                     Picker("", selection: Binding(
                         get: { SymbiosSettings.rawValue(blob, f) },
                         set: { setRaw(f, UInt8(clamping: $0)) }
                     )) {
-                        ForEach(f.enumOrder ?? m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+                        ForEach(f.enumOrder ?? m.keys.sorted(), id: \.self) { k in Text(LocalizedStringKey(m[k] ?? "\(k)")).tag(k) }
                     }
                     .pickerStyle(.segmented)
                     .disabled(busy)
@@ -235,15 +235,15 @@ struct ContentView: View {
                     get: { SymbiosSettings.rawValue(blob, f) },
                     set: { setRaw(f, UInt8(clamping: $0)) }
                 )) {
-                    ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
-                } label: { Text(f.label) }
+                    ForEach(m.keys.sorted(), id: \.self) { k in Text(LocalizedStringKey(m[k] ?? "\(k)")).tag(k) }
+                } label: { Text(LocalizedStringKey(f.label)) }
                 .pickerStyle(.menu)
                 .disabled(busy)
             }
         default:
             Button { if f.editable { editing = f } } label: {
                 HStack {
-                    Text(f.label).foregroundStyle(.primary)
+                    Text(LocalizedStringKey(f.label)).foregroundStyle(.primary)
                     Spacer()
                     Text(SymbiosSettings.display(blob, f)).foregroundStyle(.secondary)
                     if f.editable { Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary) }
@@ -287,7 +287,7 @@ struct ContentView: View {
                 fieldRow(f, blob: ble.settingsBlob ?? [])
             }
         }
-        .navigationTitle(g)
+        .navigationTitle(Text(LocalizedStringKey(g)))
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -380,7 +380,7 @@ struct EditSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(field.label) { editor }
+                Section(LocalizedStringKey(field.label)) { editor }
                 Section {
                     Label("Schreiben ist reverse-engineert und wenig getestet. Vor dem Tauchgang am Gerät prüfen.",
                           systemImage: "exclamationmark.triangle.fill")
@@ -406,7 +406,7 @@ struct EditSheet: View {
             Toggle("An", isOn: Binding(get: { raw != 0 }, set: { raw = $0 ? 1 : 0 }))
         case .enumMap(let m):
             Picker("Wert", selection: Binding(get: { Int(raw) }, set: { raw = Double($0) })) {
-                ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+                ForEach(m.keys.sorted(), id: \.self) { k in Text(LocalizedStringKey(m[k] ?? "\(k)")).tag(k) }
             }
         case .scaledBar:
             valueControl(text: String(format: "%.2f bar", raw/100))
@@ -423,7 +423,7 @@ struct EditSheet: View {
             Text(text).font(.title3).monospacedDigit()
             if let r = field.range {
                 Slider(value: $raw, in: r, step: 1) {
-                    Text(field.label)
+                    Text(LocalizedStringKey(field.label))
                 } minimumValueLabel: { Text("\(Int(r.lowerBound))").font(.caption2) }
                 maximumValueLabel: { Text("\(Int(r.upperBound))").font(.caption2) }
             } else {
