@@ -24,22 +24,24 @@ struct ContentView: View {
                     }
                 }
                 if let info = ble.deviceInfo { deviceSection(info) }
-                if let blob = ble.settingsBlob {
-                    ForEach(SymbiosSettings.groups, id: \.self) { g in
-                        Section(g) {
-                            ForEach(SymbiosSettings.fields.filter { $0.group == g }) { f in
-                                fieldRow(f, blob: blob)
+                if ble.settingsBlob != nil {
+                    Section("Konfiguration") {
+                        ForEach(SymbiosSettings.groups, id: \.self) { g in
+                            NavigationLink { groupDetail(g) } label: {
+                                Label(g, systemImage: groupIcon(g))
                             }
                         }
+                        NavigationLink { gasDetail() } label: {
+                            Label("Gastabelle", systemImage: "cylinder.split.1x2")
+                        }
+                        NavigationLink { CustomFieldsView(ble: ble, onToggle: writeCustomField) } label: {
+                            Label("Custom-Felder (Screen)", systemImage: "square.grid.2x2")
+                        }
                     }
-                    gasSection(blob)
-                    Section {
-                        NavigationLink {
-                            CustomFieldsView(ble: ble, onToggle: writeCustomField)
-                        } label: { Label("Custom-Felder (Screen)", systemImage: "square.grid.2x2") }
-                    }
+                } else if ble.connected {
+                    Section { HStack { ProgressView(); Text("Einstellungen werden gelesen…").foregroundStyle(.secondary) } }
                 } else {
-                    Section { Text("Noch keine Einstellungen gelesen.").foregroundStyle(.secondary) }
+                    Section { Text("Verbinde dich oder starte einen Offline-Entwurf.").foregroundStyle(.secondary) }
                 }
                 profilesSection
                 if showDebug, let blob = ble.settingsBlob {
@@ -83,6 +85,15 @@ struct ContentView: View {
                 }
             }
             .overlay(alignment: .bottom) { toastView }
+            .onChange(of: ble.ready) { _, r in
+                guard r else { return }
+                Task {                                   // Auto-Lesen sobald verbunden + Notify aktiv
+                    busy = true
+                    await ble.refreshAll()
+                    if let b = ble.settingsBlob { store.autoBackup(b) }
+                    busy = false
+                }
+            }
             .sheet(item: $editing) { f in
                 EditSheet(field: f, blob: ble.settingsBlob ?? [], onWrite: writeField)
             }
@@ -232,6 +243,33 @@ struct ContentView: View {
         } else if var b = ble.settingsBlob, f.offset < b.count {
             b[f.offset] = v; ble.settingsBlob = b   // Demo-Vorschau ohne Gerät
         }
+    }
+
+    private func groupIcon(_ g: String) -> String {
+        switch g {
+        case "Tauchprofil": return "water.waves"
+        case "CCR + CCR FSP": return "lungs"
+        case "Timeouts & Alarme": return "alarm"
+        case "Anzeigen": return "display"
+        case "Computer-Einstellungen": return "gearshape"
+        default: return "slider.horizontal.3"
+        }
+    }
+
+    @ViewBuilder private func groupDetail(_ g: String) -> some View {
+        List {
+            ForEach(SymbiosSettings.fields.filter { $0.group == g }) { f in
+                fieldRow(f, blob: ble.settingsBlob ?? [])
+            }
+        }
+        .navigationTitle(g)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder private func gasDetail() -> some View {
+        List { gasSection(ble.settingsBlob ?? []) }
+            .navigationTitle("Gastabelle")
+            .navigationBarTitleDisplayMode(.inline)
     }
 
     private func gasSection(_ blob: [UInt8]) -> some View {

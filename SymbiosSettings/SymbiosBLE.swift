@@ -5,6 +5,7 @@ import CoreBluetooth
 final class SymbiosBLE: NSObject, ObservableObject {
     @Published var statusText = "Bereit"
     @Published var connected = false
+    @Published var ready = false          // Notify aktiv → bereit für Auto-Lesen
     @Published var scanning = false
     @Published var deviceInfo: DeviceInfo? = nil
     @Published var settingsBlob: [UInt8]? = nil
@@ -189,7 +190,7 @@ extension SymbiosBLE: CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
     nonisolated func centralManager(_ c: CBCentralManager, didDisconnectPeripheral p: CBPeripheral, error: Error?) {
-        MainActor.assumeIsolated { connected = false; writeChar = nil; notifyChars = []; statusText = "Getrennt"; addLog("getrennt") }
+        MainActor.assumeIsolated { connected = false; ready = false; writeChar = nil; notifyChars = []; statusText = "Getrennt"; addLog("getrennt") }
     }
     nonisolated func peripheral(_ p: CBPeripheral, didDiscoverServices error: Error?) {
         MainActor.assumeIsolated {
@@ -225,6 +226,7 @@ extension SymbiosBLE: CBCentralManagerDelegate, CBPeripheralDelegate {
     nonisolated func peripheral(_ p: CBPeripheral, didUpdateNotificationStateFor ch: CBCharacteristic, error: Error?) {
         MainActor.assumeIsolated {
             addLog("Notify \(ch.uuid.uuidString.prefix(8)) = \(ch.isNotifying)\(error != nil ? " ERR" : "")")
+            if ch.isNotifying, writeChar != nil, !ready { ready = true }   // → ContentView löst Auto-Lesen aus
         }
     }
     nonisolated func peripheral(_ p: CBPeripheral, didUpdateValueFor ch: CBCharacteristic, error: Error?) {
