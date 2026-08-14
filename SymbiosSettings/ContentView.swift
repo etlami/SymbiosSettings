@@ -224,7 +224,7 @@ struct ContentView: View {
                         get: { SymbiosSettings.rawValue(blob, f) },
                         set: { setRaw(f, UInt8(clamping: $0)) }
                     )) {
-                        ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+                        ForEach(f.enumOrder ?? m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
                     }
                     .pickerStyle(.segmented)
                     .disabled(busy)

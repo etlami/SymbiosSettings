@@ -21,6 +21,7 @@ struct SettingField: Identifiable {
     let editable: Bool
     var group: String
     var range: ClosedRange<Double>? = nil   // Roh-Byte-Bereich → Slider im Editor
+    var enumOrder: [Int]? = nil             // feste Reihenfolge für enumMap (sonst nach Key sortiert)
 }
 
 enum SymbiosSettings {
@@ -31,7 +32,7 @@ enum SymbiosSettings {
     static let dcModeMap = [0:"Offener Kreislauf", 1:"Geschl. Kreislauf",
                             2:"CCR Fester Sollwert", 3:"Sidemount", 4:"Grundzeitmesser"]  // blutter-bestätigt
     static let unitsMap  = [0:"Metrisch", 1:"Imperial"]                    // blutter-bestätigt
-    static let orientationMap = [0:"Links", 1:"Rechts"]                    // Kodierung blutter-bestätigt (Offset 3 am Gerät prüfen)
+    static let orientationMap = [4:"Links", 3:"Rechts"]                    // off3, am Gerät bestätigt: Links=4, Rechts=3
     static let waterMap  = [0:"Salzwasser", 1:"Süßwasser", 2:"EN13319"]    // off36: 0+1 am Gerät bestätigt, 2 abgeleitet
     static let lastStopMap = [0:"3 m", 1:"6 m"]
     static let wirelessMap = [0:"Aus", 1:"Zusätzlich", 2:"Alle"]           // Labels bestätigt, Kodierung am Gerät prüfen
@@ -78,7 +79,7 @@ enum SymbiosSettings {
         .init(id:"language", label:"Sprache (Code)", offset:0, kind:.uint(unit:""), editable:true, group:"Computer-Einstellungen"),
         .init(id:"brightness", label:"Helligkeit", offset:1, kind:.uint(unit:""), editable:true, group:"Computer-Einstellungen", range:1...9),
         .init(id:"units", label:"Einheiten", offset:2, kind:.enumMap(unitsMap), editable:true, group:"Computer-Einstellungen"),
-        .init(id:"displayOrientation", label:"Display-Ausrichtung", offset:3, kind:.enumMap(orientationMap), editable:true, group:"Computer-Einstellungen"),
+        .init(id:"displayOrientation", label:"Display-Ausrichtung", offset:3, kind:.enumMap(orientationMap), editable:true, group:"Computer-Einstellungen", enumOrder:[4,3]),
         .init(id:"customFunc", label:"Benutzerdef. Funktion (Taste B)", offset:40, kind:.enumMap(customFuncMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.sint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:(-49)...49),
         .init(id:"waterType", label:"Dichte", offset:36, kind:.enumMap(waterMap), editable:true, group:"Computer-Einstellungen"),
