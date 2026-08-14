@@ -97,7 +97,7 @@ enum SymbiosSettings {
         .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.sint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:(-45)...45),
         .init(id:"waterType", label:"Dichte", offset:36, kind:.enumMap(waterMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"vibratorAlarmEnabled", label:"Vibrationsalarm", offset:43, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
-        .init(id:"sleepTimeoutMin", label:"Sleep-Timeout", offset:38, kind:.uint(unit:"min"), editable:true, group:"Timeouts & Alarme", range:1...60),
+        .init(id:"sleepTimeoutMin", label:"Sleep-Timeout", offset:38, kind:.uint(unit:"min"), editable:true, group:"Timeouts & Alarme", range:1...59),
         .init(id:"buttonsOff100msw", label:"Tastensperre ab 100 m", offset:70, kind:.boolean, editable:true, group:"Computer-Einstellungen"),
         .init(id:"trainingMode", label:"Trainingsmodus", offset:62, kind:.boolean, editable:true, group:"Computer-Einstellungen"),
     ]

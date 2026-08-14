@@ -176,7 +176,7 @@ struct ContentView: View {
         Section("Verbindung") {
             HStack(spacing: 8) {
                 Circle().fill(ble.connected ? .green : .secondary).frame(width: 9, height: 9)
-                Text(ble.statusText).font(.subheadline)
+                Text(LocalizedStringKey(ble.statusText)).font(.subheadline)
                 Spacer()
                 if ble.scanning || busy { ProgressView() }
             }

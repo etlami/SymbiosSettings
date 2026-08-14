@@ -1211,6 +1211,106 @@
           }
         }
       }
+    },
+    "Bereit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready"
+          }
+        }
+      }
+    },
+    "Bluetooth aus?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth off?"
+          }
+        }
+      }
+    },
+    "Suche Symbios…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching for Symbios…"
+          }
+        }
+      }
+    },
+    "Verbinde…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting…"
+          }
+        }
+      }
+    },
+    "Bluetooth bereit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth ready"
+          }
+        }
+      }
+    },
+    "Bluetooth aus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth off"
+          }
+        }
+      }
+    },
+    "Bluetooth nicht erlaubt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth not allowed"
+          }
+        }
+      }
+    },
+    "Verbunden – suche Services…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected – discovering services…"
+          }
+        }
+      }
+    },
+    "Getrennt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected"
+          }
+        }
+      }
+    },
+    "Verbunden ✓ (bereit zum Lesen)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected ✓ (ready to read)"
+          }
+        }
+      }
     }
   }
 }
