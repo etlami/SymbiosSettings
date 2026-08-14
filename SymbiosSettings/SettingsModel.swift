@@ -55,7 +55,7 @@ enum SymbiosSettings {
     static let gpsFormatMap  = [0:"DD", 1:"DDM", 2:"DMS"]                  // Kodierung blutter-bestätigt, Offset unbekannt
     static let styleMap      = [0:"Classic", 1:"Modern"]                   // Offset 4, am Gerät bestätigt ✅
     static let customFuncMap = [0:"Aus", 1:"Best Gas", 2:"Stop Watch", 3:"Heading"]  // Offset 40, am Gerät bestätigt ✅
-    // Hinweis: „Deco Layout" existiert am Gerät NICHT als Enum – Menü hat nur DECO SCRN (bool, = decoScreen@41).
+    static let decoLayoutMap = [0:"Decke + TTS", 1:"Decke + Letzter Stopp", 2:"Decke + Letzter Stopp + TTS"]  // Offset 75, am Gerät bestätigt ✅
 
     /// Felder – gruppiert wie die offizielle App (Tauchprofil · CCR+CCR FSP · Anzeigen · Computer-Einstellungen).
     static let fields: [SettingField] = [
@@ -75,7 +75,7 @@ enum SymbiosSettings {
         .init(id:"setpointHigh", label:"FSP SP HI", offset:61, kind:.scaledBar, editable:true, group:"CCR + CCR FSP", range:100...150),
         .init(id:"scrubberCounterEnabled", label:"Scrubber-Zähler", offset:44, kind:.boolean, editable:true, group:"CCR + CCR FSP"),
         .init(id:"scrubberCounterTimeMin", label:"Scrubber-Zähler-Timeout", offset:46, kind:.uint(unit:"min"), editable:true, group:"CCR + CCR FSP", range:0...240),
-        .init(id:"ccrPO2TtsForcast", label:"CCR TTS-Prognose", offset:75, kind:.enumMap(ttsMap), editable:true, group:"CCR + CCR FSP"),
+        .init(id:"decoLayout", label:"Deco-Layout", offset:75, kind:.enumMap(decoLayoutMap), editable:true, group:"Anzeigen"),
 
         // — Anzeigen —
         .init(id:"buddyScreen", label:"Buddy-Screen", offset:45, kind:.boolean, editable:true, group:"Anzeigen"),

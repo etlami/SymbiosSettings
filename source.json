@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.7.4",
+      "version": "1.7.5",
       "versionDate": "2026-08-14",
-      "versionDescription": "Localize the connection status line; Sleep timeout max 59 min.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.4/SymbiosSettings.ipa",
-      "size": 229674,
+      "versionDescription": "Add Deco layout setting (offset 75).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.5/SymbiosSettings.ipa",
+      "size": 229700,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.7.5",
+          "date": "2026-08-14",
+          "localizedDescription": "Add Deco layout setting (offset 75).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.5/SymbiosSettings.ipa",
+          "size": 229700,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.7.4",
           "date": "2026-08-14",

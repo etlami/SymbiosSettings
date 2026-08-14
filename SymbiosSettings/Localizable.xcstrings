@@ -1311,6 +1311,46 @@
           }
         }
       }
+    },
+    "Deco-Layout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deco layout"
+          }
+        }
+      }
+    },
+    "Decke + TTS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceiling + TTS"
+          }
+        }
+      }
+    },
+    "Decke + Letzter Stopp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceiling + Last Stop"
+          }
+        }
+      }
+    },
+    "Decke + Letzter Stopp + TTS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceiling + Last Stop + TTS"
+          }
+        }
+      }
     }
   }
 }
