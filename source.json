@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.7.1",
+      "version": "1.7.2",
       "versionDate": "2026-08-14",
-      "versionDescription": "Localize remaining toasts, status messages and the Bluetooth permission prompt (EN/DE).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.1/SymbiosSettings.ipa",
-      "size": 222876,
+      "versionDescription": "Per-app Language option in iOS Settings (CFBundleLocalizations); GF High max is 99.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.2/SymbiosSettings.ipa",
+      "size": 222921,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.7.2",
+          "date": "2026-08-14",
+          "localizedDescription": "Per-app Language option in iOS Settings (CFBundleLocalizations); GF High max is 99.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.2/SymbiosSettings.ipa",
+          "size": 222921,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.7.1",
           "date": "2026-08-14",

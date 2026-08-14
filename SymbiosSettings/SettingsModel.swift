@@ -49,7 +49,7 @@ enum SymbiosSettings {
         // — Tauchprofil —
         .init(id:"dcMode", label:"Tauchmodus", offset:9, kind:.enumMap(dcModeMap), editable:true, group:"Tauchprofil"),
         .init(id:"gfLow", label:"GF Low", offset:8, kind:.uint(unit:"%"), editable:true, group:"Tauchprofil", range:5...95),
-        .init(id:"gfHigh", label:"GF High", offset:7, kind:.uint(unit:"%"), editable:true, group:"Tauchprofil", range:5...100),
+        .init(id:"gfHigh", label:"GF High", offset:7, kind:.uint(unit:"%"), editable:true, group:"Tauchprofil", range:5...99),
         .init(id:"ocMaxPO2Deco", label:"OC PO₂ Deco", offset:37, kind:.scaledBar, editable:true, group:"Tauchprofil", range:100...160),
         .init(id:"ocMaxPO2Bottom", label:"OC PO₂ Grund", offset:68, kind:.scaledBar, editable:true, group:"Tauchprofil", range:100...160),
         .init(id:"safetyStopEnabled", label:"Sicherheitsstopp", offset:11, kind:.boolean, editable:true, group:"Tauchprofil"),
