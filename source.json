@@ -8,23 +8,31 @@
       "name": "Symbios Settings",
       "bundleIdentifier": "in.kloster.SymbiosSettings",
       "developerName": "etlami",
-      "subtitle": "Halcyon Symbios Einstellungen über BLE",
-      "localizedDescription": "Liest und ändert die Einstellungen des Halcyon Symbios Tauchcomputers über Bluetooth LE (reverse-engineert). Einstellungen gruppiert, Gas-Editor, Timeouts & Alarme, Settings-Profile + Auto-Backup, Offline-Entwurfsmodus. Nur physisches iPhone (Simulator hat kein BLE).",
+      "subtitle": "Halcyon Symbios settings over BLE",
+      "localizedDescription": "Read and change the settings of the Halcyon Symbios dive computer over Bluetooth LE (reverse-engineered). Grouped settings, gas-table editor (Nx/Trimix), timeouts & alarms, custom-fields editor, settings profiles + auto-backup, offline-draft mode. Physical iPhone only (the Simulator has no BLE).",
       "iconURL": "https://raw.githubusercontent.com/etlami/SymbiosSettings/main/icon.png",
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "versionDate": "2026-08-14",
-      "versionDescription": "Offline-Entwurfsmodus: alle Einstellungen inkl. Gase ohne Geräteverbindung bearbeiten, als Profil sichern und später aufspielen.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.1.0/SymbiosSettings.ipa",
-      "size": 154177,
+      "versionDescription": "Custom-fields editor (CF Content screen): 22 toggle fields mapped to bytes 48/53/63. Online + offline-draft.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.2.0/SymbiosSettings.ipa",
+      "size": 160902,
       "minOSVersion": "17.0",
       "versions": [
         {
+          "version": "1.2.0",
+          "date": "2026-08-14",
+          "localizedDescription": "Custom-fields editor (CF Content screen): 22 toggle fields mapped to bytes 48/53/63. Online + offline-draft.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.2.0/SymbiosSettings.ipa",
+          "size": 160902,
+          "minOSVersion": "17.0"
+        },
+        {
           "version": "1.1.0",
           "date": "2026-08-14",
-          "localizedDescription": "Offline-Entwurfsmodus: alle Einstellungen inkl. Gase ohne Geräteverbindung bearbeiten, als Profil sichern und später aufspielen.",
+          "localizedDescription": "Offline draft mode: edit all settings incl. gases without a connection, save as a profile, apply later.",
           "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.1.0/SymbiosSettings.ipa",
           "size": 154177,
           "minOSVersion": "17.0"
@@ -32,14 +40,14 @@
         {
           "version": "1.0.0",
           "date": "2026-08-14",
-          "localizedDescription": "Erstes Release: Einstellungen lesen/ändern, Gas-Editor (Nx/Trimix, Schnellwahl), Timeouts & Alarme, Settings-Profile + Auto-Backup.",
+          "localizedDescription": "First release: read/change settings, gas editor (Nx/Trimix, presets), timeouts & alarms, settings profiles + auto-backup.",
           "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.0.0/SymbiosSettings.ipa",
           "size": 150959,
           "minOSVersion": "17.0"
         }
       ],
       "permissions": [
-        { "type": "bluetooth", "usageDescription": "Verbindung zum Halcyon Symbios über Bluetooth LE." }
+        { "type": "bluetooth", "usageDescription": "Connects to the Halcyon Symbios over Bluetooth LE." }
       ]
     }
   ],

@@ -1,33 +1,46 @@
-# Symbios Settings — iOS-App
+# Symbios Settings — iOS app
 
-Eigene iOS-App (SwiftUI + CoreBluetooth) zum **Lesen und Ändern der Einstellungen** des Halcyon Symbios,
-auf Basis des reverse-engineerten BLE-Protokolls (siehe `../re/SYMBIOS_PROTOCOL.md`).
+An independent iOS app (SwiftUI + CoreBluetooth) to **read and change the settings** of the
+Halcyon Symbios dive computer, based on the reverse-engineered BLE protocol.
 
-## Funktionen
-- Verbinden (BLE), Geräteinfo lesen (STATUS: Serial, FW, Batterie, Druck).
-- Alle ~33 verankerten Einstellungen lesen + anzeigen (gruppiert), inkl. **Gastabelle**.
-- Einzelne Einstellung ändern per **sicherem Read-Modify-Write**: frisch lesen → nur das Ziel-Byte im
-  Ist-Puffer ändern (Länge bleibt) → `SET_SETTINGS` → **per erneutem GET verifizieren**.
-- **Demo-Modus** ("Demo-Daten laden") zeigt die UI ohne Gerät (echter Beispiel-Blob).
+> ⚠️ Reverse-engineered and lightly tested. Writing to the device is at your own risk —
+> always verify on the computer itself before diving.
 
-## Bauen & aufs iPhone bringen (nötig für echtes BLE)
-Der iOS-**Simulator hat kein Bluetooth** → echtes Lesen/Schreiben geht nur auf einem physischen iPhone:
-1. `SymbiosSettings.xcodeproj` in **Xcode** öffnen.
-2. Target „SymbiosSettings" → **Signing & Capabilities** → dein Apple-ID-Team wählen
-   (Bundle-ID ggf. anpassen, z. B. `de.deinname.SymbiosSettings`).
-3. iPhone per Kabel anschließen, als Ziel wählen, **Run** (⌘R).
-   (Erststart: am iPhone unter Einstellungen → Allgemein → VPN & Geräteverwaltung dem Entwicklerzertifikat vertrauen.)
-4. In der App **„Symbios verbinden"** → iOS fragt beim ersten Mal den **BLE-Passkey deines Geräts** ab → Einstellungen lesen/ändern.
+## Features
+- Connect over BLE, read device info (serial, firmware, battery, pressure).
+- Read and display all anchored settings, grouped (Dive profile · CCR/FSP · Timeouts & alarms ·
+  Displays · Computer settings).
+- Change settings via a safe **read-modify-write** (fetch fresh → patch one byte → `SET_SETTINGS`
+  → verify with a re-read).
+- **Gas-table editor** — 8 slots (OC1–5, Dil1–3); O₂/He with quick-select chips and steppers,
+  enable toggle, live N₂ and MOD; written atomically per slot.
+- **Custom-fields editor** (CF Content screen) — 22 toggle fields mapped to the settings blob.
+- **Settings profiles + backup** — save the full settings blob under a name, auto-backup on every
+  read, apply a profile in one write.
+- **Offline-draft mode** — build a complete configuration (incl. gases and custom fields) without a
+  device, save it as a profile, and apply it later when connected.
+- **Demo/offline preview** works without hardware (real sample blob).
 
-## ⚠️ Sicherheit (bitte lesen)
-Das **Schreiben** ist reverse-engineert und bislang wenig getestet. Die App sichert ab (Read-Modify-Write +
-Verify + Bestätigungsdialog), aber: **jeden geänderten Wert vor einem Tauchgang am Gerät selbst prüfen.**
-Empfehlung: erst unkritische Werte testen. `displayOrientation` ist als *nicht editierbar* markiert (tentativ).
+## Build & run on iPhone (required for real BLE)
+The iOS **Simulator has no Bluetooth**, so reading/writing only works on a physical iPhone:
+1. Open `SymbiosSettings.xcodeproj` in **Xcode**.
+2. Target “SymbiosSettings” → **Signing & Capabilities** → pick your Apple-ID team
+   (adjust the bundle ID if needed).
+3. Connect the iPhone, select it as the run destination, **Run** (⌘R).
+   (First launch: trust the developer certificate under Settings → General → VPN & Device Management.)
+4. In the app tap **“Connect Symbios”** → on first pairing iOS asks for the **device BLE passkey** →
+   read/change settings.
 
-## Struktur
-- `SymbiosProtocol.swift` — Framing, CRC-8, Kommandos.
-- `SettingsModel.swift` — 84-Byte-Blob → Felder (Offsets), Gastabelle, Read-Modify-Write, Demo-Blob.
-- `SymbiosBLE.swift` — CoreBluetooth: Scan/Connect/Notify, async Kommando-Versand mit Reassembly, Write+Verify.
-- `ContentView.swift` — UI (Liste, Bearbeiten-Sheet mit Warnung).
+## Install without Xcode (sideloading)
+A development-signed `.ipa` is attached to each [GitHub Release](../../releases). Sideload it with
+AltStore / SideStore / Sideloadly (it gets re-signed with your own Apple ID).
+AltStore/SideStore source:
 
-Im Simulator getestet (UI + Parser gegen echten Blob). BLE-Test am iPhone steht noch aus.
+```
+https://raw.githubusercontent.com/etlami/SymbiosSettings/main/source.json
+```
+
+## Protocol
+BLE framing `[cmd][data][crc8]` (CRC-8 poly 0x07). Commands on characteristic
+`00000101-8C3B-4F2C-A59E-8C08224F3253`, responses via indication. Settings are an 84-byte blob
+(`GET_SETTINGS` / `SET_SETTINGS`). The reverse-engineering notes live outside this app repo.
