@@ -16,6 +16,13 @@ struct ContentView: View {
         NavigationStack {
             List {
                 connectionSection
+                if !ble.connected, ble.settingsBlob != nil {
+                    Section {
+                        Label("Offline-Entwurf – Änderungen bleiben nur lokal. Als Profil sichern und bei Verbindung aufspielen.",
+                              systemImage: "pencil.and.outline")
+                            .font(.footnote).foregroundStyle(.orange)
+                    }
+                }
                 if let info = ble.deviceInfo { deviceSection(info) }
                 if let blob = ble.settingsBlob {
                     ForEach(SymbiosSettings.groups, id: \.self) { g in
@@ -96,12 +103,17 @@ struct ContentView: View {
                 }.disabled(busy)
             }
             NavigationLink {
-                ProfilesView(store: store, ble: ble, onApply: applyProfile)
+                ProfilesView(store: store, ble: ble, onApply: applyProfile, onLoadDraft: loadDraft)
             } label: {
                 Label("Profile & Backups", systemImage: "folder")
                     .badge(store.profiles.count + store.autoBackups.count)
             }
         }
+    }
+
+    private func loadDraft(_ p: SettingsProfile) {
+        ble.settingsBlob = p.blob          // Offline-Entwurf zum Weiterbearbeiten
+        showToast("📝 „\(p.name)“ als Entwurf geladen.")
     }
 
     private func applyProfile(_ p: SettingsProfile) {
@@ -125,9 +137,15 @@ struct ContentView: View {
             }
             if !ble.connected {
                 Button { ble.startScan() } label: { Label("Symbios verbinden", systemImage: "antenna.radiowaves.left.and.right") }
-                Button { ble.settingsBlob = SymbiosSettings.demoBlob } label: {
-                    Label("Demo-Daten laden (ohne Gerät)", systemImage: "doc.text.magnifyingglass")
-                }.foregroundStyle(.secondary)
+                Button { if ble.settingsBlob == nil { ble.settingsBlob = SymbiosSettings.demoBlob } } label: {
+                    Label(ble.settingsBlob == nil ? "Offline-Entwurf starten" : "Offline-Entwurf aktiv",
+                          systemImage: "square.and.pencil")
+                }.foregroundStyle(.secondary).disabled(ble.settingsBlob != nil)
+                if ble.settingsBlob != nil {
+                    Button(role: .destructive) { ble.settingsBlob = nil } label: {
+                        Label("Entwurf verwerfen", systemImage: "trash")
+                    }
+                }
             } else {
                 Button { Task { busy = true; await ble.refreshAll(); if let b = ble.settingsBlob { store.autoBackup(b) }; busy = false } } label: {
                     Label("Einstellungen lesen", systemImage: "arrow.clockwise")
@@ -217,16 +235,22 @@ struct ContentView: View {
 
     private func writeGas(_ slot: SymbiosSettings.GasSlot) {
         editingGas = nil
-        guard ble.connected else { showToast("Nur mit verbundenem Gerät schreibbar."); return }
-        Task {
-            busy = true
-            let (ok, msg) = await ble.writePatched([
-                (slot.o2Offset, UInt8(clamping: slot.o2)),
-                (slot.heOffset, UInt8(clamping: slot.he)),
-                (slot.activeOffset, slot.active ? 1 : 0),
-            ])
-            busy = false
-            showToast((ok ? "✅ " : "⚠️ ") + slot.name + ": " + msg)
+        let changes: [(offset: Int, value: UInt8)] = [
+            (slot.o2Offset, UInt8(clamping: slot.o2)),
+            (slot.heOffset, UInt8(clamping: slot.he)),
+            (slot.activeOffset, slot.active ? 1 : 0),
+        ]
+        if ble.connected {
+            Task {
+                busy = true
+                let (ok, msg) = await ble.writePatched(changes)
+                busy = false
+                showToast((ok ? "✅ " : "⚠️ ") + slot.name + ": " + msg)
+            }
+        } else if var b = ble.settingsBlob {
+            for c in changes where c.offset < b.count { b[c.offset] = c.value }
+            ble.settingsBlob = b                               // Offline-Entwurf: nur lokal
+            showToast("📝 Entwurf: \(slot.name) = \(SymbiosSettings.gasLabel(o2: slot.o2, he: slot.he))")
         }
     }
 
@@ -242,12 +266,16 @@ struct ContentView: View {
     // MARK: Write
     private func writeField(_ f: SettingField, _ value: UInt8) {
         editing = nil
-        guard ble.connected else { showToast("Nur mit verbundenem Gerät schreibbar."); return }
-        Task {
-            busy = true
-            let (ok, msg) = await ble.writeSetting(offset: f.offset, value: value)
-            busy = false
-            showToast((ok ? "✅ " : "⚠️ ") + msg)
+        if ble.connected {
+            Task {
+                busy = true
+                let (ok, msg) = await ble.writeSetting(offset: f.offset, value: value)
+                busy = false
+                showToast((ok ? "✅ " : "⚠️ ") + msg)
+            }
+        } else if var b = ble.settingsBlob, f.offset < b.count {
+            b[f.offset] = value; ble.settingsBlob = b          // Offline-Entwurf: nur lokal
+            showToast("📝 Entwurf: \(f.label) = \(SymbiosSettings.display(b, f))")
         }
     }
     private func showToast(_ s: String) {

@@ -75,6 +75,8 @@ struct ProfilesView: View {
     @ObservedObject var store: ProfileStore
     @ObservedObject var ble: SymbiosBLE
     var onApply: (SettingsProfile) -> Void
+    var onLoadDraft: (SettingsProfile) -> Void
+    @Environment(\.dismiss) private var dismiss
     @State private var confirmProfile: SettingsProfile?
 
     var body: some View {
@@ -110,7 +112,9 @@ struct ProfilesView: View {
     }
 
     private func row(_ p: SettingsProfile) -> some View {
-        Button { confirmProfile = p } label: {
+        Button {
+            if ble.connected { confirmProfile = p } else { onLoadDraft(p); dismiss() }
+        } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(p.name).foregroundStyle(.primary)
@@ -118,15 +122,15 @@ struct ProfilesView: View {
                         .font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                if ble.connected {
-                    Label("Aufspielen", systemImage: "square.and.arrow.up.on.square")
-                        .labelStyle(.iconOnly).foregroundStyle(.tint)
-                }
+                Image(systemName: ble.connected ? "square.and.arrow.up.on.square" : "square.and.pencil")
+                    .foregroundStyle(.tint)
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(!ble.connected)
+        .swipeActions(edge: .leading) {
+            Button { onLoadDraft(p); dismiss() } label: { Label("Bearbeiten", systemImage: "pencil") }.tint(.blue)
+        }
     }
 }
 
