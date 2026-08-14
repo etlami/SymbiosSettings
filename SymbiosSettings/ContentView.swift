@@ -211,15 +211,30 @@ struct ContentView: View {
             )) { Text(f.label) }
             .disabled(!f.editable || busy)
         case .enumMap(let m) where f.editable:
-            // Inline-Dropdown mit den Auswahlmöglichkeiten
-            Picker(selection: Binding(
-                get: { SymbiosSettings.rawValue(blob, f) },
-                set: { setRaw(f, UInt8(clamping: $0)) }
-            )) {
-                ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
-            } label: { Text(f.label) }
-            .pickerStyle(.menu)
-            .disabled(busy)
+            if m.count <= 2 {
+                // 2 Optionen → Segmented Control (beide sichtbar, ein Tipp)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(f.label)
+                    Picker("", selection: Binding(
+                        get: { SymbiosSettings.rawValue(blob, f) },
+                        set: { setRaw(f, UInt8(clamping: $0)) }
+                    )) {
+                        ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+                    }
+                    .pickerStyle(.segmented)
+                    .disabled(busy)
+                }
+            } else {
+                // Mehr Optionen → Inline-Dropdown
+                Picker(selection: Binding(
+                    get: { SymbiosSettings.rawValue(blob, f) },
+                    set: { setRaw(f, UInt8(clamping: $0)) }
+                )) {
+                    ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+                } label: { Text(f.label) }
+                .pickerStyle(.menu)
+                .disabled(busy)
+            }
         default:
             Button { if f.editable { editing = f } } label: {
                 HStack {

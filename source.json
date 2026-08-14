@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.6.2",
+      "version": "1.6.3",
       "versionDate": "2026-08-14",
-      "versionDescription": "Battery shown as % (estimated from cell voltage).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.2/SymbiosSettings.ipa",
-      "size": 174018,
+      "versionDescription": "Two-option settings (units, orientation, style, last stop) as segmented controls.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.3/SymbiosSettings.ipa",
+      "size": 175623,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.6.3",
+          "date": "2026-08-14",
+          "localizedDescription": "Two-option settings (units, orientation, style, last stop) as segmented controls.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.3/SymbiosSettings.ipa",
+          "size": 175623,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.6.2",
           "date": "2026-08-14",
