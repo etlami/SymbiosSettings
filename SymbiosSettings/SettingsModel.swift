@@ -7,6 +7,10 @@ struct SettingField: Identifiable {
         case uint(unit: String)
         case scaledBar          // u8 ÷100 = bar
         case enumMap([Int: String])
+        /// Zahlenwert → als Inline-Slider darstellbar (wenn range gesetzt).
+        var isNumeric: Bool {
+            switch self { case .uint, .scaledBar: return true; default: return false }
+        }
     }
     let id: String
     let label: String

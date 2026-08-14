@@ -198,8 +198,12 @@ struct ContentView: View {
     }
 
     @ViewBuilder private func fieldRow(_ f: SettingField, blob: [UInt8]) -> some View {
-        switch f.kind {
-        case .boolean:
+        if f.editable, f.range != nil, f.kind.isNumeric {
+            // Inline-Slider direkt in der Zeile (GF, PO₂, Helligkeit, Timeouts …)
+            SliderFieldRow(field: f, blob: blob, busy: busy, onCommit: setRaw)
+        } else {
+            switch f.kind {
+            case .boolean:
             // Direkt in der Tabelle ein/aus schalten
             Toggle(isOn: Binding(
                 get: { SymbiosSettings.rawValue(blob, f) != 0 },
@@ -228,6 +232,7 @@ struct ContentView: View {
             }
             .buttonStyle(.plain)   // sonst färbt SwiftUI die ganze Zeile blau
             .disabled(!f.editable)
+            }
         }
     }
 

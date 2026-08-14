@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "versionDate": "2026-08-14",
-      "versionDescription": "Cleaner UI: settings as a category menu; auto-reads on connect.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.4.0/SymbiosSettings.ipa",
-      "size": 166629,
+      "versionDescription": "Inline sliders on the menu rows for numeric settings (GF, PO2/setpoints, brightness, timeouts, declination).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.5.0/SymbiosSettings.ipa",
+      "size": 170893,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.5.0",
+          "date": "2026-08-14",
+          "localizedDescription": "Inline sliders on the menu rows for numeric settings (GF, PO2/setpoints, brightness, timeouts, declination).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.5.0/SymbiosSettings.ipa",
+          "size": 170893,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.4.0",
           "date": "2026-08-14",

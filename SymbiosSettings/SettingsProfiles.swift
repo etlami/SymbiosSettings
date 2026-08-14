@@ -235,3 +235,41 @@ struct CustomFieldsView: View {
         .navigationTitle("Custom-Felder")
     }
 }
+
+/// Menüzeile mit Inline-Slider für Zahlenwerte (GF, PO₂, Helligkeit, Timeouts …).
+/// Schreibt erst beim Loslassen (onEditingChanged → false).
+struct SliderFieldRow: View {
+    let field: SettingField
+    let blob: [UInt8]
+    let busy: Bool
+    let onCommit: (SettingField, UInt8) -> Void
+    @State private var val: Double = 0
+    @State private var editing = false
+
+    private var raw: Int { SymbiosSettings.rawValue(blob, field) }
+    private var display: String {
+        switch field.kind {
+        case .scaledBar:      return String(format: "%.2f bar", val / 100)
+        case .uint(let u):    return u.isEmpty ? "\(Int(val))" : "\(Int(val)) \(u)"
+        default:              return "\(Int(val))"
+        }
+    }
+
+    var body: some View {
+        let r = field.range ?? 0...255
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(field.label)
+                Spacer()
+                Text(display).foregroundStyle(editing ? .primary : .secondary).monospacedDigit()
+            }
+            Slider(value: $val, in: r, step: 1) { ed in
+                editing = ed
+                if !ed { onCommit(field, UInt8(clamping: Int(val.rounded()))) }
+            }
+            .disabled(busy)
+        }
+        .onAppear { val = Double(raw) }
+        .onChange(of: raw) { _, nv in if !editing { val = Double(nv) } }   // externe Änderungen übernehmen
+    }
+}
