@@ -33,9 +33,9 @@ enum SymbiosSettings {
     // Bereit für später — Labels bestätigt, aber KEINE benannten Enums in der App (int-Index):
     // Kodierung/Offset erst am Gerät gegenprüfen, dann als Feld einhängen.
     static let gpsFormatMap  = [0:"DD", 1:"DDM", 2:"DMS"]                  // Kodierung blutter-bestätigt, Offset unbekannt
-    static let styleMap      = [0:"Modern", 1:"Classic"]                   // Reihenfolge tentativ
-    static let decoLayoutMap = [0:"Decke + Letzter Stopp", 1:"Decke + TTS",
-                                2:"Decke + Letzter Stopp + TTS"]           // Reihenfolge tentativ
+    static let styleMap      = [0:"Classic", 1:"Modern"]                   // Offset 4, am Gerät bestätigt ✅
+    static let customFuncMap = [0:"Aus", 1:"Best Gas", 2:"Stop Watch", 3:"Heading"]  // Offset 40, am Gerät bestätigt ✅
+    // Hinweis: „Deco Layout" existiert am Gerät NICHT als Enum – Menü hat nur DECO SCRN (bool, = decoScreen@41).
 
     /// Felder – gruppiert wie die offizielle App (Tauchprofil · CCR+CCR FSP · Anzeigen · Computer-Einstellungen).
     static let fields: [SettingField] = [
@@ -66,12 +66,14 @@ enum SymbiosSettings {
         .init(id:"dpvScreenEnabled", label:"DPV-Screen", offset:73, kind:.boolean, editable:true, group:"Anzeigen"),
         .init(id:"hudSimpleCCRScreenEnabled", label:"HUD einfacher CCR-Screen", offset:77, kind:.boolean, editable:true, group:"Anzeigen"),
         .init(id:"wirelessScreen", label:"Wireless-Screen", offset:42, kind:.enumMap(wirelessMap), editable:true, group:"Anzeigen"),
+        .init(id:"style", label:"Stil", offset:4, kind:.enumMap(styleMap), editable:true, group:"Anzeigen"),
 
         // — Computer-Einstellungen —
         .init(id:"language", label:"Sprache (Code)", offset:0, kind:.uint(unit:""), editable:true, group:"Computer-Einstellungen"),
         .init(id:"brightness", label:"Helligkeit", offset:1, kind:.uint(unit:""), editable:true, group:"Computer-Einstellungen", range:1...9),
         .init(id:"units", label:"Einheiten", offset:2, kind:.enumMap(unitsMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"displayOrientation", label:"Display-Ausrichtung", offset:3, kind:.enumMap(orientationMap), editable:true, group:"Computer-Einstellungen"),
+        .init(id:"customFunc", label:"Benutzerdef. Funktion (Taste B)", offset:40, kind:.enumMap(customFuncMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.uint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:0...90),
         .init(id:"waterType", label:"Dichte", offset:36, kind:.enumMap(waterMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"vibratorAlarmEnabled", label:"Vibrationsalarm", offset:43, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
