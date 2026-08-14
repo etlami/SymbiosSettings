@@ -81,7 +81,7 @@ enum SymbiosSettings {
         .init(id:"units", label:"Einheiten", offset:2, kind:.enumMap(unitsMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"displayOrientation", label:"Display-Ausrichtung", offset:3, kind:.enumMap(orientationMap), editable:true, group:"Computer-Einstellungen", enumOrder:[4,3]),
         .init(id:"customFunc", label:"Benutzerdef. Funktion (Taste B)", offset:40, kind:.enumMap(customFuncMap), editable:true, group:"Computer-Einstellungen"),
-        .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.sint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:(-49)...49),
+        .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.sint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:(-45)...45),
         .init(id:"waterType", label:"Dichte", offset:36, kind:.enumMap(waterMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"vibratorAlarmEnabled", label:"Vibrationsalarm", offset:43, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
         .init(id:"sleepTimeoutMin", label:"Sleep-Timeout", offset:38, kind:.uint(unit:"min"), editable:true, group:"Timeouts & Alarme", range:1...60),

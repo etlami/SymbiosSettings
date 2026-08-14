@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.6.6",
+      "version": "1.6.7",
       "versionDate": "2026-08-14",
-      "versionDescription": "Fix display orientation (offset 3: Left=4, Right=3).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.6/SymbiosSettings.ipa",
-      "size": 215991,
+      "versionDescription": "Compass declination range is −45…+45°.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.7/SymbiosSettings.ipa",
+      "size": 215993,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.6.7",
+          "date": "2026-08-14",
+          "localizedDescription": "Compass declination range is −45…+45°.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.7/SymbiosSettings.ipa",
+          "size": 215993,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.6.6",
           "date": "2026-08-14",
