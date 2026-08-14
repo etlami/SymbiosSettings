@@ -26,7 +26,7 @@ enum SymbiosSettings {
                             2:"CCR Fester Sollwert", 3:"Sidemount", 4:"Grundzeitmesser"]  // blutter-bestätigt
     static let unitsMap  = [0:"Metrisch", 1:"Imperial"]                    // blutter-bestätigt
     static let orientationMap = [0:"Links", 1:"Rechts"]                    // Kodierung blutter-bestätigt (Offset 3 am Gerät prüfen)
-    static let waterMap  = [0:"Salzwasser", 1:"Süßwasser", 2:"EN13319"]    // 0 bestätigt, 1/2 tentativ
+    static let waterMap  = [0:"Salzwasser", 1:"Süßwasser", 2:"EN13319"]    // off36: 0+1 am Gerät bestätigt, 2 abgeleitet
     static let lastStopMap = [0:"3 m", 1:"6 m"]
     static let wirelessMap = [0:"Aus", 1:"Zusätzlich", 2:"Alle"]           // Labels bestätigt, Kodierung am Gerät prüfen
     static let ttsMap = [1:"Loop pO₂", 2:"Setpoint pO₂"]                   // Kodierung noch zu bestätigen
