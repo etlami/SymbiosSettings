@@ -172,13 +172,31 @@ struct GasEditSheet: View {
             Form {
                 Section(slot.name) {
                     Toggle("Aktiv", isOn: $active)
-                    Stepper("O₂: \(o2) %", value: $o2, in: 5...100).onChange(of: o2) { _, _ in clampHe() }
-                    presetRow(SymbiosSettings.o2Presets, current: o2) { o2 = $0; clampHe() }
-                    Stepper("He: \(he) %", value: $he, in: 0...95).onChange(of: he) { _, _ in clampO2() }
-                    presetRow(SymbiosSettings.hePresets, current: he) { he = $0; clampO2() }
+                    VStack(spacing: 2) {
+                        HStack { Text("O₂"); Spacer(); Text("\(o2) %").monospacedDigit().foregroundStyle(.secondary) }
+                        Slider(value: Binding(get: { Double(o2) }, set: { o2 = Int($0.rounded()); clampHe() }), in: 5...100, step: 1)
+                    }
+                    VStack(spacing: 2) {
+                        HStack { Text("He"); Spacer(); Text("\(he) %").monospacedDigit().foregroundStyle(.secondary) }
+                        Slider(value: Binding(get: { Double(he) }, set: { he = Int($0.rounded()); clampO2() }), in: 0...95, step: 1)
+                    }
                     LabeledContent("Gemisch", value: SymbiosSettings.gasLabel(o2: o2, he: he))
                     LabeledContent("N₂", value: "\(n2) %")
                     LabeledContent("MOD (ppO₂ 1.4)", value: "\(mod) m")
+                }
+                Section("Standardgas (WUD)") {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 82), spacing: 8)], spacing: 8) {
+                        ForEach(SymbiosSettings.standardGases, id: \.name) { g in
+                            let sel = o2 == g.o2 && he == g.he
+                            Button { o2 = g.o2; he = g.he } label: {
+                                Text(g.name).font(.subheadline).frame(maxWidth: .infinity).padding(.vertical, 8)
+                                    .background(sel ? Color.accentColor : Color(.tertiarySystemFill),
+                                                in: RoundedRectangle(cornerRadius: 8))
+                                    .foregroundStyle(sel ? Color.white : Color.primary)
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.vertical, 4)
                 }
                 Section {
                     Label("Schreiben ist reverse-engineert und wenig getestet. Vor dem Tauchgang am Gerät prüfen.",

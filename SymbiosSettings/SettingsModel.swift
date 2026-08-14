@@ -155,6 +155,20 @@ enum SymbiosSettings {
     static let o2Presets = [12, 18, 25, 32, 50, 100]
     static let hePresets = [0, 35, 45, 55, 65, 70]
 
+    /// WUD Standard Gases (+ Air) — setzen O₂/He in einem Griff.
+    struct StdGas { let name: String; let o2: Int; let he: Int }
+    static let standardGases: [StdGas] = [
+        .init(name:"Air",   o2:21,  he:0),
+        .init(name:"EAN50", o2:50,  he:0),
+        .init(name:"O₂",    o2:100, he:0),
+        .init(name:"35/25", o2:35,  he:25),
+        .init(name:"21/35", o2:21,  he:35),
+        .init(name:"18/45", o2:18,  he:45),
+        .init(name:"15/55", o2:15,  he:55),
+        .init(name:"12/65", o2:12,  he:65),
+        .init(name:"10/70", o2:10,  he:70),
+    ]
+
     /// Anzeige wie in der offiziellen App: Air / Nx32 / 18/45 / O₂.
     static func gasLabel(o2: Int, he: Int) -> String {
         if he > 0 { return "\(o2)/\(he)" }
