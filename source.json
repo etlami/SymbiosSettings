@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.7.0",
+      "version": "1.7.1",
       "versionDate": "2026-08-14",
-      "versionDescription": "Localization: English + German (follows the iPhone language).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.0/SymbiosSettings.ipa",
-      "size": 219818,
+      "versionDescription": "Localize remaining toasts, status messages and the Bluetooth permission prompt (EN/DE).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.1/SymbiosSettings.ipa",
+      "size": 222876,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.7.1",
+          "date": "2026-08-14",
+          "localizedDescription": "Localize remaining toasts, status messages and the Bluetooth permission prompt (EN/DE).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.1/SymbiosSettings.ipa",
+          "size": 222876,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.7.0",
           "date": "2026-08-14",

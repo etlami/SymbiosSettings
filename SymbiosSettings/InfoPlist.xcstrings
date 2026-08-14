@@ -1,0 +1,12 @@
+{
+  "sourceLanguage" : "de",
+  "version" : "1.0",
+  "strings" : {
+    "NSBluetoothAlwaysUsageDescription" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verbindung zum Halcyon Symbios Tauchcomputer zum Lesen und Ändern der Einstellungen." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connects to the Halcyon Symbios dive computer to read and change its settings." } }
+      }
+    }
+  }
+}

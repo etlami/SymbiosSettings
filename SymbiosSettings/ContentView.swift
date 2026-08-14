@@ -54,7 +54,7 @@ struct ContentView: View {
                             .font(.system(.caption2, design: .monospaced)).textSelection(.enabled)
                         Button {
                             UIPasteboard.general.string = blob.map { String(format: "%02x", $0) }.joined()
-                            showToast("Rohdaten kopiert (\(blob.count) B)")
+                            showToast(String(localized: "Rohdaten kopiert (\(blob.count) B)"))
                         } label: { Label("Rohdaten kopieren (Hex)", systemImage: "doc.on.doc") }
                     } header: { Text("Settings-Blob (für Offset-Diff)") }
                 }
@@ -70,7 +70,7 @@ struct ContentView: View {
                             Spacer()
                             Button {
                                 UIPasteboard.general.string = ble.log.joined(separator: "\n")
-                                showToast("Protokoll kopiert (\(ble.log.count) Zeilen)")
+                                showToast(String(localized: "Protokoll kopiert (\(ble.log.count) Zeilen)"))
                             } label: { Label("Kopieren", systemImage: "doc.on.doc") }
                                 .font(.caption).textCase(nil)
                             Button(role: .destructive) { ble.log.removeAll() } label: {
@@ -108,7 +108,7 @@ struct ContentView: View {
                 TextField("Name (z. B. Tec 100)", text: $newProfileName)
                 Button("Abbrechen", role: .cancel) {}
                 Button("Sichern") {
-                    if let blob = ble.settingsBlob { store.save(name: newProfileName, blob: blob); showToast("Profil gesichert.") }
+                    if let blob = ble.settingsBlob { store.save(name: newProfileName, blob: blob); showToast(String(localized: "Profil gesichert.")) }
                 }
             } message: { Text("Sichert die aktuell gelesenen Einstellungen als Profil.") }
         }
@@ -139,21 +139,21 @@ struct ContentView: View {
                 busy = true
                 let (ok, msg) = await ble.writeSetting(offset: cf.offset, value: newByte)
                 busy = false
-                showToast((ok ? "✅ " : "⚠️ ") + "\(cf.name) \(on ? "an" : "aus")" + (ok ? "" : " – \(msg)"))
+                showToast((ok ? "✅ " : "⚠️ ") + "\(cf.name) \(L(on ? "an" : "aus"))" + (ok ? "" : " – \(msg)"))
             }
         } else if var b = ble.settingsBlob, cf.offset < b.count {
             b[cf.offset] = newByte; ble.settingsBlob = b       // Offline-Entwurf
-            showToast("📝 Entwurf: \(cf.name) \(on ? "an" : "aus")")
+            showToast("📝 \(L("Entwurf:")) \(cf.name) \(L(on ? "an" : "aus"))")
         }
     }
 
     private func loadDraft(_ p: SettingsProfile) {
         ble.settingsBlob = p.blob          // Offline-Entwurf zum Weiterbearbeiten
-        showToast("📝 „\(p.name)“ als Entwurf geladen.")
+        showToast(String(localized: "📝 „\(p.name)“ als Entwurf geladen."))
     }
 
     private func applyProfile(_ p: SettingsProfile) {
-        guard ble.connected else { showToast("Nur mit verbundenem Gerät aufspielbar."); return }
+        guard ble.connected else { showToast(String(localized: "Nur mit verbundenem Gerät aufspielbar.")); return }
         Task {
             busy = true
             let (ok, msg) = await ble.writeFullBlob(p.blob)
@@ -263,7 +263,7 @@ struct ContentView: View {
                 busy = true
                 let (ok, msg) = await ble.writeSetting(offset: f.offset, value: v)
                 busy = false
-                showToast((ok ? "✅ " : "⚠️ ") + f.label + ": " + msg)
+                showToast((ok ? "✅ " : "⚠️ ") + L(f.label) + ": " + msg)
             }
         } else if var b = ble.settingsBlob, f.offset < b.count {
             b[f.offset] = v; ble.settingsBlob = b   // Demo-Vorschau ohne Gerät
@@ -334,7 +334,7 @@ struct ContentView: View {
         } else if var b = ble.settingsBlob {
             for c in changes where c.offset < b.count { b[c.offset] = c.value }
             ble.settingsBlob = b                               // Offline-Entwurf: nur lokal
-            showToast("📝 Entwurf: \(slot.name) = \(SymbiosSettings.gasLabel(o2: slot.o2, he: slot.he))")
+            showToast("📝 \(L("Entwurf:")) \(slot.name) = \(SymbiosSettings.gasLabel(o2: slot.o2, he: slot.he))")
         }
     }
 
@@ -359,9 +359,10 @@ struct ContentView: View {
             }
         } else if var b = ble.settingsBlob, f.offset < b.count {
             b[f.offset] = value; ble.settingsBlob = b          // Offline-Entwurf: nur lokal
-            showToast("📝 Entwurf: \(f.label) = \(SymbiosSettings.display(b, f))")
+            showToast("📝 \(L("Entwurf:")) \(L(f.label)) = \(SymbiosSettings.display(b, f))")
         }
     }
+    private func L(_ s: String) -> String { String(localized: String.LocalizationValue(s)) }
     private func showToast(_ s: String) {
         withAnimation { toast = s }
         Task { try? await Task.sleep(nanoseconds: 3_500_000_000); withAnimation { toast = nil } }
