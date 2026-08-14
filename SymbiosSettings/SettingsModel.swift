@@ -1,5 +1,18 @@
 import Foundation
 
+/// In-App-Sprachwahl (unabhängig von den iOS-Einstellungen).
+enum AppLang {
+    static let key = "appLang"                    // "system" | "de" | "en"
+    static var code: String { UserDefaults.standard.string(forKey: key) ?? "system" }
+    /// Locale für String(localized:) (Toasts/Statusmeldungen).
+    static var locale: Locale { code == "system" ? .current : Locale(identifier: code) }
+    /// Locale fürs SwiftUI-Environment (nil = System folgen).
+    static var swiftUILocale: Locale? { code == "system" ? nil : Locale(identifier: code) }
+}
+
+/// Lokalisiert unter Berücksichtigung der In-App-Sprachwahl (für Nicht-Text-Strings).
+func LT(_ v: String.LocalizationValue) -> String { String(localized: v, locale: AppLang.locale) }
+
 /// Feld-Beschreibung für den 84-Byte-Settings-Blob (Offsets aus SYMBIOS_PROTOCOL.md §5b).
 struct SettingField: Identifiable {
     enum Kind {

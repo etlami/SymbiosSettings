@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var showSaveDialog = false
     @State private var newProfileName = ""
     @State private var editingGas: SymbiosSettings.GasSlot?
+    @AppStorage("appLang") private var appLang = "system"
 
     var body: some View {
         NavigationStack {
@@ -43,6 +44,13 @@ struct ContentView: View {
                     Section { Text("Verbinde dich oder starte einen Offline-Entwurf.").foregroundStyle(.secondary) }
                 }
                 profilesSection
+                Section("Sprache / Language") {
+                    Picker("", selection: $appLang) {
+                        Text("System").tag("system")
+                        Text("Deutsch").tag("de")
+                        Text("English").tag("en")
+                    }.pickerStyle(.segmented)
+                }
                 Section {
                     Link(destination: URL(string: "https://buymeacoffee.com/etlami")!) {
                         Label("Buy me a Coffee ☕", systemImage: "cup.and.saucer.fill")
@@ -54,7 +62,7 @@ struct ContentView: View {
                             .font(.system(.caption2, design: .monospaced)).textSelection(.enabled)
                         Button {
                             UIPasteboard.general.string = blob.map { String(format: "%02x", $0) }.joined()
-                            showToast(String(localized: "Rohdaten kopiert (\(blob.count) B)"))
+                            showToast(LT("Rohdaten kopiert (\(blob.count) B)"))
                         } label: { Label("Rohdaten kopieren (Hex)", systemImage: "doc.on.doc") }
                     } header: { Text("Settings-Blob (für Offset-Diff)") }
                 }
@@ -70,7 +78,7 @@ struct ContentView: View {
                             Spacer()
                             Button {
                                 UIPasteboard.general.string = ble.log.joined(separator: "\n")
-                                showToast(String(localized: "Protokoll kopiert (\(ble.log.count) Zeilen)"))
+                                showToast(LT("Protokoll kopiert (\(ble.log.count) Zeilen)"))
                             } label: { Label("Kopieren", systemImage: "doc.on.doc") }
                                 .font(.caption).textCase(nil)
                             Button(role: .destructive) { ble.log.removeAll() } label: {
@@ -108,10 +116,11 @@ struct ContentView: View {
                 TextField("Name (z. B. Tec 100)", text: $newProfileName)
                 Button("Abbrechen", role: .cancel) {}
                 Button("Sichern") {
-                    if let blob = ble.settingsBlob { store.save(name: newProfileName, blob: blob); showToast(String(localized: "Profil gesichert.")) }
+                    if let blob = ble.settingsBlob { store.save(name: newProfileName, blob: blob); showToast(LT("Profil gesichert.")) }
                 }
             } message: { Text("Sichert die aktuell gelesenen Einstellungen als Profil.") }
         }
+        .environment(\.locale, appLang == "system" ? Locale.autoupdatingCurrent : Locale(identifier: appLang))
     }
 
     // MARK: Profile
@@ -149,11 +158,11 @@ struct ContentView: View {
 
     private func loadDraft(_ p: SettingsProfile) {
         ble.settingsBlob = p.blob          // Offline-Entwurf zum Weiterbearbeiten
-        showToast(String(localized: "📝 „\(p.name)“ als Entwurf geladen."))
+        showToast(LT("📝 „\(p.name)“ als Entwurf geladen."))
     }
 
     private func applyProfile(_ p: SettingsProfile) {
-        guard ble.connected else { showToast(String(localized: "Nur mit verbundenem Gerät aufspielbar.")); return }
+        guard ble.connected else { showToast(LT("Nur mit verbundenem Gerät aufspielbar.")); return }
         Task {
             busy = true
             let (ok, msg) = await ble.writeFullBlob(p.blob)
@@ -362,7 +371,7 @@ struct ContentView: View {
             showToast("📝 \(L("Entwurf:")) \(L(f.label)) = \(SymbiosSettings.display(b, f))")
         }
     }
-    private func L(_ s: String) -> String { String(localized: String.LocalizationValue(s)) }
+    private func L(_ s: String) -> String { LT(String.LocalizationValue(s)) }
     private func showToast(_ s: String) {
         withAnimation { toast = s }
         Task { try? await Task.sleep(nanoseconds: 3_500_000_000); withAnimation { toast = nil } }

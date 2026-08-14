@@ -105,7 +105,7 @@ final class SymbiosBLE: NSObject, ObservableObject {
     /// Mehrere Bytes in EINEM SET_SETTINGS schreiben (read-modify-write) + gegenlesen.
     /// Für den Gas-Editor (O₂/He/aktiv eines Slots = 3 Bytes) atomar.
     func writePatched(_ changes: [(offset: Int, value: UInt8)]) async -> (Bool, String) {
-        guard var blob = settingsBlob else { return (false, String(localized: "Erst Einstellungen lesen.")) }
+        guard var blob = settingsBlob else { return (false, LT("Erst Einstellungen lesen.")) }
         if let r = await send(cmd: SymbiosProto.CMD_GET_SETTINGS), r.crcOK, r.isAck, r.payload.count >= 70 {
             blob = r.payload; settingsBlob = blob
         }
@@ -114,31 +114,31 @@ final class SymbiosBLE: NSObject, ObservableObject {
         if let r = await send(cmd: SymbiosProto.CMD_GET_SETTINGS), r.crcOK, r.isAck, r.payload.count >= 70 {
             settingsBlob = r.payload
             let bad = changes.filter { $0.offset < r.payload.count && r.payload[$0.offset] != $0.value }
-            if bad.isEmpty { return (true, String(localized: "OK – am Gerät bestätigt.")) }
-            return (false, String(localized: "\(bad.count) Byte(s) nicht bestätigt."))
+            if bad.isEmpty { return (true, LT("OK – am Gerät bestätigt.")) }
+            return (false, LT("\(bad.count) Byte(s) nicht bestätigt."))
         }
         let ackTxt = resp?.isAck == true ? "ACK" : (resp?.errName ?? "keine Antwort")
-        return (false, String(localized: "Nicht bestätigt (SET: \(ackTxt))."))
+        return (false, LT("Nicht bestätigt (SET: \(ackTxt))."))
     }
 
     /// Ganzes Profil (kompletter Blob) auf einmal schreiben + am Gerät gegenlesen.
     func writeFullBlob(_ blob: [UInt8]) async -> (Bool, String) {
-        guard peripheral != nil, writeChar != nil else { return (false, String(localized: "Nicht verbunden.")) }
-        guard blob.count >= 70 else { return (false, String(localized: "Profil ungültig (\(blob.count) B).")) }
+        guard peripheral != nil, writeChar != nil else { return (false, LT("Nicht verbunden.")) }
+        guard blob.count >= 70 else { return (false, LT("Profil ungültig (\(blob.count) B).")) }
         let resp = await send(cmd: SymbiosProto.CMD_SET_SETTINGS, data: blob)
         if let r = await send(cmd: SymbiosProto.CMD_GET_SETTINGS), r.crcOK, r.isAck, r.payload.count >= 70 {
             settingsBlob = r.payload
             let n = min(r.payload.count, blob.count)
             let diff = (0..<n).filter { r.payload[$0] != blob[$0] }.count
-            if diff == 0 { return (true, String(localized: "Profil aufgespielt – am Gerät bestätigt.")) }
-            return (false, String(localized: "\(diff)/\(n) Bytes weichen ab (evtl. geräteseitig normalisiert)."))
+            if diff == 0 { return (true, LT("Profil aufgespielt – am Gerät bestätigt.")) }
+            return (false, LT("\(diff)/\(n) Bytes weichen ab (evtl. geräteseitig normalisiert)."))
         }
         let ackTxt = resp?.isAck == true ? "ACK" : (resp?.errName ?? "keine Antwort")
-        return (false, String(localized: "Nicht bestätigt (SET: \(ackTxt))."))
+        return (false, LT("Nicht bestätigt (SET: \(ackTxt))."))
     }
 
     func writeSetting(offset: Int, value: UInt8) async -> (Bool, String) {
-        guard var blob = settingsBlob else { return (false, String(localized: "Erst Einstellungen lesen.")) }
+        guard var blob = settingsBlob else { return (false, LT("Erst Einstellungen lesen.")) }
         if let r = await send(cmd: SymbiosProto.CMD_GET_SETTINGS), r.crcOK, r.isAck, r.payload.count >= 70 {
             blob = r.payload; settingsBlob = blob
         }
@@ -148,9 +148,9 @@ final class SymbiosBLE: NSObject, ObservableObject {
         if let r = await send(cmd: SymbiosProto.CMD_GET_SETTINGS), r.crcOK, r.isAck, r.payload.count > offset {
             settingsBlob = r.payload; verified = r.payload[offset] == value
         }
-        if verified { return (true, String(localized: "OK – am Gerät bestätigt (\(Int(value))).")) }
+        if verified { return (true, LT("OK – am Gerät bestätigt (\(Int(value))).")) }
         let ackTxt = resp?.isAck == true ? "ACK" : (resp?.errName ?? "keine Antwort")
-        return (false, String(localized: "NICHT bestätigt (SET: \(ackTxt))."))
+        return (false, LT("NICHT bestätigt (SET: \(ackTxt))."))
     }
 
     // MARK: - Parser

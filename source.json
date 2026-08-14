@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.7.2",
+      "version": "1.7.3",
       "versionDate": "2026-08-14",
-      "versionDescription": "Per-app Language option in iOS Settings (CFBundleLocalizations); GF High max is 99.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.2/SymbiosSettings.ipa",
-      "size": 222921,
+      "versionDescription": "In-app language switch (System/German/English) — switches the UI live.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.3/SymbiosSettings.ipa",
+      "size": 229210,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.7.3",
+          "date": "2026-08-14",
+          "localizedDescription": "In-app language switch (System/German/English) — switches the UI live.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.7.3/SymbiosSettings.ipa",
+          "size": 229210,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.7.2",
           "date": "2026-08-14",
