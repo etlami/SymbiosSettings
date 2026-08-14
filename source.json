@@ -1,0 +1,39 @@
+{
+  "name": "SymbiosSettings Source",
+  "identifier": "de.beratungsraum.symbios.source",
+  "sourceURL": "https://raw.githubusercontent.com/etlami/SymbiosSettings/main/source.json",
+  "website": "https://github.com/etlami/SymbiosSettings",
+  "apps": [
+    {
+      "name": "Symbios Settings",
+      "bundleIdentifier": "de.beratungsraum.SymbiosSettings",
+      "developerName": "etlami",
+      "subtitle": "Halcyon Symbios Einstellungen über BLE",
+      "localizedDescription": "Liest und ändert die Einstellungen des Halcyon Symbios Tauchcomputers über Bluetooth LE (reverse-engineert). Einstellungen gruppiert, Gas-Editor, Profile/Backup. Nur physisches iPhone (Simulator hat kein BLE).",
+      "iconURL": "https://raw.githubusercontent.com/etlami/SymbiosSettings/main/icon.png",
+      "tintColor": "40C4DC",
+      "category": "utilities",
+      "screenshotURLs": [],
+      "version": "1.0.0",
+      "versionDate": "2026-08-14",
+      "versionDescription": "Erstes Release: Einstellungen lesen/ändern, Gas-Editor (Nx/Trimix, Schnellwahl), Timeouts & Alarme, Settings-Profile + Auto-Backup.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.0.0/SymbiosSettings.ipa",
+      "size": 151049,
+      "minOSVersion": "17.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "date": "2026-08-14",
+          "localizedDescription": "Erstes Release: Einstellungen lesen/ändern, Gas-Editor (Nx/Trimix, Schnellwahl), Timeouts & Alarme, Settings-Profile + Auto-Backup.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.0.0/SymbiosSettings.ipa",
+          "size": 151049,
+          "minOSVersion": "17.0"
+        }
+      ],
+      "permissions": [
+        { "type": "bluetooth", "usageDescription": "Verbindung zum Halcyon Symbios über Bluetooth LE." }
+      ]
+    }
+  ],
+  "news": []
+}
