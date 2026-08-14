@@ -23,7 +23,6 @@ struct ContentView: View {
                             .font(.footnote).foregroundStyle(.orange)
                     }
                 }
-                if let info = ble.deviceInfo { deviceSection(info) }
                 if ble.settingsBlob != nil {
                     Section("Konfiguration") {
                         ForEach(SymbiosSettings.groups, id: \.self) { g in
@@ -161,39 +160,40 @@ struct ContentView: View {
     // MARK: Sections
     private var connectionSection: some View {
         Section("Verbindung") {
-            HStack {
-                Circle().fill(ble.connected ? .green : .secondary).frame(width: 10, height: 10)
+            HStack(spacing: 8) {
+                Circle().fill(ble.connected ? .green : .secondary).frame(width: 9, height: 9)
                 Text(ble.statusText).font(.subheadline)
                 Spacer()
-                if ble.scanning { ProgressView() }
+                if ble.scanning || busy { ProgressView() }
+            }
+            if ble.connected, let i = ble.deviceInfo {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("\(i.modelName) · SN \(i.serial)").font(.subheadline)
+                    Text("FW \(i.fw)  ·  \(i.battery_mV) mV  ·  \(String(format: "%.2f", Double(i.pressure_mbar)/1000)) bar")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             }
             if !ble.connected {
                 Button { ble.startScan() } label: { Label("Symbios verbinden", systemImage: "antenna.radiowaves.left.and.right") }
-                Button { if ble.settingsBlob == nil { ble.settingsBlob = SymbiosSettings.demoBlob } } label: {
-                    Label(ble.settingsBlob == nil ? "Offline-Entwurf starten" : "Offline-Entwurf aktiv",
-                          systemImage: "square.and.pencil")
-                }.foregroundStyle(.secondary).disabled(ble.settingsBlob != nil)
-                if ble.settingsBlob != nil {
+                if ble.settingsBlob == nil {
+                    Button { ble.settingsBlob = SymbiosSettings.demoBlob } label: {
+                        Label("Offline-Entwurf starten", systemImage: "square.and.pencil")
+                    }.foregroundStyle(.secondary)
+                } else {
                     Button(role: .destructive) { ble.settingsBlob = nil } label: {
                         Label("Entwurf verwerfen", systemImage: "trash")
                     }
                 }
             } else {
-                Button { Task { busy = true; await ble.refreshAll(); if let b = ble.settingsBlob { store.autoBackup(b) }; busy = false } } label: {
-                    Label("Einstellungen lesen", systemImage: "arrow.clockwise")
-                }.disabled(busy)
-                Button(role: .destructive) { ble.disconnect() } label: { Label("Trennen", systemImage: "xmark.circle") }
+                HStack {
+                    Button { Task { busy = true; await ble.refreshAll(); if let b = ble.settingsBlob { store.autoBackup(b) }; busy = false } } label: {
+                        Label("Neu lesen", systemImage: "arrow.clockwise")
+                    }.disabled(busy)
+                    Spacer()
+                    Button(role: .destructive) { ble.disconnect() } label: { Label("Trennen", systemImage: "xmark.circle") }
+                }
+                .buttonStyle(.borderless)
             }
-        }
-    }
-
-    private func deviceSection(_ i: SymbiosBLE.DeviceInfo) -> some View {
-        Section("Gerät") {
-            LabeledContent("Modell", value: i.modelName)
-            LabeledContent("Seriennummer", value: "\(i.serial)")
-            LabeledContent("Firmware", value: i.fw)
-            LabeledContent("Batterie", value: "\(i.battery_mV) mV")
-            LabeledContent("Druck", value: String(format: "%.3f bar", Double(i.pressure_mbar)/1000))
         }
     }
 

@@ -155,7 +155,7 @@ enum SymbiosSettings {
     static let o2Presets = [12, 18, 25, 32, 50, 100]
     static let hePresets = [0, 35, 45, 55, 65, 70]
 
-    /// WUD Standard Gases (+ Air) — setzen O₂/He in einem Griff.
+    /// Standardgase (+ Luft) — setzen O₂/He in einem Griff.
     struct StdGas { let name: String; let o2: Int; let he: Int }
     static let standardGases: [StdGas] = [
         .init(name:"Air",   o2:21,  he:0),

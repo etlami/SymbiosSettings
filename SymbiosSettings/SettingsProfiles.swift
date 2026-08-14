@@ -184,7 +184,7 @@ struct GasEditSheet: View {
                     LabeledContent("N₂", value: "\(n2) %")
                     LabeledContent("MOD (ppO₂ 1.4)", value: "\(mod) m")
                 }
-                Section("Standardgas (WUD)") {
+                Section("Standardgase") {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 82), spacing: 8)], spacing: 8) {
                         ForEach(SymbiosSettings.standardGases, id: \.name) { g in
                             let sel = o2 == g.o2 && he == g.he
