@@ -412,6 +412,8 @@ struct EditSheet: View {
             valueControl(text: String(format: "%.2f bar", raw/100))
         case .uint(let u):
             valueControl(text: u.isEmpty ? "\(Int(raw))" : "\(Int(raw)) \(u)")
+        case .sint(let u):
+            valueControl(text: u.isEmpty ? "\(Int(raw))" : "\(Int(raw)) \(u)")
         }
     }
 
@@ -436,6 +438,7 @@ struct EditSheet: View {
         case .enumMap(let m): return m[Int(raw)] ?? "\(Int(raw))"
         case .scaledBar: return String(format: "%.2f bar", raw/100)
         case .uint(let u): return u.isEmpty ? "\(Int(raw))" : "\(Int(raw)) \(u)"
+        case .sint(let u): return u.isEmpty ? "\(Int(raw))" : "\(Int(raw)) \(u)"
         }
     }
 }

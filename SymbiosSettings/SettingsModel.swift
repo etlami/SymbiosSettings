@@ -5,12 +5,14 @@ struct SettingField: Identifiable {
     enum Kind {
         case boolean
         case uint(unit: String)
+        case sint(unit: String)  // vorzeichenbehaftet (int8), z. B. Deklination -49..+49
         case scaledBar          // u8 ÷100 = bar
         case enumMap([Int: String])
         /// Zahlenwert → als Inline-Slider darstellbar (wenn range gesetzt).
         var isNumeric: Bool {
-            switch self { case .uint, .scaledBar: return true; default: return false }
+            switch self { case .uint, .sint, .scaledBar: return true; default: return false }
         }
+        var isSigned: Bool { if case .sint = self { return true }; return false }
     }
     let id: String
     let label: String
@@ -78,7 +80,7 @@ enum SymbiosSettings {
         .init(id:"units", label:"Einheiten", offset:2, kind:.enumMap(unitsMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"displayOrientation", label:"Display-Ausrichtung", offset:3, kind:.enumMap(orientationMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"customFunc", label:"Benutzerdef. Funktion (Taste B)", offset:40, kind:.enumMap(customFuncMap), editable:true, group:"Computer-Einstellungen"),
-        .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.uint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:0...90),
+        .init(id:"compassDeclination", label:"Kompass-Deklination", offset:6, kind:.sint(unit:"°"), editable:true, group:"Computer-Einstellungen", range:(-49)...49),
         .init(id:"waterType", label:"Dichte", offset:36, kind:.enumMap(waterMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"vibratorAlarmEnabled", label:"Vibrationsalarm", offset:43, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
         .init(id:"sleepTimeoutMin", label:"Sleep-Timeout", offset:38, kind:.uint(unit:"min"), editable:true, group:"Timeouts & Alarme", range:1...60),
@@ -136,6 +138,9 @@ enum SymbiosSettings {
     }
 
     // --- Werte lesen/formatieren ---
+    /// Rohbyte (0..255) als int8 interpretieren.
+    static func signed(_ v: Int) -> Int { Int(Int8(bitPattern: UInt8(v & 0xff))) }
+
     static func rawValue(_ blob: [UInt8], _ f: SettingField) -> Int {
         guard f.offset < blob.count else { return 0 }
         return Int(blob[f.offset])
@@ -145,6 +150,7 @@ enum SymbiosSettings {
         switch f.kind {
         case .boolean: return v != 0 ? "An" : "Aus"
         case .uint(let u): return u.isEmpty ? "\(v)" : "\(v) \(u)"
+        case .sint(let u): let s = signed(v); return u.isEmpty ? "\(s)" : "\(s) \(u)"
         case .scaledBar: return String(format: "%.2f bar", Double(v)/100.0)
         case .enumMap(let m): return m[v] ?? "?\(v)"
         }

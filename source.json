@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.6.4",
+      "version": "1.6.5",
       "versionDate": "2026-08-14",
-      "versionDescription": "App icon added; Buy me a Coffee link.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.4/SymbiosSettings.ipa",
-      "size": 214598,
+      "versionDescription": "Compass declination is signed −49…+49°.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.5/SymbiosSettings.ipa",
+      "size": 215232,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.6.5",
+          "date": "2026-08-14",
+          "localizedDescription": "Compass declination is signed −49…+49°.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.5/SymbiosSettings.ipa",
+          "size": 215232,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.6.4",
           "date": "2026-08-14",

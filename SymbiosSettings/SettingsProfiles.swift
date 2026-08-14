@@ -264,12 +264,17 @@ struct SliderFieldRow: View {
     @State private var val: Double = 0
     @State private var editing = false
 
-    private var raw: Int { SymbiosSettings.rawValue(blob, field) }
+    // aktueller Wert (signed-aware)
+    private var cur: Int {
+        let v = SymbiosSettings.rawValue(blob, field)
+        return field.kind.isSigned ? SymbiosSettings.signed(v) : v
+    }
     private var display: String {
         switch field.kind {
-        case .scaledBar:      return String(format: "%.2f bar", val / 100)
-        case .uint(let u):    return u.isEmpty ? "\(Int(val))" : "\(Int(val)) \(u)"
-        default:              return "\(Int(val))"
+        case .scaledBar:   return String(format: "%.2f bar", val / 100)
+        case .uint(let u): return u.isEmpty ? "\(Int(val))" : "\(Int(val)) \(u)"
+        case .sint(let u): return u.isEmpty ? "\(Int(val))" : "\(Int(val)) \(u)"
+        default:           return "\(Int(val))"
         }
     }
 
@@ -283,11 +288,15 @@ struct SliderFieldRow: View {
             }
             Slider(value: $val, in: r, step: 1) { ed in
                 editing = ed
-                if !ed { onCommit(field, UInt8(clamping: Int(val.rounded()))) }
+                if !ed {
+                    let iv = Int(val.rounded())
+                    let byte = field.kind.isSigned ? UInt8(bitPattern: Int8(clamping: iv)) : UInt8(clamping: iv)
+                    onCommit(field, byte)
+                }
             }
             .disabled(busy)
         }
-        .onAppear { val = Double(raw) }
-        .onChange(of: raw) { _, nv in if !editing { val = Double(nv) } }   // externe Änderungen übernehmen
+        .onAppear { val = Double(cur) }
+        .onChange(of: cur) { _, nv in if !editing { val = Double(nv) } }   // externe Änderungen übernehmen
     }
 }
