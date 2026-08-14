@@ -199,7 +199,7 @@ struct GasEditSheet: View {
                     .padding(.vertical, 4)
                 }
                 Section {
-                    Label("Schreiben ist reverse-engineert und wenig getestet. Vor dem Tauchgang am Gerät prüfen.",
+                    Label("Reverse-engineert; die meisten Einstellungen sind am Gerät verifiziert. Vor dem Tauchgang am Computer prüfen.",
                           systemImage: "exclamationmark.triangle.fill")
                         .font(.footnote).foregroundStyle(.orange)
                 }

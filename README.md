@@ -3,8 +3,9 @@
 An independent iOS app (SwiftUI + CoreBluetooth) to **read and change the settings** of the
 Halcyon Symbios dive computer, based on the reverse-engineered BLE protocol.
 
-> ⚠️ Reverse-engineered and lightly tested. Writing to the device is at your own risk —
-> always verify on the computer itself before diving.
+> ⚠️ Reverse-engineered (no official spec). Most settings have been verified on-device, and every
+> write is read back for confirmation. Still — this is a dive computer: always confirm changed
+> settings on the device itself before diving.
 
 ## Features
 - Connect over BLE, read device info (serial, firmware, battery, pressure).

@@ -982,16 +982,6 @@
         }
       }
     },
-    "Schreiben ist reverse-engineert und wenig getestet. Vor dem Tauchgang am Gerät prüfen.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Writing is reverse-engineered and lightly tested. Verify on the device before diving."
-          }
-        }
-      }
-    },
     "An": {
       "localizations": {
         "en": {
@@ -1708,6 +1698,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "“Hold button B” function: Best gas, stopwatch, compass heading or Off."
+          }
+        }
+      }
+    },
+    "Reverse-engineert; die meisten Einstellungen sind am Gerät verifiziert. Vor dem Tauchgang am Computer prüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reverse-engineered; most settings verified on-device. Confirm on the computer before diving."
+          }
+        }
+      }
+    },
+    "Akku": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Batt."
           }
         }
       }

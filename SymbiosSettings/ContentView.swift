@@ -198,7 +198,7 @@ struct ContentView: View {
             if ble.connected, let i = ble.deviceInfo {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("\(i.modelName) · SN \(i.serial)").font(.subheadline)
-                    Text("FW \(i.fw)  ·  \(i.batteryPct) % Akku  ·  \(String(format: "%.2f", Double(i.pressure_mbar)/1000)) bar")
+                    Text(verbatim: "FW \(i.fw)  ·  \(i.batteryPct) % \(L("Akku"))  ·  \(String(format: "%.2f", Double(i.pressure_mbar)/1000)) bar")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -425,7 +425,7 @@ struct EditSheet: View {
             Form {
                 Section(LocalizedStringKey(field.label)) { editor }
                 Section {
-                    Label("Schreiben ist reverse-engineert und wenig getestet. Vor dem Tauchgang am Gerät prüfen.",
+                    Label("Reverse-engineert; die meisten Einstellungen sind am Gerät verifiziert. Vor dem Tauchgang am Computer prüfen.",
                           systemImage: "exclamationmark.triangle.fill")
                         .font(.footnote).foregroundStyle(.orange)
                 }
