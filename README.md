@@ -40,6 +40,17 @@ AltStore/SideStore source:
 https://raw.githubusercontent.com/etlami/SymbiosSettings/main/source.json
 ```
 
+## License
+Licensed under the **PolyForm Noncommercial License 1.0.0** — you may use, modify and share it for
+**noncommercial** purposes only. Commercial use is not permitted. Provided **as-is, without warranty**.
+See [`LICENSE.md`](LICENSE.md).
+
+## Disclaimer
+Unofficial, community-made app — **not affiliated with, endorsed by, or supported by Halcyon Dive
+Systems**. “Halcyon” and “Symbios” are trademarks of their respective owners and are used here only
+descriptively. The BLE protocol was reverse-engineered; writing to the device is at your own risk and
+must be verified on the computer itself before diving. This is **not** a dive-planning or safety tool.
+
 ## Protocol
 BLE framing `[cmd][data][crc8]` (CRC-8 poly 0x07). Commands on characteristic
 `00000101-8C3B-4F2C-A59E-8C08224F3253`, responses via indication. Settings are an 84-byte blob
