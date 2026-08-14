@@ -1351,6 +1351,366 @@
           }
         }
       }
+    },
+    "Kategorien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categories"
+          }
+        }
+      }
+    },
+    "Gerätemenü": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device menu"
+          }
+        }
+      }
+    },
+    "Tauchmodus: Offener Kreislauf, CCR, CCR mit festem Sollwert, Sidemount oder Grundzeitmesser.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive mode: open circuit, CCR, CCR fixed setpoint, sidemount or bottom timer."
+          }
+        }
+      }
+    },
+    "Gradient Factor Low. Standard 45.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradient Factor Low. Default 45."
+          }
+        }
+      }
+    },
+    "Gradient Factor High. Standard 80.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradient Factor High. Default 80."
+          }
+        }
+      }
+    },
+    "Max. Sauerstoffpartialdruck fürs Deco-Gas (MOD-Berechnung).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max. oxygen partial pressure for the deco gas (MOD calculation)."
+          }
+        }
+      }
+    },
+    "Max. ppO₂ fürs Grundgas (Gas mit dem niedrigsten O₂ unter den aktiven Gasen).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max. ppO₂ for the bottom gas (lowest-O₂ gas among the enabled gases)."
+          }
+        }
+      }
+    },
+    "FSP: niedriger pO₂-Setpoint (z. B. Bailout zu einem zweiten CCR).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FSP: low pO₂ setpoint (e.g. bailout to a second CCR)."
+          }
+        }
+      }
+    },
+    "FSP: hoher pO₂-Setpoint.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FSP: high pO₂ setpoint."
+          }
+        }
+      }
+    },
+    "Scrubber-Timer aktivieren/deaktivieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable/disable the scrubber timer."
+          }
+        }
+      }
+    },
+    "Maximale Nutzungszeit des Scrubbers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum allowable scrubber use time."
+          }
+        }
+      }
+    },
+    "CCR-TTS-Berechnung: auf Basis des Loop-pO₂ oder des Setpoints.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CCR TTS calculation: based on loop pO₂ or on the setpoint."
+          }
+        }
+      }
+    },
+    "Kompass-Deklination (−45…+45°).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compass declination (−45…+45°)."
+          }
+        }
+      }
+    },
+    "Display-Helligkeit (Standard 5).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display brightness (default 5)."
+          }
+        }
+      }
+    },
+    "Bei Tauchgängen tiefer 10 m Aufforderung zu einem 3-min-Sicherheitsstopp auf 3–6 m.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On dives deeper than 10 m, prompt for a 3-min safety stop at 3–6 m."
+          }
+        }
+      }
+    },
+    "Auto-Lock: Tastenfunktion tiefer als 100 m sperren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-lock: disable button function deeper than 100 m."
+          }
+        }
+      }
+    },
+    "Letzten Deko-Stopp auf 3 m oder 6 m setzen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the last deco stop to 3 m or 6 m."
+          }
+        }
+      }
+    },
+    "Vibrationsalarme aktivieren (nur Handset).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable vibration alarms (handset only)."
+          }
+        }
+      }
+    },
+    "Aufstiegswarnung bei 10 m/min und 20 m/min.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascent-rate warning at 10 m/min and 20 m/min."
+          }
+        }
+      }
+    },
+    "Sprache des Computers (Code).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Computer language (code)."
+          }
+        }
+      }
+    },
+    "Metrische oder imperiale Einheiten.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metric or imperial units."
+          }
+        }
+      }
+    },
+    "Dichte/Wassertyp: Salzwasser, Süßwasser oder EN13319 (1 bar ≙ 10 m).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Density/water type: sea water, fresh water or EN13319 (1 bar ≙ 10 m)."
+          }
+        }
+      }
+    },
+    "Anzeige-Stil: Classic oder Modern.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display style: Classic or Modern."
+          }
+        }
+      }
+    },
+    "Zeit, nach der der Computer in den Sleep-Modus geht.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time after which the computer goes to sleep."
+          }
+        }
+      }
+    },
+    "Zeit, nach der der Computer vom Tauch- in den Oberflächenmodus wechselt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time after which the computer switches from dive to surface mode."
+          }
+        }
+      }
+    },
+    "Ausrichtung des Handsets (Tasten zur Handseite): Links oder Rechts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handset orientation (buttons toward the diver's hand): Left or Right."
+          }
+        }
+      }
+    },
+    "Wireless-Screen: Aus / Zusätzlich (fremde Sender) / Alle Sender in der Nähe.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireless screen: Off / Additional (other transmitters) / All nearby transmitters."
+          }
+        }
+      }
+    },
+    "GPS-Screen aktivieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the GPS screen."
+          }
+        }
+      }
+    },
+    "DPV-Screen aktivieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the DPV screen."
+          }
+        }
+      }
+    },
+    "Zugriff auf die Wireless-Daten des Buddys.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access to the buddy's wireless data."
+          }
+        }
+      }
+    },
+    "Deco-Screen mit Ceiling, Deco-Stopps, GF now und GF surface.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deco screen with ceiling, deco stops, GF now and GF surface."
+          }
+        }
+      }
+    },
+    "Deco-Anzeige: Decke + TTS / Decke + Letzter Stopp / Decke + Letzter Stopp + TTS.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deco display: Ceiling + TTS / Ceiling + Last Stop / Ceiling + Last Stop + TTS."
+          }
+        }
+      }
+    },
+    "Grafische Darstellung des Tauchprofils.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graphical representation of the dive profile."
+          }
+        }
+      }
+    },
+    "GF-Verlauf als Chart.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GF trend as a chart."
+          }
+        }
+      }
+    },
+    "Trainingssimulation: simulierte Deko-Stopps erstellen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training simulation: create simulated deco stops."
+          }
+        }
+      }
+    },
+    "Funktion von „Taste B halten“: Best Gas, Stoppuhr, Kompasskurs oder Aus.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Hold button B” function: Best gas, stopwatch, compass heading or Off."
+          }
+        }
+      }
     }
   }
 }

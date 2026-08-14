@@ -104,6 +104,57 @@ enum SymbiosSettings {
 
     static let groups = ["Tauchprofil", "CCR + CCR FSP", "Timeouts & Alarme", "Anzeigen", "Computer-Einstellungen"]
 
+    static func field(_ id: String) -> SettingField? { fields.first { $0.id == id } }
+
+    /// Erklärtexte (aus dem offiziellen Menü-Baum) je Feld-id.
+    static let fieldDesc: [String: String] = [
+        "dcMode": "Tauchmodus: Offener Kreislauf, CCR, CCR mit festem Sollwert, Sidemount oder Grundzeitmesser.",
+        "gfLow": "Gradient Factor Low. Standard 45.",
+        "gfHigh": "Gradient Factor High. Standard 80.",
+        "ocMaxPO2Deco": "Max. Sauerstoffpartialdruck fürs Deco-Gas (MOD-Berechnung).",
+        "ocMaxPO2Bottom": "Max. ppO₂ fürs Grundgas (Gas mit dem niedrigsten O₂ unter den aktiven Gasen).",
+        "setpointLow": "FSP: niedriger pO₂-Setpoint (z. B. Bailout zu einem zweiten CCR).",
+        "setpointHigh": "FSP: hoher pO₂-Setpoint.",
+        "scrubberCounterEnabled": "Scrubber-Timer aktivieren/deaktivieren.",
+        "scrubberCounterTimeMin": "Maximale Nutzungszeit des Scrubbers.",
+        "ccrTts": "CCR-TTS-Berechnung: auf Basis des Loop-pO₂ oder des Setpoints.",
+        "compassDeclination": "Kompass-Deklination (−45…+45°).",
+        "brightness": "Display-Helligkeit (Standard 5).",
+        "safetyStopEnabled": "Bei Tauchgängen tiefer 10 m Aufforderung zu einem 3-min-Sicherheitsstopp auf 3–6 m.",
+        "buttonsOff100msw": "Auto-Lock: Tastenfunktion tiefer als 100 m sperren.",
+        "lastStopAt6Msw": "Letzten Deko-Stopp auf 3 m oder 6 m setzen.",
+        "vibratorAlarmEnabled": "Vibrationsalarme aktivieren (nur Handset).",
+        "ascentSpeedWarningEnabled": "Aufstiegswarnung bei 10 m/min und 20 m/min.",
+        "language": "Sprache des Computers (Code).",
+        "units": "Metrische oder imperiale Einheiten.",
+        "waterType": "Dichte/Wassertyp: Salzwasser, Süßwasser oder EN13319 (1 bar ≙ 10 m).",
+        "style": "Anzeige-Stil: Classic oder Modern.",
+        "sleepTimeoutMin": "Zeit, nach der der Computer in den Sleep-Modus geht.",
+        "diveTimeoutMin": "Zeit, nach der der Computer vom Tauch- in den Oberflächenmodus wechselt.",
+        "displayOrientation": "Ausrichtung des Handsets (Tasten zur Handseite): Links oder Rechts.",
+        "wirelessScreen": "Wireless-Screen: Aus / Zusätzlich (fremde Sender) / Alle Sender in der Nähe.",
+        "gpsScreenEnabled": "GPS-Screen aktivieren.",
+        "dpvScreenEnabled": "DPV-Screen aktivieren.",
+        "buddyScreen": "Zugriff auf die Wireless-Daten des Buddys.",
+        "decoScreen": "Deco-Screen mit Ceiling, Deco-Stopps, GF now und GF surface.",
+        "decoLayout": "Deco-Anzeige: Decke + TTS / Decke + Letzter Stopp / Decke + Letzter Stopp + TTS.",
+        "depthChartScreen": "Grafische Darstellung des Tauchprofils.",
+        "gfChartScreen": "GF-Verlauf als Chart.",
+        "trainingMode": "Trainingssimulation: simulierte Deko-Stopps erstellen.",
+        "customFunc": "Funktion von „Taste B halten“: Best Gas, Stoppuhr, Kompasskurs oder Aus.",
+    ]
+
+    /// Gerätemenü-Struktur (Reihenfolge wie im Symbios-Menü): Settings-Zweig, CCR, System.
+    static let deviceGroups: [(title: String, ids: [String])] = [
+        ("Settings", ["dcMode", "gfLow", "gfHigh", "ocMaxPO2Deco", "ocMaxPO2Bottom"]),
+        ("CCR + CCR FSP", ["setpointLow", "setpointHigh", "ccrTts", "scrubberCounterEnabled", "scrubberCounterTimeMin"]),
+        ("System", ["compassDeclination", "brightness", "safetyStopEnabled", "buttonsOff100msw", "lastStopAt6Msw",
+                    "vibratorAlarmEnabled", "ascentSpeedWarningEnabled", "language", "units", "waterType", "style",
+                    "sleepTimeoutMin", "diveTimeoutMin", "displayOrientation", "wirelessScreen", "gpsScreenEnabled",
+                    "dpvScreenEnabled", "buddyScreen", "decoScreen", "decoLayout", "depthChartScreen", "gfChartScreen",
+                    "trainingMode", "customFunc"]),
+    ]
+
     // MARK: Custom-Felder (Screen "CF Content") — Bitmaske über Byte 48/53/63.
     struct CustomField: Identifiable {
         let id: String

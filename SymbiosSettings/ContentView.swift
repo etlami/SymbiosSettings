@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var newProfileName = ""
     @State private var editingGas: SymbiosSettings.GasSlot?
     @AppStorage("appLang") private var appLang = "system"
+    @AppStorage("menuMode") private var menuMode = "category"   // category | device
 
     var body: some View {
         NavigationStack {
@@ -25,10 +26,24 @@ struct ContentView: View {
                     }
                 }
                 if ble.settingsBlob != nil {
+                    Section("Ansicht / View") {
+                        Picker("", selection: $menuMode) {
+                            Text("Kategorien").tag("category")
+                            Text("Gerätemenü").tag("device")
+                        }.pickerStyle(.segmented)
+                    }
                     Section("Konfiguration") {
-                        ForEach(SymbiosSettings.groups, id: \.self) { g in
-                            NavigationLink { groupDetail(g) } label: {
-                                Label(LocalizedStringKey(g), systemImage: groupIcon(g))
+                        if menuMode == "device" {
+                            ForEach(SymbiosSettings.deviceGroups, id: \.title) { sec in
+                                NavigationLink { deviceGroupDetail(sec.title, ids: sec.ids) } label: {
+                                    Label(LocalizedStringKey(sec.title), systemImage: groupIcon(sec.title))
+                                }
+                            }
+                        } else {
+                            ForEach(SymbiosSettings.groups, id: \.self) { g in
+                                NavigationLink { groupDetail(g) } label: {
+                                    Label(LocalizedStringKey(g), systemImage: groupIcon(g))
+                                }
                             }
                         }
                         NavigationLink { gasDetail() } label: {
@@ -285,7 +300,7 @@ struct ContentView: View {
         case "CCR + CCR FSP": return "lungs"
         case "Timeouts & Alarme": return "alarm"
         case "Anzeigen": return "display"
-        case "Computer-Einstellungen": return "gearshape"
+        case "Computer-Einstellungen", "System": return "gearshape"
         default: return "slider.horizontal.3"
         }
     }
@@ -297,6 +312,24 @@ struct ContentView: View {
             }
         }
         .navigationTitle(Text(LocalizedStringKey(g)))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    /// Gerätemenü-Detail: Felder in Geräte-Reihenfolge, jeweils mit Erklärtext.
+    @ViewBuilder private func deviceGroupDetail(_ title: String, ids: [String]) -> some View {
+        List {
+            ForEach(ids, id: \.self) { id in
+                if let f = SymbiosSettings.field(id) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        fieldRow(f, blob: ble.settingsBlob ?? [])
+                        if let d = SymbiosSettings.fieldDesc[id] {
+                            Text(LocalizedStringKey(d)).font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle(Text(LocalizedStringKey(title)))
         .navigationBarTitleDisplayMode(.inline)
     }
 
