@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.6.3",
+      "version": "1.6.4",
       "versionDate": "2026-08-14",
-      "versionDescription": "Two-option settings (units, orientation, style, last stop) as segmented controls.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.3/SymbiosSettings.ipa",
-      "size": 175623,
+      "versionDescription": "App icon added; Buy me a Coffee link.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.4/SymbiosSettings.ipa",
+      "size": 214598,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.6.4",
+          "date": "2026-08-14",
+          "localizedDescription": "App icon added; Buy me a Coffee link.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.6.4/SymbiosSettings.ipa",
+          "size": 214598,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.6.3",
           "date": "2026-08-14",

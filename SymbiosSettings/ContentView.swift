@@ -43,6 +43,11 @@ struct ContentView: View {
                     Section { Text("Verbinde dich oder starte einen Offline-Entwurf.").foregroundStyle(.secondary) }
                 }
                 profilesSection
+                Section {
+                    Link(destination: URL(string: "https://buymeacoffee.com/etlami")!) {
+                        Label("Buy me a Coffee ☕", systemImage: "cup.and.saucer.fill")
+                    }
+                } header: { Text("Unterstützen") }
                 if showDebug, let blob = ble.settingsBlob {
                     Section {
                         Text(blob.map { String(format: "%02x", $0) }.joined())

@@ -40,6 +40,9 @@ AltStore/SideStore source:
 https://raw.githubusercontent.com/etlami/SymbiosSettings/main/source.json
 ```
 
+## Support
+If this app is useful to you: [Buy me a Coffee ☕](https://buymeacoffee.com/etlami)
+
 ## License
 Licensed under the **PolyForm Noncommercial License 1.0.0** — you may use, modify and share it for
 **noncommercial** purposes only. Commercial use is not permitted. Provided **as-is, without warranty**.
