@@ -16,6 +16,19 @@ final class SymbiosBLE: NSObject, ObservableObject {
         let serial: UInt32; let hwVersion: UInt8; let model: UInt8
         let battery_mV: UInt16; let pressure_mbar: UInt16; let fw: String
         var modelName: String { model == 7 ? "Handset" : (model == 1 ? "HUD" : "Modell \(model)") }
+        /// Geschätzter Ladestand aus der Zellspannung (LiPo-Kennlinie, 1 Zelle). Näherung.
+        var batteryPct: Int {
+            let v = Double(battery_mV) / 1000.0
+            let pts: [(Double, Double)] = [(3.30,0),(3.50,10),(3.60,20),(3.70,35),(3.75,50),
+                                           (3.85,70),(3.95,85),(4.10,95),(4.20,100)]
+            if v <= pts.first!.0 { return 0 }
+            if v >= pts.last!.0 { return 100 }
+            for i in 1..<pts.count where v <= pts[i].0 {
+                let (v0,p0) = pts[i-1], (v1,p1) = pts[i]
+                return Int((p0 + (p1-p0) * (v-v0)/(v1-v0)).rounded())
+            }
+            return 100
+        }
     }
 
     private var central: CBCentralManager!

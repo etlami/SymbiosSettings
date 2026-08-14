@@ -169,7 +169,7 @@ struct ContentView: View {
             if ble.connected, let i = ble.deviceInfo {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("\(i.modelName) · SN \(i.serial)").font(.subheadline)
-                    Text("FW \(i.fw)  ·  \(i.battery_mV) mV  ·  \(String(format: "%.2f", Double(i.pressure_mbar)/1000)) bar")
+                    Text("FW \(i.fw)  ·  \(i.batteryPct) % Akku  ·  \(String(format: "%.2f", Double(i.pressure_mbar)/1000)) bar")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
