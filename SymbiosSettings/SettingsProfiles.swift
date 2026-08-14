@@ -203,3 +203,35 @@ struct GasEditSheet: View {
         }
     }
 }
+
+/// Custom-Felder-Raster (Screen "CF Content") – 22 Bit-Toggles über Byte 48/53/63.
+struct CustomFieldsView: View {
+    @ObservedObject var ble: SymbiosBLE
+    var onToggle: (SymbiosSettings.CustomField, Bool) -> Void
+
+    var body: some View {
+        List {
+            Section {
+                Text("Felder für den Custom-Screen (unten links). Mehrfachauswahl. Modusabhängige Felder brauchen CCR-/Bottom-Timer-Modus, Licht oder Sender.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
+            ForEach(SymbiosSettings.customFieldGroups, id: \.self) { g in
+                Section(g) {
+                    ForEach(SymbiosSettings.customFields.filter { $0.group == g }) { cf in
+                        let blob = ble.settingsBlob ?? []
+                        Toggle(isOn: Binding(
+                            get: { SymbiosSettings.cfEnabled(blob, cf) },
+                            set: { onToggle(cf, $0) }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(cf.name)
+                                if let n = cf.note { Text(n).font(.caption2).foregroundStyle(.secondary) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("Custom-Felder")
+    }
+}

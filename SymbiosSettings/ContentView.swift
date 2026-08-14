@@ -33,6 +33,11 @@ struct ContentView: View {
                         }
                     }
                     gasSection(blob)
+                    Section {
+                        NavigationLink {
+                            CustomFieldsView(ble: ble, onToggle: writeCustomField)
+                        } label: { Label("Custom-Felder (Screen)", systemImage: "square.grid.2x2") }
+                    }
                 } else {
                     Section { Text("Noch keine Einstellungen gelesen.").foregroundStyle(.secondary) }
                 }
@@ -108,6 +113,22 @@ struct ContentView: View {
                 Label("Profile & Backups", systemImage: "folder")
                     .badge(store.profiles.count + store.autoBackups.count)
             }
+        }
+    }
+
+    private func writeCustomField(_ cf: SymbiosSettings.CustomField, _ on: Bool) {
+        guard let blob = ble.settingsBlob else { return }
+        let newByte = SymbiosSettings.cfPatchedByte(blob, cf, on)
+        if ble.connected {
+            Task {
+                busy = true
+                let (ok, msg) = await ble.writeSetting(offset: cf.offset, value: newByte)
+                busy = false
+                showToast((ok ? "✅ " : "⚠️ ") + "\(cf.name) \(on ? "an" : "aus")" + (ok ? "" : " – \(msg)"))
+            }
+        } else if var b = ble.settingsBlob, cf.offset < b.count {
+            b[cf.offset] = newByte; ble.settingsBlob = b       // Offline-Entwurf
+            showToast("📝 Entwurf: \(cf.name) \(on ? "an" : "aus")")
         }
     }
 

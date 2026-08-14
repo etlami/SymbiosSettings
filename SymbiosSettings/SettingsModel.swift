@@ -82,6 +82,53 @@ enum SymbiosSettings {
 
     static let groups = ["Tauchprofil", "CCR + CCR FSP", "Timeouts & Alarme", "Anzeigen", "Computer-Einstellungen"]
 
+    // MARK: Custom-Felder (Screen "CF Content") — Bitmaske über Byte 48/53/63.
+    struct CustomField: Identifiable {
+        let id: String
+        let name: String
+        let offset: Int
+        let bit: Int
+        let group: String
+        var note: String? = nil        // Verfügbarkeit (Handbuch)
+    }
+    static let customFields: [CustomField] = [
+        // Byte 48 (empirisch bestätigt)
+        .init(id:"cfAvgDepth", name:"Average Depth", offset:48, bit:0, group:"Allgemein"),
+        .init(id:"cfBatSoc",   name:"Battery SOC",   offset:48, bit:1, group:"Allgemein"),
+        .init(id:"cfCns",      name:"CNS",           offset:48, bit:2, group:"Allgemein"),
+        .init(id:"cfTemp",     name:"Temperature",   offset:48, bit:3, group:"Allgemein"),
+        .init(id:"cfAscSpeed", name:"Ascent Speed",  offset:48, bit:4, group:"Allgemein"),
+        .init(id:"cfHeading",  name:"Heading",       offset:48, bit:5, group:"Allgemein", note:"nur Handset"),
+        .init(id:"cfGfNow",    name:"GF Now",        offset:48, bit:6, group:"Allgemein"),
+        .init(id:"cfGfSurf",   name:"GF Surface",    offset:48, bit:7, group:"Allgemein"),
+        // Byte 53 (Gas / Deco / CCR)
+        .init(id:"cfGasDens",  name:"Gas Density",   offset:53, bit:0, group:"Gas / Deco / CCR"),
+        .init(id:"cfCcrFo2",   name:"CCR FO₂",       offset:53, bit:1, group:"Gas / Deco / CCR", note:"nur FSP/CCR"),
+        .init(id:"cfBtPo2",    name:"BT PO₂",        offset:53, bit:2, group:"Gas / Deco / CCR", note:"nur Bottom-Timer"),
+        .init(id:"cfBtTime",   name:"BT Time",       offset:53, bit:3, group:"Gas / Deco / CCR", note:"nur Bottom-Timer"),
+        .init(id:"cfDilPo2",   name:"Diluent PO₂",   offset:53, bit:4, group:"Gas / Deco / CCR", note:"nur CCR"),
+        .init(id:"cfCcrSp",    name:"CCR Setpoint",  offset:53, bit:5, group:"Gas / Deco / CCR", note:"nur CCR/FSP"),
+        .init(id:"cfCeiling",  name:"Ceiling",       offset:53, bit:6, group:"Gas / Deco / CCR"),
+        .init(id:"cfTts5",     name:"TTS +5",        offset:53, bit:7, group:"Gas / Deco / CCR"),
+        // Byte 63 (Licht / Verbrauch / Zeit)
+        .init(id:"cfLampSoc",  name:"LAMP SOC",      offset:63, bit:0, group:"Licht / Verbrauch / Zeit", note:"Licht nötig"),
+        .init(id:"cfLampRrt",  name:"LAMP RRT",      offset:63, bit:1, group:"Licht / Verbrauch / Zeit", note:"Licht nötig"),
+        .init(id:"cfSgc",      name:"SGC (SCR)",     offset:63, bit:2, group:"Licht / Verbrauch / Zeit", note:"nicht in CCR"),
+        .init(id:"cfRgt",      name:"RGT",           offset:63, bit:3, group:"Licht / Verbrauch / Zeit", note:"nicht in CCR"),
+        .init(id:"cfBuddyGas", name:"Buddy Gas",     offset:63, bit:4, group:"Licht / Verbrauch / Zeit", note:"Sender nötig"),
+        .init(id:"cfTime",     name:"Time",          offset:63, bit:5, group:"Licht / Verbrauch / Zeit"),
+    ]
+    static let customFieldGroups = ["Allgemein", "Gas / Deco / CCR", "Licht / Verbrauch / Zeit"]
+
+    static func cfEnabled(_ blob: [UInt8], _ cf: CustomField) -> Bool {
+        cf.offset < blob.count && (blob[cf.offset] >> cf.bit) & 1 == 1
+    }
+    /// Neuer Byte-Wert für ein gesetztes/gelöschtes Feld-Bit.
+    static func cfPatchedByte(_ blob: [UInt8], _ cf: CustomField, _ on: Bool) -> UInt8 {
+        let cur = cf.offset < blob.count ? blob[cf.offset] : 0
+        return on ? (cur | (1 << cf.bit)) : (cur & ~(UInt8(1) << cf.bit))
+    }
+
     // --- Werte lesen/formatieren ---
     static func rawValue(_ blob: [UInt8], _ f: SettingField) -> Int {
         guard f.offset < blob.count else { return 0 }
