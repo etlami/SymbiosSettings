@@ -1,0 +1,12 @@
+# Xcode / Swift
+build/
+DerivedData/
+*.xcuserstate
+**/xcuserdata/
+**/*.xcuserdatad/
+.DS_Store
+
+# Archives / artifacts (keine Binaries ins Repo)
+*.ipa
+*.xcarchive
+*.dSYM.zip

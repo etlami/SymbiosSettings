@@ -1,0 +1,329 @@
+import SwiftUI
+import UIKit
+
+struct ContentView: View {
+    @StateObject private var ble = SymbiosBLE()
+    @StateObject private var store = ProfileStore()
+    @State private var busy = false
+    @State private var editing: SettingField?
+    @State private var toast: String?
+    @State private var showDebug = false
+    @State private var showSaveDialog = false
+    @State private var newProfileName = ""
+    @State private var editingGas: SymbiosSettings.GasSlot?
+
+    var body: some View {
+        NavigationStack {
+            List {
+                connectionSection
+                if let info = ble.deviceInfo { deviceSection(info) }
+                if let blob = ble.settingsBlob {
+                    ForEach(SymbiosSettings.groups, id: \.self) { g in
+                        Section(g) {
+                            ForEach(SymbiosSettings.fields.filter { $0.group == g }) { f in
+                                fieldRow(f, blob: blob)
+                            }
+                        }
+                    }
+                    gasSection(blob)
+                } else {
+                    Section { Text("Noch keine Einstellungen gelesen.").foregroundStyle(.secondary) }
+                }
+                profilesSection
+                if showDebug, let blob = ble.settingsBlob {
+                    Section {
+                        Text(blob.map { String(format: "%02x", $0) }.joined())
+                            .font(.system(.caption2, design: .monospaced)).textSelection(.enabled)
+                        Button {
+                            UIPasteboard.general.string = blob.map { String(format: "%02x", $0) }.joined()
+                            showToast("Rohdaten kopiert (\(blob.count) B)")
+                        } label: { Label("Rohdaten kopieren (Hex)", systemImage: "doc.on.doc") }
+                    } header: { Text("Settings-Blob (für Offset-Diff)") }
+                }
+                if showDebug && !ble.log.isEmpty {
+                    Section {
+                        ForEach(Array(ble.log.enumerated().reversed()), id: \.offset) { _, line in
+                            Text(line).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
+                                .textSelection(.enabled)
+                        }
+                    } header: {
+                        HStack {
+                            Text("Protokoll (Debug)")
+                            Spacer()
+                            Button {
+                                UIPasteboard.general.string = ble.log.joined(separator: "\n")
+                                showToast("Protokoll kopiert (\(ble.log.count) Zeilen)")
+                            } label: { Label("Kopieren", systemImage: "doc.on.doc") }
+                                .font(.caption).textCase(nil)
+                            Button(role: .destructive) { ble.log.removeAll() } label: {
+                                Image(systemName: "trash")
+                            }.font(.caption)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Symbios Settings")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showDebug.toggle() } label: {
+                        Image(systemName: showDebug ? "ladybug.fill" : "ladybug")
+                    }
+                }
+            }
+            .overlay(alignment: .bottom) { toastView }
+            .sheet(item: $editing) { f in
+                EditSheet(field: f, blob: ble.settingsBlob ?? [], onWrite: writeField)
+            }
+            .sheet(item: $editingGas) { g in
+                GasEditSheet(slot: g, onWrite: writeGas)
+            }
+            .alert("Profil speichern", isPresented: $showSaveDialog) {
+                TextField("Name (z. B. Tec 100)", text: $newProfileName)
+                Button("Abbrechen", role: .cancel) {}
+                Button("Sichern") {
+                    if let blob = ble.settingsBlob { store.save(name: newProfileName, blob: blob); showToast("Profil gesichert.") }
+                }
+            } message: { Text("Sichert die aktuell gelesenen Einstellungen als Profil.") }
+        }
+    }
+
+    // MARK: Profile
+    @ViewBuilder private var profilesSection: some View {
+        Section("Profile") {
+            if ble.settingsBlob != nil {
+                Button { newProfileName = ""; showSaveDialog = true } label: {
+                    Label("Aktuelle Einstellungen sichern", systemImage: "square.and.arrow.down")
+                }.disabled(busy)
+            }
+            NavigationLink {
+                ProfilesView(store: store, ble: ble, onApply: applyProfile)
+            } label: {
+                Label("Profile & Backups", systemImage: "folder")
+                    .badge(store.profiles.count + store.autoBackups.count)
+            }
+        }
+    }
+
+    private func applyProfile(_ p: SettingsProfile) {
+        guard ble.connected else { showToast("Nur mit verbundenem Gerät aufspielbar."); return }
+        Task {
+            busy = true
+            let (ok, msg) = await ble.writeFullBlob(p.blob)
+            busy = false
+            showToast((ok ? "✅ " : "⚠️ ") + msg)
+        }
+    }
+
+    // MARK: Sections
+    private var connectionSection: some View {
+        Section("Verbindung") {
+            HStack {
+                Circle().fill(ble.connected ? .green : .secondary).frame(width: 10, height: 10)
+                Text(ble.statusText).font(.subheadline)
+                Spacer()
+                if ble.scanning { ProgressView() }
+            }
+            if !ble.connected {
+                Button { ble.startScan() } label: { Label("Symbios verbinden", systemImage: "antenna.radiowaves.left.and.right") }
+                Button { ble.settingsBlob = SymbiosSettings.demoBlob } label: {
+                    Label("Demo-Daten laden (ohne Gerät)", systemImage: "doc.text.magnifyingglass")
+                }.foregroundStyle(.secondary)
+            } else {
+                Button { Task { busy = true; await ble.refreshAll(); if let b = ble.settingsBlob { store.autoBackup(b) }; busy = false } } label: {
+                    Label("Einstellungen lesen", systemImage: "arrow.clockwise")
+                }.disabled(busy)
+                Button(role: .destructive) { ble.disconnect() } label: { Label("Trennen", systemImage: "xmark.circle") }
+            }
+        }
+    }
+
+    private func deviceSection(_ i: SymbiosBLE.DeviceInfo) -> some View {
+        Section("Gerät") {
+            LabeledContent("Modell", value: i.modelName)
+            LabeledContent("Seriennummer", value: "\(i.serial)")
+            LabeledContent("Firmware", value: i.fw)
+            LabeledContent("Batterie", value: "\(i.battery_mV) mV")
+            LabeledContent("Druck", value: String(format: "%.3f bar", Double(i.pressure_mbar)/1000))
+        }
+    }
+
+    @ViewBuilder private func fieldRow(_ f: SettingField, blob: [UInt8]) -> some View {
+        switch f.kind {
+        case .boolean:
+            // Direkt in der Tabelle ein/aus schalten
+            Toggle(isOn: Binding(
+                get: { SymbiosSettings.rawValue(blob, f) != 0 },
+                set: { setRaw(f, $0 ? 1 : 0) }
+            )) { Text(f.label) }
+            .disabled(!f.editable || busy)
+        case .enumMap(let m) where f.editable:
+            // Inline-Dropdown mit den Auswahlmöglichkeiten
+            Picker(selection: Binding(
+                get: { SymbiosSettings.rawValue(blob, f) },
+                set: { setRaw(f, UInt8(clamping: $0)) }
+            )) {
+                ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+            } label: { Text(f.label) }
+            .pickerStyle(.menu)
+            .disabled(busy)
+        default:
+            Button { if f.editable { editing = f } } label: {
+                HStack {
+                    Text(f.label).foregroundStyle(.primary)
+                    Spacer()
+                    Text(SymbiosSettings.display(blob, f)).foregroundStyle(.secondary)
+                    if f.editable { Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary) }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)   // sonst färbt SwiftUI die ganze Zeile blau
+            .disabled(!f.editable)
+        }
+    }
+
+    /// Roh-Byte direkt schreiben (verbunden) bzw. lokal spiegeln (Demo). Für Toggles & Inline-Dropdowns.
+    private func setRaw(_ f: SettingField, _ v: UInt8) {
+        if ble.connected {
+            Task {
+                busy = true
+                let (ok, msg) = await ble.writeSetting(offset: f.offset, value: v)
+                busy = false
+                showToast((ok ? "✅ " : "⚠️ ") + f.label + ": " + msg)
+            }
+        } else if var b = ble.settingsBlob, f.offset < b.count {
+            b[f.offset] = v; ble.settingsBlob = b   // Demo-Vorschau ohne Gerät
+        }
+    }
+
+    private func gasSection(_ blob: [UInt8]) -> some View {
+        Section {
+            ForEach(SymbiosSettings.gasSlots(blob)) { g in
+                Button { editingGas = g } label: {
+                    HStack {
+                        Text(g.name).foregroundStyle(g.active ? .primary : .secondary)
+                        if g.active { Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).font(.caption) }
+                        Spacer()
+                        Text(SymbiosSettings.gasLabel(o2: g.o2, he: g.he))
+                            .bold().foregroundStyle(g.active ? .primary : .secondary)
+                        Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        } header: { Text("Gastabelle") }
+        footer: { Text("Tippen zum Bearbeiten (O₂/He/aktiv). Schreiben ist RE – vor dem Tauchgang am Gerät prüfen.") }
+    }
+
+    private func writeGas(_ slot: SymbiosSettings.GasSlot) {
+        editingGas = nil
+        guard ble.connected else { showToast("Nur mit verbundenem Gerät schreibbar."); return }
+        Task {
+            busy = true
+            let (ok, msg) = await ble.writePatched([
+                (slot.o2Offset, UInt8(clamping: slot.o2)),
+                (slot.heOffset, UInt8(clamping: slot.he)),
+                (slot.activeOffset, slot.active ? 1 : 0),
+            ])
+            busy = false
+            showToast((ok ? "✅ " : "⚠️ ") + slot.name + ": " + msg)
+        }
+    }
+
+    private var toastView: some View {
+        Group {
+            if let t = toast {
+                Text(t).padding(10).background(.thinMaterial, in: Capsule())
+                    .padding(.bottom, 8).transition(.opacity)
+            }
+        }
+    }
+
+    // MARK: Write
+    private func writeField(_ f: SettingField, _ value: UInt8) {
+        editing = nil
+        guard ble.connected else { showToast("Nur mit verbundenem Gerät schreibbar."); return }
+        Task {
+            busy = true
+            let (ok, msg) = await ble.writeSetting(offset: f.offset, value: value)
+            busy = false
+            showToast((ok ? "✅ " : "⚠️ ") + msg)
+        }
+    }
+    private func showToast(_ s: String) {
+        withAnimation { toast = s }
+        Task { try? await Task.sleep(nanoseconds: 3_500_000_000); withAnimation { toast = nil } }
+    }
+}
+
+/// Bearbeitungs-Sheet für ein Feld – mit Sicherheitswarnung fürs Schreiben.
+struct EditSheet: View {
+    let field: SettingField
+    let blob: [UInt8]
+    let onWrite: (SettingField, UInt8) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var raw: Double = 0
+    @State private var confirm = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(field.label) { editor }
+                Section {
+                    Label("Schreiben ist reverse-engineert und wenig getestet. Vor dem Tauchgang am Gerät prüfen.",
+                          systemImage: "exclamationmark.triangle.fill")
+                        .font(.footnote).foregroundStyle(.orange)
+                }
+            }
+            .navigationTitle("Ändern")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button("Schreiben") { confirm = true } }
+            }
+            .alert("Auf Gerät schreiben?", isPresented: $confirm) {
+                Button("Abbrechen", role: .cancel) {}
+                Button("Schreiben", role: .destructive) { onWrite(field, UInt8(raw)) }
+            } message: { Text("\(field.label) → \(previewText)") }
+            .onAppear { raw = Double(field.offset < blob.count ? blob[field.offset] : 0) }
+        }
+    }
+
+    @ViewBuilder private var editor: some View {
+        switch field.kind {
+        case .boolean:
+            Toggle("An", isOn: Binding(get: { raw != 0 }, set: { raw = $0 ? 1 : 0 }))
+        case .enumMap(let m):
+            Picker("Wert", selection: Binding(get: { Int(raw) }, set: { raw = Double($0) })) {
+                ForEach(m.keys.sorted(), id: \.self) { k in Text(m[k] ?? "\(k)").tag(k) }
+            }
+        case .scaledBar:
+            valueControl(text: String(format: "%.2f bar", raw/100))
+        case .uint(let u):
+            valueControl(text: u.isEmpty ? "\(Int(raw))" : "\(Int(raw)) \(u)")
+        }
+    }
+
+    /// Slider wenn Wertebereich bekannt, sonst Stepper.
+    @ViewBuilder private func valueControl(text: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(text).font(.title3).monospacedDigit()
+            if let r = field.range {
+                Slider(value: $raw, in: r, step: 1) {
+                    Text(field.label)
+                } minimumValueLabel: { Text("\(Int(r.lowerBound))").font(.caption2) }
+                maximumValueLabel: { Text("\(Int(r.upperBound))").font(.caption2) }
+            } else {
+                Stepper("", value: $raw, in: 0...255, step: 1).labelsHidden()
+            }
+        }
+    }
+
+    private var previewText: String {
+        switch field.kind {
+        case .boolean: return raw != 0 ? "An" : "Aus"
+        case .enumMap(let m): return m[Int(raw)] ?? "\(Int(raw))"
+        case .scaledBar: return String(format: "%.2f bar", raw/100)
+        case .uint(let u): return u.isEmpty ? "\(Int(raw))" : "\(Int(raw)) \(u)"
+        }
+    }
+}
