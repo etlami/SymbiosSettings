@@ -49,7 +49,7 @@ enum SymbiosSettings {
     static let waterMap  = [0:"Salzwasser", 1:"Süßwasser", 2:"EN13319"]    // off36: 0+1 am Gerät bestätigt, 2 abgeleitet
     static let lastStopMap = [0:"3 m", 1:"6 m"]
     static let wirelessMap = [0:"Aus", 1:"Zusätzlich", 2:"Alle"]           // Labels bestätigt, Kodierung am Gerät prüfen
-    static let ttsMap = [1:"Loop pO₂", 2:"Setpoint pO₂"]                   // Kodierung noch zu bestätigen
+    static let ttsMap = [0:"Loop pO₂", 1:"Setpoint pO₂"]                   // Offset 70, am Gerät bestätigt ✅
     // Bereit für später — Labels bestätigt, aber KEINE benannten Enums in der App (int-Index):
     // Kodierung/Offset erst am Gerät gegenprüfen, dann als Feld einhängen.
     static let gpsFormatMap  = [0:"DD", 1:"DDM", 2:"DMS"]                  // Kodierung blutter-bestätigt, Offset unbekannt
@@ -98,7 +98,7 @@ enum SymbiosSettings {
         .init(id:"waterType", label:"Dichte", offset:36, kind:.enumMap(waterMap), editable:true, group:"Computer-Einstellungen"),
         .init(id:"vibratorAlarmEnabled", label:"Vibrationsalarm", offset:43, kind:.boolean, editable:true, group:"Timeouts & Alarme"),
         .init(id:"sleepTimeoutMin", label:"Sleep-Timeout", offset:38, kind:.uint(unit:"min"), editable:true, group:"Timeouts & Alarme", range:1...59),
-        .init(id:"buttonsOff100msw", label:"Tastensperre ab 100 m", offset:70, kind:.boolean, editable:true, group:"Computer-Einstellungen"),
+        .init(id:"ccrTts", label:"CCR TTS", offset:70, kind:.enumMap(ttsMap), editable:true, group:"CCR + CCR FSP"),
         .init(id:"trainingMode", label:"Trainingsmodus", offset:62, kind:.boolean, editable:true, group:"Computer-Einstellungen"),
     ]
 
