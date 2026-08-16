@@ -329,3 +329,22 @@ enum AppUpdate {
         return false
     }
 }
+
+/// Firmware-Update-Check: vergleicht die installierte Geräte-FW mit der neuesten bekannten (repo-gepflegt).
+enum FirmwareCheck {
+    static let url = URL(string: "https://raw.githubusercontent.com/etlami/SymbiosSettings/main/firmware.json")!
+    static let fallbackInfoURL = URL(string: "https://www.halcyon.net/news/latest-symbios-firmware-updates-and-enhancements")!
+
+    struct Result { let latest: String; let installed: String; let info: URL }
+
+    /// model: 7=Handset, 1=HUD. Gibt ein Result zurück, wenn eine neuere FW verfügbar ist.
+    static func check(installed: String, model: UInt8) async -> Result? {
+        var req = URLRequest(url: url); req.cachePolicy = .reloadIgnoringLocalCacheData
+        guard let (data, _) = try? await URLSession.shared.data(for: req),
+              let j = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        let key = model == 1 ? "hud" : "handset"
+        guard let latest = j[key] as? String, AppUpdate.isNewer(latest, than: installed) else { return nil }
+        let info = (j["infoURL"] as? String).flatMap(URL.init) ?? fallbackInfoURL
+        return Result(latest: latest, installed: installed, info: info)
+    }
+}

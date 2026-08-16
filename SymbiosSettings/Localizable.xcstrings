@@ -1741,6 +1741,16 @@
           }
         }
       }
+    },
+    "Firmware-Update: v%@ verfügbar (installiert v%@) – Update über die offizielle App": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firmware update: v%@ available (installed v%@) – update via the official app"
+          }
+        }
+      }
     }
   }
 }

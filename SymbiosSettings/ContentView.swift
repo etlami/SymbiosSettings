@@ -14,6 +14,7 @@ struct ContentView: View {
     @AppStorage("appLang") private var appLang = "system"
     @AppStorage("menuMode") private var menuMode = "category"   // category | device
     @State private var updateVersion: String?
+    @State private var fwUpdate: FirmwareCheck.Result?
 
     var body: some View {
         NavigationStack {
@@ -133,6 +134,11 @@ struct ContentView: View {
                     busy = false
                 }
             }
+            .onChange(of: ble.deviceInfo?.fw) { _, fw in
+                fwUpdate = nil
+                guard let fw, let m = ble.deviceInfo?.model else { return }
+                Task { fwUpdate = await FirmwareCheck.check(installed: fw, model: m) }
+            }
             .sheet(item: $editing) { f in
                 EditSheet(field: f, blob: ble.settingsBlob ?? [], onWrite: writeField)
             }
@@ -212,6 +218,13 @@ struct ContentView: View {
                     Text("\(i.modelName) · SN \(i.serial)").font(.subheadline)
                     Text(verbatim: "FW \(i.fw)  ·  \(i.batteryPct) % \(L("Akku"))  ·  \(String(format: "%.2f", Double(i.pressure_mbar)/1000)) bar")
                         .font(.caption).foregroundStyle(.secondary)
+                }
+                if let fw = fwUpdate {
+                    Link(destination: fw.info) {
+                        Label("Firmware-Update: v\(fw.latest) verfügbar (installiert v\(fw.installed)) – Update über die offizielle App",
+                              systemImage: "arrow.down.circle")
+                            .font(.footnote).foregroundStyle(.orange)
+                    }
                 }
             }
             if !ble.connected {
