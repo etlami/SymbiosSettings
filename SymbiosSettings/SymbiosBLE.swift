@@ -23,11 +23,15 @@ final class SymbiosBLE: NSObject, ObservableObject {
         let serial: UInt32; let hwVersion: UInt8; let model: UInt8
         let battery_mV: UInt16; let pressure_mbar: UInt16; let fw: String
         var modelName: String { model == 7 ? "Handset" : (model == 1 ? "HUD" : "Modell \(model)") }
-        /// Geschätzter Ladestand aus der Zellspannung (LiPo-Kennlinie, 1 Zelle). Näherung.
+        /// Geschätzter Ladestand aus der Zellspannung (1-Zellen-LiPo-Kennlinie). Näherung –
+        /// das Gerät sendet seinen intern berechneten SoC NICHT über BLE (Status-Bytes 19–35 = 0),
+        /// daher kann der Wert leicht vom Computer abweichen. Kalibriert an 4,04 V → ~83 %.
         var batteryPct: Int {
             let v = Double(battery_mV) / 1000.0
-            let pts: [(Double, Double)] = [(3.30,0),(3.50,10),(3.60,20),(3.70,35),(3.75,50),
-                                           (3.85,70),(3.95,85),(4.10,95),(4.20,100)]
+            let pts: [(Double, Double)] = [(3.27,0),(3.61,5),(3.69,10),(3.73,20),(3.75,25),
+                                           (3.77,30),(3.79,35),(3.80,40),(3.82,45),(3.84,50),
+                                           (3.85,55),(3.87,60),(3.91,65),(3.95,70),(3.98,75),
+                                           (4.02,80),(4.08,85),(4.11,90),(4.15,95),(4.20,100)]
             if v <= pts.first!.0 { return 0 }
             if v >= pts.last!.0 { return 100 }
             for i in 1..<pts.count where v <= pts[i].0 {

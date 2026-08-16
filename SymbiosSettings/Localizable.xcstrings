@@ -82,6 +82,26 @@
         }
       }
     },
+    "Alle geladen ✓": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All downloaded ✓"
+          }
+        }
+      }
+    },
+    "Alle laden (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download all (%lld)"
+          }
+        }
+      }
+    },
     "Allgemein": {
       "localizations": {
         "en": {
@@ -138,6 +158,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "App update"
+          }
+        }
+      }
+    },
+    "Art": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
           }
         }
       }
@@ -208,6 +238,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auto-lock: disable button function deeper than 100 m."
+          }
+        }
+      }
+    },
+    "Automatisch zusammengeführt: gleiche Startzeit (±5 min) auf verschiedenen Geräten = ein Tauchgang. Uhren am besten synchronisieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-merged: same start time (±5 min) on different devices = one dive. Best to sync the clocks."
           }
         }
       }
@@ -552,6 +592,16 @@
         }
       }
     },
+    "Dieses Gerät": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device"
+          }
+        }
+      }
+    },
     "Display-Ausrichtung": {
       "localizations": {
         "en": {
@@ -788,6 +838,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mix"
+          }
+        }
+      }
+    },
+    "Gerät": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device"
           }
         }
       }
@@ -1228,6 +1288,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No profiles yet. Create one above with “Save current settings”."
+          }
+        }
+      }
+    },
+    "Noch keine geladenen Tauchgänge. Im Reiter „Dieses Gerät“ laden (auch „Alle laden“), auch vom HUD.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No downloaded dives yet. Load them on the “This device” tab (also “Download all”), including from the HUD."
           }
         }
       }
@@ -2142,6 +2212,16 @@
         }
       }
     },
+    "Zusammengeführt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merged"
+          }
+        }
+      }
+    },
     "Zusätzlich": {
       "localizations": {
         "en": {
@@ -2238,6 +2318,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "e.g. boat / entry point"
+          }
+        }
+      }
+    },
+    "zusammengeführt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "merged"
           }
         }
       }

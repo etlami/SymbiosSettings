@@ -62,6 +62,31 @@ final class LogbookStore: ObservableObject {
 
     func hasDive(_ id: UInt16) -> Bool { downloadedIds.contains(id) }
 
+    // MARK: geräteübergreifend (für Zusammenführung)
+    /// Alle Seriennummern mit geladenen Tauchgängen.
+    func allSerials() -> [UInt32] {
+        guard let files = try? fm.contentsOfDirectory(atPath: dir.path) else { return [] }
+        var s = Set<UInt32>()
+        for f in files where f.hasPrefix("dive_") && f.hasSuffix(".bin") {
+            let mid = f.dropFirst(5).dropLast(4)              // "<serial>_<id>"
+            if let head = mid.split(separator: "_").first, let v = UInt32(head) { s.insert(v) }
+        }
+        return Array(s)
+    }
+    func downloadedIds(for serial: UInt32) -> [UInt16] {
+        guard let files = try? fm.contentsOfDirectory(atPath: dir.path) else { return [] }
+        let prefix = "dive_\(serial)_"
+        var ids: [UInt16] = []
+        for f in files where f.hasPrefix(prefix) && f.hasSuffix(".bin") {
+            if let v = UInt16(f.dropFirst(prefix.count).dropLast(4)) { ids.append(v) }
+        }
+        return ids
+    }
+    func rawDive(serial: UInt32, id: UInt16) -> [UInt8]? {
+        guard let d = try? Data(contentsOf: diveURL(serial, id)) else { return nil }
+        return [UInt8](d)
+    }
+
     func loadDive(_ id: UInt16) -> [UInt8]? {
         guard let s = serial, let d = try? Data(contentsOf: diveURL(s, id)) else { return nil }
         return [UInt8](d)

@@ -20,6 +20,8 @@ struct ParsedDive {
     var maxDepth: Double = 0
     var minTemp: Double?
     var serial: UInt32?
+    var model: UInt8?       // 7=Handset, 1=HUD (Header @2)
+    var mode: Int?          // dcMode 0=OC…4=Gauge (Header @11, PROVISORISCH – noch zu bestätigen)
     var atmBar: Double?
     var gasCount: Int = 0
     var samples: [DiveSample] = []
@@ -50,7 +52,9 @@ enum DiveParser {
             if len < 2 || i + len > d.count { break }
             let rec = Array(d[i..<i+len])
             switch id {
-            case 0x01:  // HEADER (64): @16 atmospheric, @18 number, @24 time_start, @28 serial
+            case 0x01:  // HEADER (64): @2 model, @11 dcMode(?), @16 atmospheric, @18 number, @24 time_start, @28 serial
+                if rec.count >= 3 { p.model = rec[2] }
+                if rec.count >= 12 { p.mode = Int(rec[11]) }   // PROVISORISCH (Kandidaten @11/@13/@14)
                 if rec.count >= 18 { p.atmBar = Double(u16(rec, 16)) / 1000.0; p.number = u16(rec, 18) }
                 if rec.count >= 28 { p.start = Date(timeIntervalSince1970: EPOCH_2021 + Double(u32(rec, 24))) }
                 if rec.count >= 32 { p.serial = u32(rec, 28) }
@@ -93,6 +97,7 @@ enum DiveParser {
         if let t = p.minTemp { s += String(format: "MINTEMP;%.1f;C\n", t) }
         if let b = p.atmBar { s += String(format: "SURFACE PRESSURE;%.3f;bar\n", b) }
         s += "LOG INTERVAL;\(p.interval);s (approx)\n"
+        if let m = modeName(p.mode) { s += "DC MODE;\(m)\n" }
         s += "\nINDEX;SECONDS;DEPTH_M;TEMP_C;CEILING_M\n"
         for smp in p.samples {
             let temp = smp.temp.map { String(format: "%.1f", $0) } ?? ""
@@ -100,6 +105,73 @@ enum DiveParser {
             s += String(format: "%d;%d;%.2f;%@;%@\n", smp.id, smp.seconds, smp.depth, temp, ceil)
         }
         return s
+    }
+
+    static func modeName(_ m: Int?) -> String? {
+        switch m {
+        case 0: return "OC"
+        case 1: return "CCR"
+        case 2: return "CCR FSP"
+        case 3: return "Sidemount"
+        case 4: return "Gauge"
+        default: return nil
+        }
+    }
+    static func modelName(_ m: UInt8?) -> String {
+        switch m { case 7: return "Handset"; case 1: return "HUD"; default: return m.map { "Modell \($0)" } ?? "?" }
+    }
+    static func modelShort(_ m: UInt8?) -> String {
+        switch m { case 7: return "HS"; case 1: return "HUD"; default: return "?" }
+    }
+}
+
+// MARK: - Merge-Modelle (HUD + Computer zusammenführen)
+struct DiveMeta: Identifiable {
+    let id: String            // "<serial>-<diveId>"
+    let serial: UInt32
+    let model: UInt8?
+    let diveId: UInt16
+    let start: Date?
+    let maxDepth: Double
+    let duration: TimeInterval?
+    let mode: Int?
+    let samples: Int
+}
+
+struct MergedDive: Identifiable {
+    let id: String
+    let start: Date?
+    let maxDepth: Double
+    let duration: TimeInterval?
+    let mode: Int?
+    let sources: [DiveMeta]   // 1 = einzeln, 2 = HUD+Computer
+    var primary: DiveMeta { sources.max(by: { $0.samples < $1.samples }) ?? sources[0] }
+}
+
+enum DiveMerge {
+    /// Gruppiert geladene Tauchgänge verschiedener Geräte per Startzeit (±5 min) zusammen.
+    static func merge(_ metas: [DiveMeta], toleranceSec: TimeInterval = 300) -> [MergedDive] {
+        let sorted = metas.sorted { ($0.start ?? .distantPast) < ($1.start ?? .distantPast) }
+        var groups: [[DiveMeta]] = []
+        for m in sorted {
+            if let gi = groups.firstIndex(where: { grp in
+                guard let a = grp.first?.start, let b = m.start else { return false }
+                return abs(a.timeIntervalSince(b)) <= toleranceSec && !grp.contains { $0.serial == m.serial }
+            }) {
+                groups[gi].append(m)
+            } else {
+                groups.append([m])
+            }
+        }
+        return groups.map { g in
+            let prim = g.max(by: { $0.samples < $1.samples }) ?? g[0]
+            return MergedDive(id: g.map { $0.id }.joined(separator: "+"),
+                              start: prim.start,
+                              maxDepth: g.map { $0.maxDepth }.max() ?? 0,
+                              duration: prim.duration,
+                              mode: prim.mode,
+                              sources: g)
+        }.sorted { ($0.start ?? .distantPast) > ($1.start ?? .distantPast) }   // neueste zuerst
     }
 }
 
@@ -109,7 +181,12 @@ struct LogbookView: View {
     @ObservedObject var ble: SymbiosBLE
     @ObservedObject var store: LogbookStore
     @State private var loading = false
+    @State private var downloadingAll = false
     @State private var err: String? = nil
+    @State private var tab = 0                    // 0 = dieses Gerät, 1 = zusammengeführt
+    @State private var merged: [MergedDive] = []
+
+    private var curSerial: UInt32 { store.serial ?? ble.deviceInfo?.serial ?? 0 }
 
     private func loadIndex() {
         Task {
@@ -121,53 +198,147 @@ struct LogbookView: View {
         }
     }
 
+    private func downloadAll() {
+        Task {
+            downloadingAll = true; err = nil
+            for e in store.index where !store.hasDive(e.diveId) {
+                if let raw = await ble.downloadDive(e.diveId) { store.saveDive(e.diveId, raw) }
+            }
+            downloadingAll = false
+            rebuildMerged()
+        }
+    }
+
+    private func rebuildMerged() {
+        var metas: [DiveMeta] = []
+        for s in store.allSerials() {
+            for id in store.downloadedIds(for: s) {
+                guard let raw = store.rawDive(serial: s, id: id) else { continue }
+                let p = DiveParser.parse(raw)
+                metas.append(DiveMeta(id: "\(s)-\(id)", serial: s, model: p.model, diveId: id,
+                                      start: p.start, maxDepth: p.maxDepth, duration: p.duration,
+                                      mode: p.mode, samples: p.samples.count))
+            }
+        }
+        merged = DiveMerge.merge(metas)
+    }
+
     var body: some View {
         List {
             Section {
-                Button { loadIndex() } label: {
-                    Label(store.index.isEmpty ? "Logbuch laden" : "Aktualisieren",
-                          systemImage: store.index.isEmpty ? "arrow.down.doc" : "arrow.clockwise")
-                }
-                .disabled(loading || !ble.connected)
-                if loading {
-                    HStack { ProgressView(); Text(progressText).foregroundStyle(.secondary).font(.footnote) }
-                }
-                if let e = err { Text(e).foregroundStyle(.orange).font(.footnote) }
-                if !ble.connected {
-                    Label(store.index.isEmpty
-                          ? "Nicht verbunden – zum Laden mit dem Gerät verbinden."
-                          : "Offline – zwischengespeicherte Tauchgänge.",
-                          systemImage: store.index.isEmpty ? "wifi.slash" : "internaldrive")
-                        .foregroundStyle(.secondary).font(.footnote)
-                }
-                if !store.downloadedIds.isEmpty {
-                    Button(role: .destructive) { store.clearDives() } label: {
-                        Label("Geladene Tauchgänge verwerfen (\(store.downloadedIds.count))", systemImage: "trash")
-                    }.disabled(loading)
-                }
-            } footer: {
-                Text("Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
+                Picker("", selection: $tab) {
+                    Text("Dieses Gerät").tag(0)
+                    Text("Zusammengeführt").tag(1)
+                }.pickerStyle(.segmented)
             }
-            if !store.index.isEmpty {
-                Section {
-                    ForEach(store.index.reversed()) { e in
-                        NavigationLink { DiveDetailView(ble: ble, store: store, entry: e) } label: {
-                            HStack {
-                                Label { Text(verbatim: LT("Tauchgang") + " · ID \(e.diveId)") } icon: { Image(systemName: "water.waves") }
-                                Spacer()
-                                if store.hasDive(e.diveId) {
-                                    Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green).font(.caption)
-                                }
-                            }
-                        }
-                    }
-                } header: { Text(verbatim: LT("Tauchgänge") + " (\(store.index.count))") }
-            }
+            if tab == 0 { deviceTab } else { mergedTab }
         }
         .navigationTitle("Logbuch")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { rebuildMerged() }
+        .onChange(of: store.downloadedIds) { _, _ in rebuildMerged() }
     }
 
+    // MARK: dieses Gerät
+    @ViewBuilder private var deviceTab: some View {
+        Section {
+            Button { loadIndex() } label: {
+                Label(store.index.isEmpty ? "Logbuch laden" : "Aktualisieren",
+                      systemImage: store.index.isEmpty ? "arrow.down.doc" : "arrow.clockwise")
+            }
+            .disabled(loading || downloadingAll || !ble.connected)
+            if !store.index.isEmpty && ble.connected {
+                let missing = store.index.filter { !store.hasDive($0.diveId) }.count
+                Button { downloadAll() } label: {
+                    Label(missing > 0 ? "Alle laden (\(missing))" : "Alle geladen ✓", systemImage: "square.and.arrow.down.on.square")
+                }.disabled(loading || downloadingAll || missing == 0)
+            }
+            if loading || downloadingAll {
+                HStack { ProgressView(); Text(progressText).foregroundStyle(.secondary).font(.footnote) }
+            }
+            if let e = err { Text(e).foregroundStyle(.orange).font(.footnote) }
+            if !ble.connected {
+                Label(store.index.isEmpty
+                      ? "Nicht verbunden – zum Laden mit dem Gerät verbinden."
+                      : "Offline – zwischengespeicherte Tauchgänge.",
+                      systemImage: store.index.isEmpty ? "wifi.slash" : "internaldrive")
+                    .foregroundStyle(.secondary).font(.footnote)
+            }
+            if !store.downloadedIds.isEmpty {
+                Button(role: .destructive) { store.clearDives() } label: {
+                    Label("Geladene Tauchgänge verwerfen (\(store.downloadedIds.count))", systemImage: "trash")
+                }.disabled(loading || downloadingAll)
+            }
+        } footer: {
+            Text("Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
+        }
+        if !store.index.isEmpty {
+            Section {
+                ForEach(store.index.reversed()) { e in
+                    NavigationLink { DiveDetailView(ble: ble, store: store, serial: curSerial, diveId: e.diveId) } label: {
+                        HStack {
+                            Label { Text(verbatim: LT("Tauchgang") + " · ID \(e.diveId)") } icon: { Image(systemName: "water.waves") }
+                            Spacer()
+                            if store.hasDive(e.diveId) {
+                                Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green).font(.caption)
+                            }
+                        }
+                    }
+                }
+            } header: { Text(verbatim: LT("Tauchgänge") + " (\(store.index.count))") }
+        }
+    }
+
+    // MARK: zusammengeführt
+    @ViewBuilder private var mergedTab: some View {
+        if merged.isEmpty {
+            Section { Text("Noch keine geladenen Tauchgänge. Im Reiter „Dieses Gerät“ laden (auch „Alle laden“), auch vom HUD.")
+                .foregroundStyle(.secondary).font(.footnote) }
+        } else {
+            Section {
+                ForEach(merged) { m in
+                    NavigationLink { DiveDetailView(ble: ble, store: store, serial: m.primary.serial, diveId: m.primary.diveId) } label: {
+                        mergedRow(m)
+                    }
+                }
+            } header: { Text(verbatim: LT("Tauchgänge") + " (\(merged.count))") }
+            footer: { Text("Automatisch zusammengeführt: gleiche Startzeit (±5 min) auf verschiedenen Geräten = ein Tauchgang. Uhren am besten synchronisieren.") }
+        }
+    }
+
+    @ViewBuilder private func mergedRow(_ m: MergedDive) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 6) {
+                Text(m.start.map { dateStr($0) } ?? "—").font(.subheadline)
+                if let mode = DiveParser.modeName(m.mode) {
+                    Text(mode).font(.caption2).padding(.horizontal, 5).padding(.vertical, 1)
+                        .background(.blue.opacity(0.15), in: Capsule()).foregroundStyle(.blue)
+                }
+                Spacer()
+                ForEach(m.sources) { src in
+                    Text(DiveParser.modelShort(src.model)).font(.caption2.bold())
+                        .padding(.horizontal, 5).padding(.vertical, 1)
+                        .background(.secondary.opacity(0.15), in: Capsule()).foregroundStyle(.secondary)
+                }
+            }
+            HStack(spacing: 10) {
+                Label(String(format: "%.1f m", m.maxDepth), systemImage: "arrow.down").font(.caption).foregroundStyle(.secondary)
+                if let dur = m.duration {
+                    Label(durShort(dur), systemImage: "clock").font(.caption).foregroundStyle(.secondary)
+                }
+                if m.sources.count > 1 {
+                    Label("zusammengeführt", systemImage: "arrow.triangle.merge").font(.caption2).foregroundStyle(.green)
+                }
+            }
+        }
+    }
+
+    private func dateStr(_ d: Date) -> String {
+        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short; return f.string(from: d)
+    }
+    private func durShort(_ t: TimeInterval) -> String {
+        let m = Int(t) / 60, s = Int(t) % 60; return String(format: "%d:%02d", m, s)
+    }
     private var progressText: String {
         if let x = ble.xferProgress { return "\(Int(x * 100)) %" }
         return LT("lädt…")
@@ -178,7 +349,8 @@ struct LogbookView: View {
 struct DiveDetailView: View {
     @ObservedObject var ble: SymbiosBLE
     @ObservedObject var store: LogbookStore
-    let entry: SymbiosBLE.DiveIndexEntry
+    let serial: UInt32
+    let diveId: UInt16
     @State private var dive: ParsedDive? = nil
     @State private var loading = false
     @State private var err: String? = nil
@@ -186,6 +358,8 @@ struct DiveDetailView: View {
     @State private var binURL: URL? = nil
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
+    /// Nachladen geht nur, wenn genau dieses Gerät verbunden ist.
+    private var canDownload: Bool { ble.connected && ble.deviceInfo?.serial == serial }
 
     var body: some View {
         List {
@@ -198,12 +372,14 @@ struct DiveDetailView: View {
                     Label("Unvollständig geladen (vermutlich alter Teil-Download).", systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange).font(.footnote)
                     Button { Task { await load(force: true) } } label: { Label("Neu laden", systemImage: "arrow.clockwise") }
-                        .disabled(loading || !ble.connected)
+                        .disabled(loading || !canDownload)
                 }
             }
             if let d = dive {
                 Section("Übersicht") {
                     if let n = d.number { row("Nr.", "\(n)") }
+                    if let m = DiveParser.modeName(d.mode) { row("Art", m) }
+                    row("Gerät", DiveParser.modelName(d.model))
                     if let s = d.start { row("Start", dateStr(s)) }
                     if let dur = d.duration { row("Dauer", durStr(dur)) }
                     row("Max. Tiefe", String(format: "%.1f m", d.maxDepth))
@@ -226,10 +402,10 @@ struct DiveDetailView: View {
                 }
             }
         }
-        .navigationTitle(Text(verbatim: LT("Tauchgang") + " \(entry.diveId)"))
+        .navigationTitle(Text(verbatim: LT("Tauchgang") + " \(diveId)"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if ble.connected {
+            if canDownload {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Task { await load(force: true) } } label: { Image(systemName: "arrow.clockwise") }
                         .disabled(loading)
@@ -243,21 +419,21 @@ struct DiveDetailView: View {
         if !force { guard dive == nil else { return } }
         guard !loading else { return }
         loading = true; err = nil
-        if force { store.removeDive(entry.diveId) }
-        var raw = force ? nil : store.loadDive(entry.diveId)   // erst Offline-Cache (außer erzwungen)
+        if force { store.removeDive(diveId) }
+        var raw = force ? nil : store.rawDive(serial: serial, id: diveId)   // erst Offline-Cache (außer erzwungen)
         if raw == nil {
-            guard ble.connected else { err = LT("Nicht gespeichert – zum Laden mit dem Gerät verbinden."); loading = false; return }
-            raw = await ble.downloadDive(entry.diveId)
-            if let r = raw { store.saveDive(entry.diveId, r) }
+            guard canDownload else { err = LT("Nicht gespeichert – zum Laden mit dem Gerät verbinden."); loading = false; return }
+            raw = await ble.downloadDive(diveId)
+            if let r = raw { store.saveDive(diveId, r) }
         }
         guard let raw else { err = LT("Tauchgang konnte nicht geladen werden."); loading = false; return }
         let parsed = DiveParser.parse(raw)
         dive = parsed
         let tmp = FileManager.default.temporaryDirectory
-        let csv = DiveParser.csv(parsed, diveId: entry.diveId)
-        let curl = tmp.appendingPathComponent("dive_\(entry.diveId).csv")
+        let csv = DiveParser.csv(parsed, diveId: diveId)
+        let curl = tmp.appendingPathComponent("dive_\(diveId).csv")
         try? csv.data(using: .utf8)?.write(to: curl); csvURL = curl
-        let burl = tmp.appendingPathComponent("dive_\(entry.diveId).bin")
+        let burl = tmp.appendingPathComponent("dive_\(diveId).bin")
         try? Data(raw).write(to: burl); binURL = burl
         loading = false
     }
