@@ -52,6 +52,16 @@
         }
       }
     },
+    "Aktualisieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        }
+      }
+    },
     "Aktuelle Einstellungen sichern": {
       "localizations": {
         "en": {
@@ -1368,6 +1378,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Read-only. Download mechanics per libdivecomputer; verify on the first device."
+          }
+        }
+      }
+    },
+    "Read-only. Index + Tauchgänge werden pro Verbindung gecacht. Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only. Index and dives are cached per connection. Download mechanics per libdivecomputer; verify on the first device."
           }
         }
       }

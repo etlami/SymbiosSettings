@@ -101,9 +101,17 @@ enum DiveParser {
 // MARK: - Logbuch-Liste
 struct LogbookView: View {
     @ObservedObject var ble: SymbiosBLE
-    @State private var entries: [SymbiosBLE.DiveIndexEntry]? = nil
     @State private var loading = false
     @State private var err: String? = nil
+
+    private func load(force: Bool) {
+        Task {
+            loading = true; err = nil
+            let r = await ble.downloadLogbookIndex(force: force)
+            if r == nil { err = LT("Logbuch konnte nicht geladen werden.") }
+            loading = false
+        }
+    }
 
     var body: some View {
         List {
@@ -112,23 +120,21 @@ struct LogbookView: View {
                     .foregroundStyle(.secondary).font(.footnote) }
             }
             Section {
-                Button {
-                    Task {
-                        loading = true; err = nil
-                        entries = await ble.downloadLogbookIndex()
-                        if entries == nil { err = LT("Logbuch konnte nicht geladen werden.") }
-                        loading = false
-                    }
-                } label: { Label("Logbuch laden", systemImage: "arrow.down.doc") }
-                .disabled(loading || !ble.connected)
+                if ble.logbookIndex == nil {
+                    Button { load(force: false) } label: { Label("Logbuch laden", systemImage: "arrow.down.doc") }
+                        .disabled(loading || !ble.connected)
+                } else {
+                    Button { load(force: true) } label: { Label("Aktualisieren", systemImage: "arrow.clockwise") }
+                        .disabled(loading || !ble.connected)
+                }
                 if loading {
                     HStack { ProgressView(); Text(progressText).foregroundStyle(.secondary).font(.footnote) }
                 }
                 if let e = err { Text(e).foregroundStyle(.orange).font(.footnote) }
             } footer: {
-                Text("Read-only. Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
+                Text("Read-only. Index + Tauchgänge werden pro Verbindung gecacht. Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
             }
-            if let entries {
+            if let entries = ble.logbookIndex {
                 Section {
                     ForEach(entries.reversed()) { e in
                         NavigationLink { DiveDetailView(ble: ble, entry: e) } label: {

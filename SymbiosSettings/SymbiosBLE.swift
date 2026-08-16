@@ -12,12 +12,15 @@ final class SymbiosBLE: NSObject, ObservableObject {
     @Published var lastError: String? = nil
     @Published var log: [String] = []
     @Published var xferProgress: Double? = nil    // 0…1 während Logbuch/Dive-Download
+    @Published var logbookIndex: [DiveIndexEntry]? = nil   // Index-Cache (bleibt pro Verbindung)
 
     struct DiveIndexEntry: Identifiable {
         let id: Int          // Reihenfolge im Index
         let diveId: UInt16   // Argument für DIVELOG_REQUEST
         let raw: [UInt8]     // 32-Byte-Index-Eintrag
     }
+
+    private var diveCache: [UInt16: [UInt8]] = [:]   // Roh-Records je diveId (Cache)
 
     struct DeviceInfo {
         let serial: UInt32; let hwVersion: UInt8; let model: UInt8
@@ -55,7 +58,7 @@ final class SymbiosBLE: NSObject, ObservableObject {
     }
 
     private func addLog(_ s: String) {
-        log.append(s); if log.count > 60 { log.removeFirst(log.count - 60) }
+        log.append(s); if log.count > 300 { log.removeFirst(log.count - 300) }
     }
 
     func startScan() {
@@ -201,23 +204,30 @@ final class SymbiosBLE: NSObject, ObservableObject {
         var out: [UInt8] = []
         xferProgress = 0
         var resp = await send(cmd: blockCmd)          // erster Block (Kick-off)
-        var guardCount = 0
+        var blk = 0
         while let rb = resp {
-            guardCount += 1; if guardCount > 20000 { break }
-            guard rb.crcOK, rb.isAck, rb.payload.count >= 2 else { addLog("Block ungültig"); xferProgress = nil; return out.isEmpty ? nil : out }
+            blk += 1; if blk > 20000 { addLog("⚠︎ Block-Limit erreicht"); break }
+            guard rb.crcOK, rb.isAck, rb.payload.count >= 2 else {
+                addLog("Block \(blk) ungültig (crc=\(rb.crcOK) ack=\(rb.isAck) len=\(rb.payload.count))")
+                xferProgress = nil; return out.isEmpty ? nil : out
+            }
             let seq = UInt16(rb.payload[0]) | (UInt16(rb.payload[1]) << 8)
+            let last = seq & 0x8000 != 0
             out.append(contentsOf: rb.payload[2...])
+            addLog("blk \(blk) seq=0x\(String(format:"%04x",seq))\(last ? " LAST" : "") +\(rb.payload.count-2) Σ\(out.count)")
             if total > 0 { xferProgress = min(1.0, Double(out.count) / Double(total)) }
-            if seq & 0x8000 != 0 { writeNoWait([SymbiosProto.ACK]); break }   // letzter Block → ACK, fertig
+            if last { writeNoWait([SymbiosProto.ACK]); break }   // letzter Block → ACK, fertig
             resp = await sendFrame([SymbiosProto.ACK], expect: blockCmd)
         }
+        if resp == nil { addLog("⏱ kein Block nach \(blk) (Timeout)") }
         xferProgress = nil
         addLog("Download fertig: \(out.count) B")
         return out.isEmpty ? nil : out
     }
 
-    /// Logbuch-Index laden → Liste (32-Byte-Einträge, dive_id @16 u16 LE).
-    func downloadLogbookIndex() async -> [DiveIndexEntry]? {
+    /// Logbuch-Index laden → Liste (32-Byte-Einträge, dive_id @16 u16 LE). Gecacht pro Verbindung.
+    func downloadLogbookIndex(force: Bool = false) async -> [DiveIndexEntry]? {
+        if !force, let cached = logbookIndex { addLog("Logbuch: Cache (\(cached.count))"); return cached }
         guard let raw = await downloadBlocks(requestCmd: SymbiosProto.CMD_LOGBOOK_REQUEST, requestData: [],
                                              blockCmd: SymbiosProto.CMD_LOGBOOK_BLOCK) else { return nil }
         let sz = 32
@@ -228,15 +238,19 @@ final class SymbiosBLE: NSObject, ObservableObject {
             entries.append(DiveIndexEntry(id: idx, diveId: did, raw: e))
             i += sz; idx += 1
         }
-        addLog("Logbuch: \(entries.count) Einträge")
+        addLog("Logbuch: \(entries.count) Einträge (\(raw.count) B)")
+        logbookIndex = entries
         return entries
     }
 
-    /// Einen Tauchgang als Roh-Record (TLV, §8) laden.
-    func downloadDive(_ diveId: UInt16) async -> [UInt8]? {
-        await downloadBlocks(requestCmd: SymbiosProto.CMD_DIVELOG_REQUEST,
-                             requestData: [UInt8(diveId & 0xFF), UInt8(diveId >> 8)],
-                             blockCmd: SymbiosProto.CMD_DIVELOG_BLOCK)
+    /// Einen Tauchgang als Roh-Record (TLV, §8) laden. Gecacht je diveId.
+    func downloadDive(_ diveId: UInt16, force: Bool = false) async -> [UInt8]? {
+        if !force, let cached = diveCache[diveId] { addLog("Dive \(diveId): Cache (\(cached.count) B)"); return cached }
+        let raw = await downloadBlocks(requestCmd: SymbiosProto.CMD_DIVELOG_REQUEST,
+                                       requestData: [UInt8(diveId & 0xFF), UInt8(diveId >> 8)],
+                                       blockCmd: SymbiosProto.CMD_DIVELOG_BLOCK)
+        if let raw { diveCache[diveId] = raw }
+        return raw
     }
 
     // MARK: - Parser
@@ -289,7 +303,7 @@ extension SymbiosBLE: CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
     nonisolated func centralManager(_ c: CBCentralManager, didDisconnectPeripheral p: CBPeripheral, error: Error?) {
-        MainActor.assumeIsolated { connected = false; ready = false; writeChar = nil; notifyChars = []; statusText = "Getrennt"; addLog("getrennt") }
+        MainActor.assumeIsolated { connected = false; ready = false; writeChar = nil; notifyChars = []; logbookIndex = nil; diveCache.removeAll(); statusText = "Getrennt"; addLog("getrennt") }
     }
     nonisolated func peripheral(_ p: CBPeripheral, didDiscoverServices error: Error?) {
         MainActor.assumeIsolated {
