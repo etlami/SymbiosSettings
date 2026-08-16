@@ -1,0 +1,77 @@
+name: Update firmware.json
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # jeden Montag 06:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scrape Halcyon firmware page and update firmware.json
+        run: |
+          python3 - << 'PY'
+          import json, re, urllib.request, datetime, sys
+
+          PAGE = "https://symbios.halcyon.net/firmware/firmware.html"
+          def fetch(url):
+              req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+              return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "ignore")
+
+          try:
+              html = fetch(PAGE)
+          except Exception as e:
+              print("fetch failed:", e); sys.exit(0)   # nie hart failen
+
+          def find(model):
+              # Dateinamen wie 20250329_Symbios_Handset_V2_31_05.zip ODER "Handset Firmware: V2.36.11"
+              pats = [rf"Symbios_{model}_V(\d+)_(\d+)_(\d+)",
+                      rf"{model}[^0-9]{{0,40}}V?(\d+)\.(\d+)\.(\d+)"]
+              for p in pats:
+                  m = re.search(p, html, re.I)
+                  if m: return tuple(int(x) for x in m.groups())
+              return None
+
+          def vtuple(s): 
+              try: return tuple(int(x) for x in s.split("."))
+              except: return (0,0,0)
+          def vstr(t): return ".".join(str(x) for x in t)
+
+          data = json.load(open("firmware.json"))
+          changed = False
+          for key, model in [("handset","Handset"), ("hud","HUD")]:
+              parsed = find(model)
+              if not parsed: 
+                  print(f"{model}: nichts geparst"); continue
+              cur = vtuple(str(data.get(key,"0.0.0")))
+              # nie downgraden: nur setzen, wenn geparst > aktuell
+              if parsed > cur:
+                  data[key] = vstr(parsed); changed = True
+                  print(f"{model}: {vstr(cur)} -> {vstr(parsed)}")
+              else:
+                  print(f"{model}: bleibt {vstr(cur)} (geparst {vstr(parsed)})")
+
+          if changed:
+              data["releaseDate"] = datetime.date(2000,1,1).today().isoformat()
+              json.dump(data, open("firmware.json","w"), ensure_ascii=False, indent=2)
+              open("firmware.json","a").write("\n")
+              print("firmware.json aktualisiert")
+          else:
+              print("keine Änderung")
+          PY
+      - name: Commit if changed
+        run: |
+          if ! git diff --quiet firmware.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add firmware.json
+            git commit -m "auto: update firmware.json from Halcyon page"
+            git push
+          else
+            echo "nichts zu committen"
+          fi
