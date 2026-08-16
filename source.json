@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.8.1",
+      "version": "1.8.2",
       "versionDate": "2026-08-14",
-      "versionDescription": "Write warning updated (most settings verified on-device); battery label localized.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.8.1/SymbiosSettings.ipa",
-      "size": 239814,
+      "versionDescription": "In-app update check: notifies when a newer version is available.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.8.2/SymbiosSettings.ipa",
+      "size": 247055,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.8.2",
+          "date": "2026-08-14",
+          "localizedDescription": "In-app update check: notifies when a newer version is available.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.8.2/SymbiosSettings.ipa",
+          "size": 247055,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.8.1",
           "date": "2026-08-14",

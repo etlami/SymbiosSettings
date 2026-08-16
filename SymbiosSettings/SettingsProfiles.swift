@@ -300,3 +300,32 @@ struct SliderFieldRow: View {
         .onChange(of: cur) { _, nv in if !editing { val = Double(nv) } }   // externe Änderungen übernehmen
     }
 }
+
+/// App-Update-Check: liest die source.json (AltStore-Quelle) und vergleicht mit der laufenden Version.
+enum AppUpdate {
+    static var current: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?" }
+    static let sourceURL = URL(string: "https://raw.githubusercontent.com/etlami/SymbiosSettings/main/source.json")!
+    static let releasesURL = URL(string: "https://github.com/etlami/SymbiosSettings/releases/latest")!
+
+    /// Neueste Version aus der source.json (nil bei Fehler/offline).
+    static func latest() async -> String? {
+        var req = URLRequest(url: sourceURL)
+        req.cachePolicy = .reloadIgnoringLocalCacheData
+        guard let (data, _) = try? await URLSession.shared.data(for: req),
+              let j = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let apps = j["apps"] as? [[String: Any]],
+              let v = apps.first?["version"] as? String else { return nil }
+        return v
+    }
+
+    /// Ist a (semver) neuer als b?
+    static func isNewer(_ a: String, than b: String) -> Bool {
+        func parts(_ s: String) -> [Int] { s.split(separator: ".").map { Int($0) ?? 0 } }
+        let pa = parts(a), pb = parts(b)
+        for i in 0..<max(pa.count, pb.count) {
+            let x = i < pa.count ? pa[i] : 0, y = i < pb.count ? pb[i] : 0
+            if x != y { return x > y }
+        }
+        return false
+    }
+}

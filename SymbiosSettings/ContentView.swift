@@ -13,10 +13,19 @@ struct ContentView: View {
     @State private var editingGas: SymbiosSettings.GasSlot?
     @AppStorage("appLang") private var appLang = "system"
     @AppStorage("menuMode") private var menuMode = "category"   // category | device
+    @State private var updateVersion: String?
 
     var body: some View {
         NavigationStack {
             List {
+                if let uv = updateVersion {
+                    Section {
+                        Link(destination: AppUpdate.releasesURL) {
+                            Label("Update verfügbar: v\(uv)", systemImage: "arrow.down.circle.fill")
+                                .foregroundStyle(.green)
+                        }
+                    } header: { Text("App-Update") }
+                }
                 connectionSection
                 if !ble.connected, ble.settingsBlob != nil {
                     Section {
@@ -70,7 +79,7 @@ struct ContentView: View {
                     Link(destination: URL(string: "https://buymeacoffee.com/etlami")!) {
                         Label("Buy me a Coffee ☕", systemImage: "cup.and.saucer.fill")
                     }
-                } header: { Text("Unterstützen") }
+                } header: { Text("Unterstützen") } footer: { Text("Version \(AppUpdate.current)") }
                 if showDebug, let blob = ble.settingsBlob {
                     Section {
                         Text(blob.map { String(format: "%02x", $0) }.joined())
@@ -112,6 +121,9 @@ struct ContentView: View {
                 }
             }
             .overlay(alignment: .bottom) { toastView }
+            .task {
+                if let l = await AppUpdate.latest(), AppUpdate.isNewer(l, than: AppUpdate.current) { updateVersion = l }
+            }
             .onChange(of: ble.ready) { _, r in
                 guard r else { return }
                 Task {                                   // Auto-Lesen sobald verbunden + Notify aktiv

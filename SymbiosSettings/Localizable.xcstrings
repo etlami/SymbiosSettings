@@ -1721,6 +1721,26 @@
           }
         }
       }
+    },
+    "App-Update": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App update"
+          }
+        }
+      }
+    },
+    "Update verfügbar: v%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update available: v%@"
+          }
+        }
+      }
     }
   }
 }
