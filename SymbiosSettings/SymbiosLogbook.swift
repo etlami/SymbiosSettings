@@ -98,50 +98,60 @@ enum DiveParser {
     }
 }
 
-// MARK: - Logbuch-Liste
+
+// MARK: - Logbuch-Liste (Store-basiert, offline verfügbar)
 struct LogbookView: View {
     @ObservedObject var ble: SymbiosBLE
+    @ObservedObject var store: LogbookStore
     @State private var loading = false
     @State private var err: String? = nil
 
-    private func load(force: Bool) {
+    private func loadIndex() {
         Task {
             loading = true; err = nil
-            let r = await ble.downloadLogbookIndex(force: force)
-            if r == nil { err = LT("Logbuch konnte nicht geladen werden.") }
+            if let s = ble.deviceInfo?.serial { store.setDevice(s) }
+            if let entries = await ble.downloadLogbookIndex() { store.saveIndex(entries) }
+            else { err = LT("Logbuch konnte nicht geladen werden.") }
             loading = false
         }
     }
 
     var body: some View {
         List {
-            if !ble.connected {
-                Section { Label("Nicht verbunden – Logbuch braucht eine Geräteverbindung.", systemImage: "wifi.slash")
-                    .foregroundStyle(.secondary).font(.footnote) }
-            }
             Section {
-                if ble.logbookIndex == nil {
-                    Button { load(force: false) } label: { Label("Logbuch laden", systemImage: "arrow.down.doc") }
-                        .disabled(loading || !ble.connected)
-                } else {
-                    Button { load(force: true) } label: { Label("Aktualisieren", systemImage: "arrow.clockwise") }
-                        .disabled(loading || !ble.connected)
+                Button { loadIndex() } label: {
+                    Label(store.index.isEmpty ? "Logbuch laden" : "Aktualisieren",
+                          systemImage: store.index.isEmpty ? "arrow.down.doc" : "arrow.clockwise")
                 }
+                .disabled(loading || !ble.connected)
                 if loading {
                     HStack { ProgressView(); Text(progressText).foregroundStyle(.secondary).font(.footnote) }
                 }
                 if let e = err { Text(e).foregroundStyle(.orange).font(.footnote) }
+                if !ble.connected {
+                    Label(store.index.isEmpty
+                          ? "Nicht verbunden – zum Laden mit dem Gerät verbinden."
+                          : "Offline – zwischengespeicherte Tauchgänge.",
+                          systemImage: store.index.isEmpty ? "wifi.slash" : "internaldrive")
+                        .foregroundStyle(.secondary).font(.footnote)
+                }
             } footer: {
-                Text("Read-only. Index + Tauchgänge werden pro Verbindung gecacht. Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
+                Text("Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
             }
-            if let entries = ble.logbookIndex {
+            if !store.index.isEmpty {
                 Section {
-                    ForEach(entries.reversed()) { e in
-                        NavigationLink { DiveDetailView(ble: ble, entry: e) } label: {
-                            Label { Text(verbatim: LT("Tauchgang") + " · ID \(e.diveId)") } icon: { Image(systemName: "water.waves") }
+                    ForEach(store.index.reversed()) { e in
+                        NavigationLink { DiveDetailView(ble: ble, store: store, entry: e) } label: {
+                            HStack {
+                                Label { Text(verbatim: LT("Tauchgang") + " · ID \(e.diveId)") } icon: { Image(systemName: "water.waves") }
+                                Spacer()
+                                if store.hasDive(e.diveId) {
+                                    Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green).font(.caption)
+                                }
+                            }
                         }
                     }
-                } header: { Text(verbatim: LT("Tauchgänge") + " (\(entries.count))") }
+                } header: { Text(verbatim: LT("Tauchgänge") + " (\(store.index.count))") }
             }
         }
         .navigationTitle("Logbuch")
@@ -154,9 +164,10 @@ struct LogbookView: View {
     }
 }
 
-// MARK: - Tauchgang-Detail
+// MARK: - Tauchgang-Detail (Store-Cache zuerst → offline)
 struct DiveDetailView: View {
     @ObservedObject var ble: SymbiosBLE
+    @ObservedObject var store: LogbookStore
     let entry: SymbiosBLE.DiveIndexEntry
     @State private var dive: ParsedDive? = nil
     @State private var loading = false
@@ -206,12 +217,15 @@ struct DiveDetailView: View {
     private func load() async {
         guard dive == nil, !loading else { return }
         loading = true; err = nil
-        guard let raw = await ble.downloadDive(entry.diveId) else {
-            err = LT("Tauchgang konnte nicht geladen werden."); loading = false; return
+        var raw = store.loadDive(entry.diveId)          // erst Offline-Cache
+        if raw == nil {
+            guard ble.connected else { err = LT("Nicht gespeichert – zum Laden mit dem Gerät verbinden."); loading = false; return }
+            raw = await ble.downloadDive(entry.diveId)
+            if let r = raw { store.saveDive(entry.diveId, r) }
         }
+        guard let raw else { err = LT("Tauchgang konnte nicht geladen werden."); loading = false; return }
         let parsed = DiveParser.parse(raw)
         dive = parsed
-        // CSV in temporäre Datei für ShareLink
         let csv = DiveParser.csv(parsed, diveId: entry.diveId)
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("dive_\(entry.diveId).csv")
         try? csv.data(using: .utf8)?.write(to: url)

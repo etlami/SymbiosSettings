@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.1",
+      "version": "1.9.2",
       "versionDate": "2026-08-16",
-      "versionDescription": "Logbook: cache index + dives per connection (no re-download on reopen); per-block debug logging.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.1/SymbiosSettings.ipa",
-      "size": 468801,
+      "versionDescription": "Logbook: downloaded dives are stored per device and stay available offline (no connection needed to view/export). Downloaded dives marked; Logbook reachable while disconnected.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.2/SymbiosSettings.ipa",
+      "size": 480156,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.2",
+          "date": "2026-08-16",
+          "localizedDescription": "Logbook: downloaded dives are stored per device and stay available offline (no connection needed to view/export). Downloaded dives marked; Logbook reachable while disconnected.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.2/SymbiosSettings.ipa",
+          "size": 480156,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.1",
           "date": "2026-08-16",

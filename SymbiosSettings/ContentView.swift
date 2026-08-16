@@ -4,6 +4,7 @@ import UIKit
 struct ContentView: View {
     @StateObject private var ble = SymbiosBLE()
     @StateObject private var store = ProfileStore()
+    @StateObject private var logbook = LogbookStore()
     @State private var busy = false
     @State private var editing: SettingField?
     @State private var toast: String?
@@ -140,6 +141,9 @@ struct ContentView: View {
                 guard let fw, let m = ble.deviceInfo?.model else { return }
                 Task { fwUpdate = await FirmwareCheck.check(installed: fw, model: m) }
             }
+            .onChange(of: ble.deviceInfo?.serial) { _, s in
+                if let s { logbook.setDevice(s) }     // Offline-Logbuch aufs verbundene Gerät umschalten
+            }
             .sheet(item: $editing) { f in
                 EditSheet(field: f, blob: ble.settingsBlob ?? [], onWrite: writeField)
             }
@@ -170,9 +174,10 @@ struct ContentView: View {
                     }
                 } label: { Label("Uhr synchronisieren", systemImage: "clock.arrow.2.circlepath") }
                     .disabled(busy)
-                NavigationLink { LogbookView(ble: ble) } label: {
-                    Label("Logbuch", systemImage: "list.bullet.rectangle")
-                }
+            }
+            NavigationLink { LogbookView(ble: ble, store: logbook) } label: {
+                Label("Logbuch", systemImage: "list.bullet.rectangle")
+                    .badge(logbook.index.count)
             }
             NavigationLink { WaypointsView() } label: {
                 Label("Wegpunkte (GPX)", systemImage: "mappin.and.ellipse")

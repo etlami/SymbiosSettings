@@ -1142,12 +1142,32 @@
         }
       }
     },
+    "Nicht gespeichert – zum Laden mit dem Gerät verbinden.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not stored – connect to the device to load."
+          }
+        }
+      }
+    },
     "Nicht verbunden – Logbuch braucht eine Geräteverbindung.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Not connected – the logbook needs a device connection."
+          }
+        }
+      }
+    },
+    "Nicht verbunden – zum Laden mit dem Gerät verbinden.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected – connect to the device to load."
           }
         }
       }
@@ -1238,6 +1258,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open circuit"
+          }
+        }
+      }
+    },
+    "Offline – zwischengespeicherte Tauchgänge.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline – cached dives."
           }
         }
       }
@@ -1378,6 +1408,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Read-only. Download mechanics per libdivecomputer; verify on the first device."
+          }
+        }
+      }
+    },
+    "Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only. Downloaded dives stay available offline (stored per device). Download mechanics per libdivecomputer; verify on the first device."
           }
         }
       }
