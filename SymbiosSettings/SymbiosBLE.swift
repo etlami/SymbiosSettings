@@ -48,6 +48,7 @@ final class SymbiosBLE: NSObject, ObservableObject {
     private var rxBuf: [UInt8] = []
     private var pendingCmd: UInt8?
     private var continuation: CheckedContinuation<[UInt8]?, Never>?
+    private var pendingSeq: UInt64 = 0     // Generation je Anfrage → verhindert, dass alte Timeout-Tasks feuern
 
     override init() {
         super.init()
@@ -85,6 +86,8 @@ final class SymbiosBLE: NSObject, ObservableObject {
     /// antworten aber als Block-Frame (0x88/0x89) – TX-Byte ≠ erwartetes Antwort-Cmd.
     private func sendFrame(_ frame: [UInt8], expect: UInt8, timeout: TimeInterval = 8) async -> SymbiosProto.Response? {
         guard let p = peripheral, let wc = writeChar else { addLog("send: keine writeChar"); return nil }
+        pendingSeq &+= 1
+        let mySeq = pendingSeq
         rxBuf = []; pendingCmd = expect
         addLog("TX 0x\(hex(frame.first ?? 0)) →exp 0x\(hex(expect)) (\(frame.count) B) [\(writeType == .withResponse ? "req" : "cmd")]")
         let raw: [UInt8]? = await withCheckedContinuation { cont in
@@ -92,7 +95,7 @@ final class SymbiosBLE: NSObject, ObservableObject {
             p.writeValue(Data(frame), for: wc, type: writeType)
             Task { [weak self] in
                 try? await Task.sleep(nanoseconds: UInt64(timeout * 1e9))
-                await self?.timeoutFire(expect)
+                await self?.timeoutFire(expect, seq: mySeq)
             }
         }
         pendingCmd = nil
@@ -106,8 +109,10 @@ final class SymbiosBLE: NSObject, ObservableObject {
         p.writeValue(Data(frame), for: wc, type: writeType)
     }
 
-    private func timeoutFire(_ cmd: UInt8) {
-        if let cont = continuation { continuation = nil; addLog("⏱ Timeout 0x\(hex(cmd)) (rx \(rxBuf.count) B)"); cont.resume(returning: nil) }
+    private func timeoutFire(_ cmd: UInt8, seq: UInt64) {
+        // Nur feuern, wenn dieser Timeout zur AKTUELL laufenden Anfrage gehört (kein Alt-Timer).
+        guard seq == pendingSeq, let cont = continuation else { return }
+        continuation = nil; addLog("⏱ Timeout 0x\(hex(cmd)) (rx \(rxBuf.count) B)"); cont.resume(returning: nil)
     }
 
     func refreshAll() async {
