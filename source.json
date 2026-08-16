@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.4",
+      "version": "1.9.5",
       "versionDate": "2026-08-16",
-      "versionDescription": "Reload dives: per-dive reload button, incomplete-download warning, and bulk 'discard downloaded dives'. Depth-profile x-axis in minutes; raw .bin export for diagnosis.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.4/SymbiosSettings.ipa",
-      "size": 493987,
+      "versionDescription": "Depth profile is now a dual-axis chart: depth (left, blue), temperature (right, red) and deco ceiling (orange). Adds status hex logging to calibrate the battery reading.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.5/SymbiosSettings.ipa",
+      "size": 508400,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.5",
+          "date": "2026-08-16",
+          "localizedDescription": "Depth profile is now a dual-axis chart: depth (left, blue), temperature (right, red) and deco ceiling (orange). Adds status hex logging to calibrate the battery reading.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.5/SymbiosSettings.ipa",
+          "size": 508400,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.4",
           "date": "2026-08-16",

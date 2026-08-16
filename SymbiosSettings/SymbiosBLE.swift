@@ -118,6 +118,7 @@ final class SymbiosBLE: NSObject, ObservableObject {
     func refreshAll() async {
         if let r = await send(cmd: SymbiosProto.CMD_GET_STATUS) {
             addLog("STATUS: ack=\(r.isAck) crc=\(r.crcOK) len=\(r.payload.count)")
+            addLog("STATUS hex: " + r.payload.map { String(format: "%02x", $0) }.joined())
             if r.crcOK, r.isAck { deviceInfo = parseStatus(r.payload) }
         }
         if let r = await send(cmd: SymbiosProto.CMD_GET_SETTINGS) {

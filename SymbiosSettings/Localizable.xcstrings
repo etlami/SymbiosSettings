@@ -442,6 +442,16 @@
         }
       }
     },
+    "Decke": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceiling"
+          }
+        }
+      }
+    },
     "Decke + Letzter Stopp": {
       "localizations": {
         "en": {
@@ -1788,6 +1798,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dive profile"
+          }
+        }
+      }
+    },
+    "Temp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temp"
+          }
+        }
+      }
+    },
+    "Tiefe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depth"
           }
         }
       }
