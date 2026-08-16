@@ -11,6 +11,13 @@ final class SymbiosBLE: NSObject, ObservableObject {
     @Published var settingsBlob: [UInt8]? = nil
     @Published var lastError: String? = nil
     @Published var log: [String] = []
+    @Published var xferProgress: Double? = nil    // 0…1 während Logbuch/Dive-Download
+
+    struct DiveIndexEntry: Identifiable {
+        let id: Int          // Reihenfolge im Index
+        let diveId: UInt16   // Argument für DIVELOG_REQUEST
+        let raw: [UInt8]     // 32-Byte-Index-Eintrag
+    }
 
     struct DeviceInfo {
         let serial: UInt32; let hwVersion: UInt8; let model: UInt8
@@ -70,21 +77,33 @@ final class SymbiosBLE: NSObject, ObservableObject {
 
     // MARK: - Kommandos (async)
     func send(cmd: UInt8, data: [UInt8] = [], timeout: TimeInterval = 8) async -> SymbiosProto.Response? {
+        await sendFrame(SymbiosProto.buildFrame(cmd: cmd, data: data), expect: cmd, timeout: timeout)
+    }
+
+    /// Sendet einen fertigen Frame und wartet auf die Antwort mit Basis-Cmd `expect`.
+    /// Trennung nötig fürs Block-Protokoll: Folge-Blöcke werden per bare-ACK (0x06) angefordert,
+    /// antworten aber als Block-Frame (0x88/0x89) – TX-Byte ≠ erwartetes Antwort-Cmd.
+    private func sendFrame(_ frame: [UInt8], expect: UInt8, timeout: TimeInterval = 8) async -> SymbiosProto.Response? {
         guard let p = peripheral, let wc = writeChar else { addLog("send: keine writeChar"); return nil }
-        let frame = SymbiosProto.buildFrame(cmd: cmd, data: data)
-        rxBuf = []; pendingCmd = cmd
-        addLog("TX 0x\(hex(cmd)) (\(frame.count) B) via \(wc.uuid.uuidString.prefix(8)) [\(writeType == .withResponse ? "req" : "cmd")]")
+        rxBuf = []; pendingCmd = expect
+        addLog("TX 0x\(hex(frame.first ?? 0)) →exp 0x\(hex(expect)) (\(frame.count) B) [\(writeType == .withResponse ? "req" : "cmd")]")
         let raw: [UInt8]? = await withCheckedContinuation { cont in
             self.continuation = cont
             p.writeValue(Data(frame), for: wc, type: writeType)
             Task { [weak self] in
                 try? await Task.sleep(nanoseconds: UInt64(timeout * 1e9))
-                await self?.timeoutFire(cmd)
+                await self?.timeoutFire(expect)
             }
         }
         pendingCmd = nil
         guard let raw else { return nil }
         return SymbiosProto.parseResponse(raw)
+    }
+
+    /// Frame senden ohne auf Antwort zu warten (finaler ACK am Blockende).
+    private func writeNoWait(_ frame: [UInt8]) {
+        guard let p = peripheral, let wc = writeChar else { return }
+        p.writeValue(Data(frame), for: wc, type: writeType)
     }
 
     private func timeoutFire(_ cmd: UInt8) {
@@ -151,6 +170,73 @@ final class SymbiosBLE: NSObject, ObservableObject {
         if verified { return (true, LT("OK – am Gerät bestätigt (\(Int(value))).")) }
         let ackTxt = resp?.isAck == true ? "ACK" : (resp?.errName ?? "keine Antwort")
         return (false, LT("NICHT bestätigt (SET: \(ackTxt))."))
+    }
+
+    // MARK: - Uhr stellen (SET_TIME 0x07)
+    /// Stellt die Geräteuhr auf die aktuelle lokale Zeit. `[Jahr-2000, Monat, Tag, Std, Min, Sek]`.
+    func syncTime() async -> (Bool, String) {
+        let c = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute,.second], from: Date())
+        guard let y = c.year, let mo = c.month, let d = c.day,
+              let h = c.hour, let mi = c.minute, let s = c.second else { return (false, LT("Zeit unbekannt.")) }
+        let data: [UInt8] = [UInt8(clamping: y - 2000), UInt8(mo), UInt8(d), UInt8(h), UInt8(mi), UInt8(s)]
+        guard let r = await send(cmd: SymbiosProto.CMD_SET_TIME, data: data) else { return (false, LT("Keine Antwort.")) }
+        if r.isAck {
+            let f = DateFormatter(); f.dateFormat = "dd.MM.yyyy HH:mm:ss"
+            return (true, LT("Uhr gestellt: ") + f.string(from: Date()))
+        }
+        return (false, r.errName ?? LT("Vom Gerät abgelehnt."))
+    }
+
+    // MARK: - Blockdownload (Logbuch/Dive) – Mechanik autoritativ aus libdivecomputer halcyon_symbios.c
+    /// REQUEST senden → 4-Byte-Gesamtlänge (LE) → Kick-off-BLOCK, dann je Block bare-ACK anfordern
+    /// bis Bit 0x8000 in der Block-ID gesetzt ist. Read-only (schreibt nichts aufs Gerät).
+    private func downloadBlocks(requestCmd: UInt8, requestData: [UInt8], blockCmd: UInt8) async -> [UInt8]? {
+        guard let r = await send(cmd: requestCmd, data: requestData), r.crcOK, r.isAck else {
+            addLog("REQUEST 0x\(hex(requestCmd)) fehlgeschlagen"); return nil
+        }
+        let total: Int = r.payload.count >= 4
+            ? Int(UInt32(r.payload[0]) | (UInt32(r.payload[1])<<8) | (UInt32(r.payload[2])<<16) | (UInt32(r.payload[3])<<24))
+            : 0
+        addLog("Download 0x\(hex(requestCmd)) total=\(total) B")
+        var out: [UInt8] = []
+        xferProgress = 0
+        var resp = await send(cmd: blockCmd)          // erster Block (Kick-off)
+        var guardCount = 0
+        while let rb = resp {
+            guardCount += 1; if guardCount > 20000 { break }
+            guard rb.crcOK, rb.isAck, rb.payload.count >= 2 else { addLog("Block ungültig"); xferProgress = nil; return out.isEmpty ? nil : out }
+            let seq = UInt16(rb.payload[0]) | (UInt16(rb.payload[1]) << 8)
+            out.append(contentsOf: rb.payload[2...])
+            if total > 0 { xferProgress = min(1.0, Double(out.count) / Double(total)) }
+            if seq & 0x8000 != 0 { writeNoWait([SymbiosProto.ACK]); break }   // letzter Block → ACK, fertig
+            resp = await sendFrame([SymbiosProto.ACK], expect: blockCmd)
+        }
+        xferProgress = nil
+        addLog("Download fertig: \(out.count) B")
+        return out.isEmpty ? nil : out
+    }
+
+    /// Logbuch-Index laden → Liste (32-Byte-Einträge, dive_id @16 u16 LE).
+    func downloadLogbookIndex() async -> [DiveIndexEntry]? {
+        guard let raw = await downloadBlocks(requestCmd: SymbiosProto.CMD_LOGBOOK_REQUEST, requestData: [],
+                                             blockCmd: SymbiosProto.CMD_LOGBOOK_BLOCK) else { return nil }
+        let sz = 32
+        var entries: [DiveIndexEntry] = []; var i = 0; var idx = 0
+        while i + sz <= raw.count {
+            let e = Array(raw[i..<i+sz])
+            let did = UInt16(e[16]) | (UInt16(e[17]) << 8)
+            entries.append(DiveIndexEntry(id: idx, diveId: did, raw: e))
+            i += sz; idx += 1
+        }
+        addLog("Logbuch: \(entries.count) Einträge")
+        return entries
+    }
+
+    /// Einen Tauchgang als Roh-Record (TLV, §8) laden.
+    func downloadDive(_ diveId: UInt16) async -> [UInt8]? {
+        await downloadBlocks(requestCmd: SymbiosProto.CMD_DIVELOG_REQUEST,
+                             requestData: [UInt8(diveId & 0xFF), UInt8(diveId >> 8)],
+                             blockCmd: SymbiosProto.CMD_DIVELOG_BLOCK)
     }
 
     // MARK: - Parser

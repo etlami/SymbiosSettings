@@ -2,1092 +2,12 @@
   "sourceLanguage": "de",
   "version": "1.0",
   "strings": {
-    "Tauchmodus": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dive mode"
-          }
-        }
-      }
-    },
-    "OC PO₂ Deco": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OC PO₂ deco"
-          }
-        }
-      }
-    },
-    "OC PO₂ Grund": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OC PO₂ bottom"
-          }
-        }
-      }
-    },
-    "Sicherheitsstopp": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safety stop"
-          }
-        }
-      }
-    },
-    "Letzter Stopp": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Last stop"
-          }
-        }
-      }
-    },
-    "Aufstiegswarnung": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ascent warning"
-          }
-        }
-      }
-    },
-    "Dive-Timeout": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dive timeout"
-          }
-        }
-      }
-    },
-    "FSP SP LOW": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FSP SP Low"
-          }
-        }
-      }
-    },
-    "FSP SP HI": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FSP SP High"
-          }
-        }
-      }
-    },
-    "Scrubber-Zähler": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scrubber counter"
-          }
-        }
-      }
-    },
-    "Scrubber-Zähler-Timeout": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scrubber counter timeout"
-          }
-        }
-      }
-    },
-    "CCR TTS-Prognose": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CCR TTS forecast"
-          }
-        }
-      }
-    },
-    "Buddy-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Buddy screen"
-          }
-        }
-      }
-    },
-    "Deko-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deco screen"
-          }
-        }
-      }
-    },
-    "Tiefenchart-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Depth chart screen"
-          }
-        }
-      }
-    },
-    "GF-Chart-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GF chart screen"
-          }
-        }
-      }
-    },
-    "GPS-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GPS screen"
-          }
-        }
-      }
-    },
-    "DPV-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DPV screen"
-          }
-        }
-      }
-    },
-    "HUD einfacher CCR-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HUD simple CCR screen"
-          }
-        }
-      }
-    },
-    "Wireless-Screen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wireless screen"
-          }
-        }
-      }
-    },
-    "Stil": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Style"
-          }
-        }
-      }
-    },
-    "Sprache (Code)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Language (code)"
-          }
-        }
-      }
-    },
-    "Helligkeit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Brightness"
-          }
-        }
-      }
-    },
-    "Einheiten": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Units"
-          }
-        }
-      }
-    },
-    "Display-Ausrichtung": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Display orientation"
-          }
-        }
-      }
-    },
-    "Benutzerdef. Funktion (Taste B)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom function (button B)"
-          }
-        }
-      }
-    },
-    "Kompass-Deklination": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Compass declination"
-          }
-        }
-      }
-    },
-    "Dichte": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Density"
-          }
-        }
-      }
-    },
-    "Vibrationsalarm": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vibration alarm"
-          }
-        }
-      }
-    },
-    "Sleep-Timeout": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sleep timeout"
-          }
-        }
-      }
-    },
-    "Tastensperre ab 100 m": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Button lock below 100 m"
-          }
-        }
-      }
-    },
-    "Trainingsmodus": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Training mode"
-          }
-        }
-      }
-    },
-    "Offener Kreislauf": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open circuit"
-          }
-        }
-      }
-    },
-    "Geschl. Kreislauf": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Closed circuit"
-          }
-        }
-      }
-    },
-    "CCR Fester Sollwert": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CCR fixed setpoint"
-          }
-        }
-      }
-    },
-    "Grundzeitmesser": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bottom timer"
-          }
-        }
-      }
-    },
-    "Metrisch": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Metric"
-          }
-        }
-      }
-    },
-    "Links": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Left"
-          }
-        }
-      }
-    },
-    "Rechts": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Right"
-          }
-        }
-      }
-    },
-    "Salzwasser": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sea water"
-          }
-        }
-      }
-    },
-    "Süßwasser": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fresh water"
-          }
-        }
-      }
-    },
-    "Aus": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Off"
-          }
-        }
-      }
-    },
-    "Zusätzlich": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Additional"
-          }
-        }
-      }
-    },
-    "Alle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All"
-          }
-        }
-      }
-    },
-    "Best Gas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Best gas"
-          }
-        }
-      }
-    },
-    "Stop Watch": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stopwatch"
-          }
-        }
-      }
-    },
-    "Tauchprofil": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dive profile"
-          }
-        }
-      }
-    },
-    "Timeouts & Alarme": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Timeouts & alarms"
-          }
-        }
-      }
-    },
-    "Anzeigen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Displays"
-          }
-        }
-      }
-    },
-    "Computer-Einstellungen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Computer settings"
-          }
-        }
-      }
-    },
-    "Allgemein": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "General"
-          }
-        }
-      }
-    },
-    "Licht / Verbrauch / Zeit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light / Consumption / Time"
-          }
-        }
-      }
-    },
-    "nur Handset": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Handset only"
-          }
-        }
-      }
-    },
-    "nur FSP/CCR": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FSP/CCR only"
-          }
-        }
-      }
-    },
-    "nur Bottom-Timer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bottom timer only"
-          }
-        }
-      }
-    },
-    "nur CCR": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CCR only"
-          }
-        }
-      }
-    },
-    "Licht nötig": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Requires light"
-          }
-        }
-      }
-    },
-    "nicht in CCR": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not in CCR"
-          }
-        }
-      }
-    },
-    "Sender nötig": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Requires transmitter"
-          }
-        }
-      }
-    },
-    "Verbindung": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection"
-          }
-        }
-      }
-    },
-    "Offline-Entwurf – Änderungen bleiben nur lokal. Als Profil sichern und bei Verbindung aufspielen.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Offline draft – changes stay local only. Save as a profile and apply once connected."
-          }
-        }
-      }
-    },
-    "Konfiguration": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configuration"
-          }
-        }
-      }
-    },
-    "Gastabelle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gas table"
-          }
-        }
-      }
-    },
-    "Custom-Felder (Screen)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom fields (screen)"
-          }
-        }
-      }
-    },
-    "Einstellungen werden gelesen…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reading settings…"
-          }
-        }
-      }
-    },
-    "Verbinde dich oder starte einen Offline-Entwurf.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect or start an offline draft."
-          }
-        }
-      }
-    },
-    "Profile": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Profiles"
-          }
-        }
-      }
-    },
-    "Unterstützen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Support"
-          }
-        }
-      }
-    },
-    "Rohdaten kopieren (Hex)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy raw data (hex)"
-          }
-        }
-      }
-    },
-    "Settings-Blob (für Offset-Diff)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Settings blob (for offset diff)"
-          }
-        }
-      }
-    },
-    "Protokoll (Debug)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Log (debug)"
-          }
-        }
-      }
-    },
-    "Kopieren": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy"
-          }
-        }
-      }
-    },
-    "Profil speichern": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save profile"
-          }
-        }
-      }
-    },
-    "Name (z. B. Tec 100)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Name (e.g. Tec 100)"
-          }
-        }
-      }
-    },
-    "Abbrechen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel"
-          }
-        }
-      }
-    },
-    "Sichern": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save"
-          }
-        }
-      }
-    },
-    "Sichert die aktuell gelesenen Einstellungen als Profil.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saves the currently read settings as a profile."
-          }
-        }
-      }
-    },
-    "Aktuelle Einstellungen sichern": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save current settings"
-          }
-        }
-      }
-    },
-    "Profile & Backups": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Profiles & backups"
-          }
-        }
-      }
-    },
-    "Symbios verbinden": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect Symbios"
-          }
-        }
-      }
-    },
-    "Offline-Entwurf starten": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start offline draft"
-          }
-        }
-      }
-    },
-    "Entwurf verwerfen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Discard draft"
-          }
-        }
-      }
-    },
-    "Neu lesen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reload"
-          }
-        }
-      }
-    },
-    "Trennen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disconnect"
-          }
-        }
-      }
-    },
-    "Noch keine Profile. Oben mit „Aktuelle Einstellungen sichern“ anlegen.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No profiles yet. Create one above with “Save current settings”."
-          }
-        }
-      }
-    },
-    "Gespeicherte Profile": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved profiles"
-          }
-        }
-      }
-    },
-    "Automatische Backups (letzte 5)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatic backups (last 5)"
-          }
-        }
-      }
-    },
-    "Profil aufspielen?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apply profile?"
-          }
-        }
-      }
-    },
-    "Aufspielen": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apply"
-          }
-        }
-      }
-    },
-    "Profil „%@“ überschreibt ALLE Einstellungen am Gerät (inkl. Gastabelle). Vor dem Tauchgang prüfen.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Profile “%@” overwrites ALL settings on the device (incl. gas table). Verify before diving."
-          }
-        }
-      }
-    },
-    "Bearbeiten": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit"
-          }
-        }
-      }
-    },
-    "Aktiv": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Active"
-          }
-        }
-      }
-    },
-    "Gemisch": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mix"
-          }
-        }
-      }
-    },
-    "Standardgase": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Standard gases"
-          }
-        }
-      }
-    },
-    "Gas ändern": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Change gas"
-          }
-        }
-      }
-    },
-    "Schreiben": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Write"
-          }
-        }
-      }
-    },
-    "Auf Gerät schreiben?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Write to device?"
-          }
-        }
-      }
-    },
-    "Ändern": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Change"
-          }
-        }
-      }
-    },
-    "An": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On"
-          }
-        }
-      }
-    },
-    "Wert": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Value"
-          }
-        }
-      }
-    },
-    "Custom-Felder": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom fields"
-          }
-        }
-      }
-    },
-    "Felder für den Custom-Screen (unten links). Mehrfachauswahl. Modusabhängige Felder brauchen CCR-/Bottom-Timer-Modus, Licht oder Sender.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fields for the custom screen (bottom left). Multiple selection. Mode-dependent fields require CCR/bottom-timer mode, a light or a transmitter."
-          }
-        }
-      }
-    },
-    "Erst Einstellungen lesen.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Read settings first."
-          }
-        }
-      }
-    },
-    "OK – am Gerät bestätigt.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK – confirmed on the device."
-          }
-        }
-      }
-    },
     "%lld Byte(s) nicht bestätigt.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld byte(s) not confirmed."
-          }
-        }
-      }
-    },
-    "Nicht bestätigt (SET: %@).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not confirmed (SET: %@)."
-          }
-        }
-      }
-    },
-    "Nicht verbunden.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not connected."
-          }
-        }
-      }
-    },
-    "Profil ungültig (%lld B).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Invalid profile (%lld B)."
-          }
-        }
-      }
-    },
-    "Profil aufgespielt – am Gerät bestätigt.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Profile applied – confirmed on the device."
           }
         }
       }
@@ -1102,102 +22,222 @@
         }
       }
     },
-    "OK – am Gerät bestätigt (%lld).": {
+    "Abbrechen": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "OK – confirmed on the device (%lld)."
+            "value": "Cancel"
           }
         }
       }
     },
-    "NICHT bestätigt (SET: %@).": {
+    "Akku": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NOT confirmed (SET: %@)."
+            "value": "Batt."
           }
         }
       }
     },
-    "Rohdaten kopiert (%lld B)": {
+    "Aktiv": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Raw data copied (%lld B)"
+            "value": "Active"
           }
         }
       }
     },
-    "Protokoll kopiert (%lld Zeilen)": {
+    "Aktuelle Einstellungen sichern": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log copied (%lld lines)"
+            "value": "Save current settings"
           }
         }
       }
     },
-    "Profil gesichert.": {
+    "Alle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profile saved."
+            "value": "All"
           }
         }
       }
     },
-    "Nur mit verbundenem Gerät aufspielbar.": {
+    "Allgemein": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only writable with a connected device."
+            "value": "General"
           }
         }
       }
     },
-    "an": {
+    "Als CSV exportieren / teilen": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "on"
+            "value": "Export / share as CSV"
           }
         }
       }
     },
-    "aus": {
+    "An": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "off"
+            "value": "On"
           }
         }
       }
     },
-    "Entwurf:": {
+    "Anzeige-Stil: Classic oder Modern.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Draft:"
+            "value": "Display style: Classic or Modern."
           }
         }
       }
     },
-    "📝 „%@“ als Entwurf geladen.": {
+    "Anzeigen": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "📝 “%@” loaded as draft."
+            "value": "Displays"
+          }
+        }
+      }
+    },
+    "App-Update": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App update"
+          }
+        }
+      }
+    },
+    "Auf Gerät schreiben?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to device?"
+          }
+        }
+      }
+    },
+    "Aufspielen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply"
+          }
+        }
+      }
+    },
+    "Aufstiegswarnung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascent warning"
+          }
+        }
+      }
+    },
+    "Aufstiegswarnung bei 10 m/min und 20 m/min.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascent-rate warning at 10 m/min and 20 m/min."
+          }
+        }
+      }
+    },
+    "Aus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "Ausrichtung des Handsets (Tasten zur Handseite): Links oder Rechts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handset orientation (buttons toward the diver's hand): Left or Right."
+          }
+        }
+      }
+    },
+    "Auto-Lock: Tastenfunktion tiefer als 100 m sperren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-lock: disable button function deeper than 100 m."
+          }
+        }
+      }
+    },
+    "Automatische Backups (letzte 5)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic backups (last 5)"
+          }
+        }
+      }
+    },
+    "Bearbeiten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "Bei Tauchgängen tiefer 10 m Aufforderung zu einem 3-min-Sicherheitsstopp auf 3–6 m.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On dives deeper than 10 m, prompt for a 3-min safety stop at 3–6 m."
+          }
+        }
+      }
+    },
+    "Benutzerdef. Funktion (Taste B)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom function (button B)"
           }
         }
       }
@@ -1212,42 +252,12 @@
         }
       }
     },
-    "Bluetooth aus?": {
+    "Best Gas": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bluetooth off?"
-          }
-        }
-      }
-    },
-    "Suche Symbios…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Searching for Symbios…"
-          }
-        }
-      }
-    },
-    "Verbinde…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecting…"
-          }
-        }
-      }
-    },
-    "Bluetooth bereit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth ready"
+            "value": "Best gas"
           }
         }
       }
@@ -1262,6 +272,26 @@
         }
       }
     },
+    "Bluetooth aus?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth off?"
+          }
+        }
+      }
+    },
+    "Bluetooth bereit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth ready"
+          }
+        }
+      }
+    },
     "Bluetooth nicht erlaubt": {
       "localizations": {
         "en": {
@@ -1272,52 +302,122 @@
         }
       }
     },
-    "Verbunden – suche Services…": {
+    "Breite (lat)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connected – discovering services…"
+            "value": "Latitude (lat)"
           }
         }
       }
     },
-    "Getrennt": {
+    "Buddy-Screen": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disconnected"
+            "value": "Buddy screen"
           }
         }
       }
     },
-    "Verbunden ✓ (bereit zum Lesen)": {
+    "CCR Fester Sollwert": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connected ✓ (ready to read)"
+            "value": "CCR fixed setpoint"
           }
         }
       }
     },
-    "Deco-Layout": {
+    "CCR TTS-Prognose": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deco layout"
+            "value": "CCR TTS forecast"
           }
         }
       }
     },
-    "Decke + TTS": {
+    "CCR-TTS-Berechnung: auf Basis des Loop-pO₂ oder des Setpoints.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ceiling + TTS"
+            "value": "CCR TTS calculation: based on loop pO₂ or on the setpoint."
+          }
+        }
+      }
+    },
+    "CSV-Zeit ist genähert (Sample-Index × Intervall). Datum/Tiefe/Temp sind aus dem Record.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV time is approximate (sample index × interval). Date/depth/temp come from the record."
+          }
+        }
+      }
+    },
+    "Computer-Einstellungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Computer settings"
+          }
+        }
+      }
+    },
+    "Custom-Felder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom fields"
+          }
+        }
+      }
+    },
+    "Custom-Felder (Screen)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom fields (screen)"
+          }
+        }
+      }
+    },
+    "DPV-Screen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DPV screen"
+          }
+        }
+      }
+    },
+    "DPV-Screen aktivieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the DPV screen."
+          }
+        }
+      }
+    },
+    "Dauer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
           }
         }
       }
@@ -1342,212 +442,72 @@
         }
       }
     },
-    "Kategorien": {
+    "Decke + TTS": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Categories"
+            "value": "Ceiling + TTS"
           }
         }
       }
     },
-    "Gerätemenü": {
+    "Deco-Anzeige: Decke + TTS / Decke + Letzter Stopp / Decke + Letzter Stopp + TTS.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Device menu"
+            "value": "Deco display: Ceiling + TTS / Ceiling + Last Stop / Ceiling + Last Stop + TTS."
           }
         }
       }
     },
-    "Tauchmodus: Offener Kreislauf, CCR, CCR mit festem Sollwert, Sidemount oder Grundzeitmesser.": {
+    "Deco-Layout": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dive mode: open circuit, CCR, CCR fixed setpoint, sidemount or bottom timer."
+            "value": "Deco layout"
           }
         }
       }
     },
-    "Gradient Factor Low. Standard 45.": {
+    "Deco-Screen mit Ceiling, Deco-Stopps, GF now und GF surface.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gradient Factor Low. Default 45."
+            "value": "Deco screen with ceiling, deco stops, GF now and GF surface."
           }
         }
       }
     },
-    "Gradient Factor High. Standard 80.": {
+    "Deko-Screen": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gradient Factor High. Default 80."
+            "value": "Deco screen"
           }
         }
       }
     },
-    "Max. Sauerstoffpartialdruck fürs Deco-Gas (MOD-Berechnung).": {
+    "Der Symbios liest Wegpunkte aus USER.GPX auf seinem USB-Speicher. GPX exportieren, dann USER.GPX per USB aufs Gerät kopieren. (Direkter Funk-Upload ist noch nicht bestätigt.)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Max. oxygen partial pressure for the deco gas (MOD calculation)."
+            "value": "The Symbios reads waypoints from USER.GPX on its USB storage. Export the GPX, then copy USER.GPX to the device via USB. (Direct wireless upload is not confirmed yet.)"
           }
         }
       }
     },
-    "Max. ppO₂ fürs Grundgas (Gas mit dem niedrigsten O₂ unter den aktiven Gasen).": {
+    "Dichte": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Max. ppO₂ for the bottom gas (lowest-O₂ gas among the enabled gases)."
-          }
-        }
-      }
-    },
-    "FSP: niedriger pO₂-Setpoint (z. B. Bailout zu einem zweiten CCR).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FSP: low pO₂ setpoint (e.g. bailout to a second CCR)."
-          }
-        }
-      }
-    },
-    "FSP: hoher pO₂-Setpoint.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FSP: high pO₂ setpoint."
-          }
-        }
-      }
-    },
-    "Scrubber-Timer aktivieren/deaktivieren.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable/disable the scrubber timer."
-          }
-        }
-      }
-    },
-    "Maximale Nutzungszeit des Scrubbers.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Maximum allowable scrubber use time."
-          }
-        }
-      }
-    },
-    "CCR-TTS-Berechnung: auf Basis des Loop-pO₂ oder des Setpoints.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CCR TTS calculation: based on loop pO₂ or on the setpoint."
-          }
-        }
-      }
-    },
-    "Kompass-Deklination (−45…+45°).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Compass declination (−45…+45°)."
-          }
-        }
-      }
-    },
-    "Display-Helligkeit (Standard 5).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Display brightness (default 5)."
-          }
-        }
-      }
-    },
-    "Bei Tauchgängen tiefer 10 m Aufforderung zu einem 3-min-Sicherheitsstopp auf 3–6 m.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On dives deeper than 10 m, prompt for a 3-min safety stop at 3–6 m."
-          }
-        }
-      }
-    },
-    "Auto-Lock: Tastenfunktion tiefer als 100 m sperren.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-lock: disable button function deeper than 100 m."
-          }
-        }
-      }
-    },
-    "Letzten Deko-Stopp auf 3 m oder 6 m setzen.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set the last deco stop to 3 m or 6 m."
-          }
-        }
-      }
-    },
-    "Vibrationsalarme aktivieren (nur Handset).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable vibration alarms (handset only)."
-          }
-        }
-      }
-    },
-    "Aufstiegswarnung bei 10 m/min und 20 m/min.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ascent-rate warning at 10 m/min and 20 m/min."
-          }
-        }
-      }
-    },
-    "Sprache des Computers (Code).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Computer language (code)."
-          }
-        }
-      }
-    },
-    "Metrische oder imperiale Einheiten.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Metric or imperial units."
+            "value": "Density"
           }
         }
       }
@@ -1562,12 +522,1452 @@
         }
       }
     },
-    "Anzeige-Stil: Classic oder Modern.": {
+    "Display-Ausrichtung": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Display style: Classic or Modern."
+            "value": "Display orientation"
+          }
+        }
+      }
+    },
+    "Display-Helligkeit (Standard 5).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display brightness (default 5)."
+          }
+        }
+      }
+    },
+    "Dive-Timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive timeout"
+          }
+        }
+      }
+    },
+    "Einheiten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Units"
+          }
+        }
+      }
+    },
+    "Einstellungen werden gelesen…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading settings…"
+          }
+        }
+      }
+    },
+    "Entwurf verwerfen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard draft"
+          }
+        }
+      }
+    },
+    "Entwurf:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draft:"
+          }
+        }
+      }
+    },
+    "Erst Einstellungen lesen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read settings first."
+          }
+        }
+      }
+    },
+    "FSP SP HI": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FSP SP High"
+          }
+        }
+      }
+    },
+    "FSP SP LOW": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FSP SP Low"
+          }
+        }
+      }
+    },
+    "FSP: hoher pO₂-Setpoint.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FSP: high pO₂ setpoint."
+          }
+        }
+      }
+    },
+    "FSP: niedriger pO₂-Setpoint (z. B. Bailout zu einem zweiten CCR).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FSP: low pO₂ setpoint (e.g. bailout to a second CCR)."
+          }
+        }
+      }
+    },
+    "Felder für den Custom-Screen (unten links). Mehrfachauswahl. Modusabhängige Felder brauchen CCR-/Bottom-Timer-Modus, Licht oder Sender.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fields for the custom screen (bottom left). Multiple selection. Mode-dependent fields require CCR/bottom-timer mode, a light or a transmitter."
+          }
+        }
+      }
+    },
+    "Firmware-Update: v%@ verfügbar (installiert v%@) – Update über die offizielle App": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firmware update: v%@ available (installed v%@) – update via the official app"
+          }
+        }
+      }
+    },
+    "Funktion von „Taste B halten“: Best Gas, Stoppuhr, Kompasskurs oder Aus.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Hold button B” function: Best gas, stopwatch, compass heading or Off."
+          }
+        }
+      }
+    },
+    "GF-Chart-Screen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GF chart screen"
+          }
+        }
+      }
+    },
+    "GF-Verlauf als Chart.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GF trend as a chart."
+          }
+        }
+      }
+    },
+    "GPS-Screen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GPS screen"
+          }
+        }
+      }
+    },
+    "GPS-Screen aktivieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the GPS screen."
+          }
+        }
+      }
+    },
+    "Gas ändern": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change gas"
+          }
+        }
+      }
+    },
+    "Gase": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gases"
+          }
+        }
+      }
+    },
+    "Gastabelle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gas table"
+          }
+        }
+      }
+    },
+    "Gemisch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mix"
+          }
+        }
+      }
+    },
+    "Gerätemenü": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device menu"
+          }
+        }
+      }
+    },
+    "Geschl. Kreislauf": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed circuit"
+          }
+        }
+      }
+    },
+    "Gespeicherte Profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved profiles"
+          }
+        }
+      }
+    },
+    "Getrennt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected"
+          }
+        }
+      }
+    },
+    "Gradient Factor High. Standard 80.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradient Factor High. Default 80."
+          }
+        }
+      }
+    },
+    "Gradient Factor Low. Standard 45.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradient Factor Low. Default 45."
+          }
+        }
+      }
+    },
+    "Grafische Darstellung des Tauchprofils.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graphical representation of the dive profile."
+          }
+        }
+      }
+    },
+    "Grundzeitmesser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottom timer"
+          }
+        }
+      }
+    },
+    "HUD einfacher CCR-Screen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HUD simple CCR screen"
+          }
+        }
+      }
+    },
+    "Helligkeit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brightness"
+          }
+        }
+      }
+    },
+    "Kategorien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categories"
+          }
+        }
+      }
+    },
+    "Keine Antwort.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No response."
+          }
+        }
+      }
+    },
+    "Kompass-Deklination": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compass declination"
+          }
+        }
+      }
+    },
+    "Kompass-Deklination (−45…+45°).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compass declination (−45…+45°)."
+          }
+        }
+      }
+    },
+    "Konfiguration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuration"
+          }
+        }
+      }
+    },
+    "Kopieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
+    "Letzten Deko-Stopp auf 3 m oder 6 m setzen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the last deco stop to 3 m or 6 m."
+          }
+        }
+      }
+    },
+    "Letzter Stopp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last stop"
+          }
+        }
+      }
+    },
+    "Licht / Verbrauch / Zeit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light / Consumption / Time"
+          }
+        }
+      }
+    },
+    "Licht nötig": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requires light"
+          }
+        }
+      }
+    },
+    "Links": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left"
+          }
+        }
+      }
+    },
+    "Logbuch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logbook"
+          }
+        }
+      }
+    },
+    "Logbuch konnte nicht geladen werden.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not load the logbook."
+          }
+        }
+      }
+    },
+    "Logbuch laden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load logbook"
+          }
+        }
+      }
+    },
+    "Länge (lon)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Longitude (lon)"
+          }
+        }
+      }
+    },
+    "Max. Sauerstoffpartialdruck fürs Deco-Gas (MOD-Berechnung).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max. oxygen partial pressure for the deco gas (MOD calculation)."
+          }
+        }
+      }
+    },
+    "Max. Tiefe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max depth"
+          }
+        }
+      }
+    },
+    "Max. ppO₂ fürs Grundgas (Gas mit dem niedrigsten O₂ unter den aktiven Gasen).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max. ppO₂ for the bottom gas (lowest-O₂ gas among the enabled gases)."
+          }
+        }
+      }
+    },
+    "Maximale Nutzungszeit des Scrubbers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum allowable scrubber use time."
+          }
+        }
+      }
+    },
+    "Metrisch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metric"
+          }
+        }
+      }
+    },
+    "Metrische oder imperiale Einheiten.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metric or imperial units."
+          }
+        }
+      }
+    },
+    "Min. Temp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Min temp"
+          }
+        }
+      }
+    },
+    "NICHT bestätigt (SET: %@).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOT confirmed (SET: %@)."
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "Name (z. B. Tec 100)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name (e.g. Tec 100)"
+          }
+        }
+      }
+    },
+    "Neu lesen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload"
+          }
+        }
+      }
+    },
+    "Neuer Wegpunkt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New waypoint"
+          }
+        }
+      }
+    },
+    "Nicht bestätigt (SET: %@).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not confirmed (SET: %@)."
+          }
+        }
+      }
+    },
+    "Nicht verbunden – Logbuch braucht eine Geräteverbindung.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected – the logbook needs a device connection."
+          }
+        }
+      }
+    },
+    "Nicht verbunden.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected."
+          }
+        }
+      }
+    },
+    "Noch keine Profile. Oben mit „Aktuelle Einstellungen sichern“ anlegen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No profiles yet. Create one above with “Save current settings”."
+          }
+        }
+      }
+    },
+    "Nr.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No."
+          }
+        }
+      }
+    },
+    "Nur mit verbundenem Gerät aufspielbar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only writable with a connected device."
+          }
+        }
+      }
+    },
+    "OC PO₂ Deco": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OC PO₂ deco"
+          }
+        }
+      }
+    },
+    "OC PO₂ Grund": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OC PO₂ bottom"
+          }
+        }
+      }
+    },
+    "OK – am Gerät bestätigt (%lld).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK – confirmed on the device (%lld)."
+          }
+        }
+      }
+    },
+    "OK – am Gerät bestätigt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK – confirmed on the device."
+          }
+        }
+      }
+    },
+    "Offener Kreislauf": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open circuit"
+          }
+        }
+      }
+    },
+    "Offline-Entwurf starten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start offline draft"
+          }
+        }
+      }
+    },
+    "Offline-Entwurf – Änderungen bleiben nur lokal. Als Profil sichern und bei Verbindung aufspielen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline draft – changes stay local only. Save as a profile and apply once connected."
+          }
+        }
+      }
+    },
+    "Position": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position"
+          }
+        }
+      }
+    },
+    "Profil aufgespielt – am Gerät bestätigt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile applied – confirmed on the device."
+          }
+        }
+      }
+    },
+    "Profil aufspielen?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply profile?"
+          }
+        }
+      }
+    },
+    "Profil gesichert.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile saved."
+          }
+        }
+      }
+    },
+    "Profil speichern": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save profile"
+          }
+        }
+      }
+    },
+    "Profil ungültig (%lld B).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid profile (%lld B)."
+          }
+        }
+      }
+    },
+    "Profil „%@“ überschreibt ALLE Einstellungen am Gerät (inkl. Gastabelle). Vor dem Tauchgang prüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile “%@” overwrites ALL settings on the device (incl. gas table). Verify before diving."
+          }
+        }
+      }
+    },
+    "Profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiles"
+          }
+        }
+      }
+    },
+    "Profile & Backups": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiles & backups"
+          }
+        }
+      }
+    },
+    "Protokoll (Debug)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log (debug)"
+          }
+        }
+      }
+    },
+    "Protokoll kopiert (%lld Zeilen)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log copied (%lld lines)"
+          }
+        }
+      }
+    },
+    "Read-only. Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only. Download mechanics per libdivecomputer; verify on the first device."
+          }
+        }
+      }
+    },
+    "Rechts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right"
+          }
+        }
+      }
+    },
+    "Reverse-engineert; die meisten Einstellungen sind am Gerät verifiziert. Vor dem Tauchgang am Computer prüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reverse-engineered; most settings verified on-device. Confirm on the computer before diving."
+          }
+        }
+      }
+    },
+    "Rohdaten kopieren (Hex)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy raw data (hex)"
+          }
+        }
+      }
+    },
+    "Rohdaten kopiert (%lld B)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw data copied (%lld B)"
+          }
+        }
+      }
+    },
+    "Salzwasser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sea water"
+          }
+        }
+      }
+    },
+    "Samples": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samples"
+          }
+        }
+      }
+    },
+    "Schreiben": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write"
+          }
+        }
+      }
+    },
+    "Scrubber-Timer aktivieren/deaktivieren.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable/disable the scrubber timer."
+          }
+        }
+      }
+    },
+    "Scrubber-Zähler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrubber counter"
+          }
+        }
+      }
+    },
+    "Scrubber-Zähler-Timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrubber counter timeout"
+          }
+        }
+      }
+    },
+    "Sender nötig": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requires transmitter"
+          }
+        }
+      }
+    },
+    "Settings-Blob (für Offset-Diff)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings blob (for offset diff)"
+          }
+        }
+      }
+    },
+    "Sicherheitsstopp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safety stop"
+          }
+        }
+      }
+    },
+    "Sichern": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "Sichert die aktuell gelesenen Einstellungen als Profil.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saves the currently read settings as a profile."
+          }
+        }
+      }
+    },
+    "Sleep-Timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep timeout"
+          }
+        }
+      }
+    },
+    "Sprache (Code)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language (code)"
+          }
+        }
+      }
+    },
+    "Sprache des Computers (Code).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Computer language (code)."
+          }
+        }
+      }
+    },
+    "Standardgase": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard gases"
+          }
+        }
+      }
+    },
+    "Start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "Stil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Style"
+          }
+        }
+      }
+    },
+    "Stop Watch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopwatch"
+          }
+        }
+      }
+    },
+    "Suche Symbios…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching for Symbios…"
+          }
+        }
+      }
+    },
+    "Symbios verbinden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Symbios"
+          }
+        }
+      }
+    },
+    "Süßwasser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fresh water"
+          }
+        }
+      }
+    },
+    "Tastensperre ab 100 m": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Button lock below 100 m"
+          }
+        }
+      }
+    },
+    "Tauchgang": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive"
+          }
+        }
+      }
+    },
+    "Tauchgang konnte nicht geladen werden.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not load the dive."
+          }
+        }
+      }
+    },
+    "Tauchgänge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dives"
+          }
+        }
+      }
+    },
+    "Tauchmodus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive mode"
+          }
+        }
+      }
+    },
+    "Tauchmodus: Offener Kreislauf, CCR, CCR mit festem Sollwert, Sidemount oder Grundzeitmesser.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive mode: open circuit, CCR, CCR fixed setpoint, sidemount or bottom timer."
+          }
+        }
+      }
+    },
+    "Tauchprofil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive profile"
+          }
+        }
+      }
+    },
+    "Tiefenchart-Screen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depth chart screen"
+          }
+        }
+      }
+    },
+    "Tiefenprofil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depth profile"
+          }
+        }
+      }
+    },
+    "Timeouts & Alarme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timeouts & alarms"
+          }
+        }
+      }
+    },
+    "Trainingsmodus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training mode"
+          }
+        }
+      }
+    },
+    "Trainingssimulation: simulierte Deko-Stopps erstellen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training simulation: create simulated deco stops."
+          }
+        }
+      }
+    },
+    "Trennen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        }
+      }
+    },
+    "USER.GPX exportieren / teilen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export / share USER.GPX"
+          }
+        }
+      }
+    },
+    "Uhr gestellt: ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clock set: "
+          }
+        }
+      }
+    },
+    "Uhr synchronisieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync clock"
+          }
+        }
+      }
+    },
+    "Unterstützen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support"
+          }
+        }
+      }
+    },
+    "Update verfügbar: v%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update available: v%@"
+          }
+        }
+      }
+    },
+    "Verbinde dich oder starte einen Offline-Entwurf.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect or start an offline draft."
+          }
+        }
+      }
+    },
+    "Verbinde…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting…"
+          }
+        }
+      }
+    },
+    "Verbindung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection"
+          }
+        }
+      }
+    },
+    "Verbunden – suche Services…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected – discovering services…"
+          }
+        }
+      }
+    },
+    "Verbunden ✓ (bereit zum Lesen)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected ✓ (ready to read)"
+          }
+        }
+      }
+    },
+    "Vibrationsalarm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibration alarm"
+          }
+        }
+      }
+    },
+    "Vibrationsalarme aktivieren (nur Handset).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable vibration alarms (handset only)."
+          }
+        }
+      }
+    },
+    "Vom Gerät abgelehnt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejected by device."
+          }
+        }
+      }
+    },
+    "Wegpunkt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoint"
+          }
+        }
+      }
+    },
+    "Wegpunkt hinzufügen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add waypoint"
+          }
+        }
+      }
+    },
+    "Wegpunkte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoints"
+          }
+        }
+      }
+    },
+    "Wegpunkte (GPX)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoints (GPX)"
+          }
+        }
+      }
+    },
+    "Werkzeuge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tools"
+          }
+        }
+      }
+    },
+    "Wert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value"
+          }
+        }
+      }
+    },
+    "Wireless-Screen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireless screen"
+          }
+        }
+      }
+    },
+    "Wireless-Screen: Aus / Zusätzlich (fremde Sender) / Alle Sender in der Nähe.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wireless screen: Off / Additional (other transmitters) / All nearby transmitters."
+          }
+        }
+      }
+    },
+    "Zeit unbekannt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time unknown."
           }
         }
       }
@@ -1592,46 +1992,6 @@
         }
       }
     },
-    "Ausrichtung des Handsets (Tasten zur Handseite): Links oder Rechts.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Handset orientation (buttons toward the diver's hand): Left or Right."
-          }
-        }
-      }
-    },
-    "Wireless-Screen: Aus / Zusätzlich (fremde Sender) / Alle Sender in der Nähe.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wireless screen: Off / Additional (other transmitters) / All nearby transmitters."
-          }
-        }
-      }
-    },
-    "GPS-Screen aktivieren.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable the GPS screen."
-          }
-        }
-      }
-    },
-    "DPV-Screen aktivieren.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable the DPV screen."
-          }
-        }
-      }
-    },
     "Zugriff auf die Wireless-Daten des Buddys.": {
       "localizations": {
         "en": {
@@ -1642,112 +2002,132 @@
         }
       }
     },
-    "Deco-Screen mit Ceiling, Deco-Stopps, GF now und GF surface.": {
+    "Zusätzlich": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deco screen with ceiling, deco stops, GF now and GF surface."
+            "value": "Additional"
           }
         }
       }
     },
-    "Deco-Anzeige: Decke + TTS / Decke + Letzter Stopp / Decke + Letzter Stopp + TTS.": {
+    "an": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deco display: Ceiling + TTS / Ceiling + Last Stop / Ceiling + Last Stop + TTS."
+            "value": "on"
           }
         }
       }
     },
-    "Grafische Darstellung des Tauchprofils.": {
+    "aus": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Graphical representation of the dive profile."
+            "value": "off"
           }
         }
       }
     },
-    "GF-Verlauf als Chart.": {
+    "lädt…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GF trend as a chart."
+            "value": "loading…"
           }
         }
       }
     },
-    "Trainingssimulation: simulierte Deko-Stopps erstellen.": {
+    "nicht in CCR": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Training simulation: create simulated deco stops."
+            "value": "Not in CCR"
           }
         }
       }
     },
-    "Funktion von „Taste B halten“: Best Gas, Stoppuhr, Kompasskurs oder Aus.": {
+    "nur Bottom-Timer": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“Hold button B” function: Best gas, stopwatch, compass heading or Off."
+            "value": "Bottom timer only"
           }
         }
       }
     },
-    "Reverse-engineert; die meisten Einstellungen sind am Gerät verifiziert. Vor dem Tauchgang am Computer prüfen.": {
+    "nur CCR": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reverse-engineered; most settings verified on-device. Confirm on the computer before diving."
+            "value": "CCR only"
           }
         }
       }
     },
-    "Akku": {
+    "nur FSP/CCR": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Batt."
+            "value": "FSP/CCR only"
           }
         }
       }
     },
-    "App-Update": {
+    "nur Handset": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "App update"
+            "value": "Handset only"
           }
         }
       }
     },
-    "Update verfügbar: v%@": {
+    "z. B. Boot / Einstieg": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Update available: v%@"
+            "value": "e.g. boat / entry point"
           }
         }
       }
     },
-    "Firmware-Update: v%@ verfügbar (installiert v%@) – Update über die offizielle App": {
+    "Ändern": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Firmware update: v%@ available (installed v%@) – update via the official app"
+            "value": "Change"
+          }
+        }
+      }
+    },
+    "Übersicht": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overview"
+          }
+        }
+      }
+    },
+    "📝 „%@“ als Entwurf geladen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📝 “%@” loaded as draft."
           }
         }
       }

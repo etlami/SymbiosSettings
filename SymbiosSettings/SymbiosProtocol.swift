@@ -9,10 +9,15 @@ enum SymbiosProto {
     static let charA       = "00000101-8C3B-4F2C-A59E-8C08224F3253"  // write + notify/indicate
 
     // Kommandos
-    static let CMD_GET_STATUS:   UInt8 = 0x01
-    static let CMD_GET_SETTINGS: UInt8 = 0x02
-    static let CMD_SET_SETTINGS: UInt8 = 0x03
-    static let RESP_FLAG:        UInt8 = 0x80
+    static let CMD_GET_STATUS:      UInt8 = 0x01
+    static let CMD_GET_SETTINGS:    UInt8 = 0x02
+    static let CMD_SET_SETTINGS:    UInt8 = 0x03
+    static let CMD_LOGBOOK_REQUEST: UInt8 = 0x04
+    static let CMD_DIVELOG_REQUEST: UInt8 = 0x05
+    static let CMD_SET_TIME:        UInt8 = 0x07
+    static let CMD_LOGBOOK_BLOCK:   UInt8 = 0x08
+    static let CMD_DIVELOG_BLOCK:   UInt8 = 0x09
+    static let RESP_FLAG:           UInt8 = 0x80
     static let ACK: UInt8 = 0x06
     static let NAK: UInt8 = 0x15
 

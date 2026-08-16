@@ -68,6 +68,7 @@ struct ContentView: View {
                 } else {
                     Section { Text("Verbinde dich oder starte einen Offline-Entwurf.").foregroundStyle(.secondary) }
                 }
+                toolsSection
                 profilesSection
                 Section("Sprache / Language") {
                     Picker("", selection: $appLang) {
@@ -154,6 +155,29 @@ struct ContentView: View {
             } message: { Text("Sichert die aktuell gelesenen Einstellungen als Profil.") }
         }
         .environment(\.locale, appLang == "system" ? Locale.autoupdatingCurrent : Locale(identifier: appLang))
+    }
+
+    // MARK: Werkzeuge (Uhr / Logbuch / Wegpunkte)
+    @ViewBuilder private var toolsSection: some View {
+        Section("Werkzeuge") {
+            if ble.connected {
+                Button {
+                    Task {
+                        busy = true
+                        let (ok, msg) = await ble.syncTime()
+                        busy = false
+                        showToast((ok ? "✅ " : "⚠️ ") + msg)
+                    }
+                } label: { Label("Uhr synchronisieren", systemImage: "clock.arrow.2.circlepath") }
+                    .disabled(busy)
+                NavigationLink { LogbookView(ble: ble) } label: {
+                    Label("Logbuch", systemImage: "list.bullet.rectangle")
+                }
+            }
+            NavigationLink { WaypointsView() } label: {
+                Label("Wegpunkte (GPX)", systemImage: "mappin.and.ellipse")
+            }
+        }
     }
 
     // MARK: Profile
