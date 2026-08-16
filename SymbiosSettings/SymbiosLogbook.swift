@@ -21,7 +21,7 @@ struct ParsedDive {
     var minTemp: Double?
     var serial: UInt32?
     var model: UInt8?       // 7=Handset, 1=HUD (Header @2)
-    var mode: Int?          // dcMode 0=OC…4=Gauge (Header @11, PROVISORISCH – noch zu bestätigen)
+    var mode: Int?          // dcMode 0=OC…4=Gauge (Header @13, am Gerät bestätigt)
     var atmBar: Double?
     var gasCount: Int = 0
     var samples: [DiveSample] = []
@@ -52,9 +52,9 @@ enum DiveParser {
             if len < 2 || i + len > d.count { break }
             let rec = Array(d[i..<i+len])
             switch id {
-            case 0x01:  // HEADER (64): @2 model, @11 dcMode(?), @16 atmospheric, @18 number, @24 time_start, @28 serial
+            case 0x01:  // HEADER (64): @2 model, @13 dcMode, @16 atmospheric, @18 number, @24 time_start, @28 serial
                 if rec.count >= 3 { p.model = rec[2] }
-                if rec.count >= 12 { p.mode = Int(rec[11]) }   // PROVISORISCH (Kandidaten @11/@13/@14)
+                if rec.count >= 14 { p.mode = Int(rec[13]) }   // dcMode ✓ (OC=0 Dive13, CCR_FSP=2 Sample)
                 if rec.count >= 18 { p.atmBar = Double(u16(rec, 16)) / 1000.0; p.number = u16(rec, 18) }
                 if rec.count >= 28 { p.start = Date(timeIntervalSince1970: EPOCH_2021 + Double(u32(rec, 24))) }
                 if rec.count >= 32 { p.serial = u32(rec, 28) }

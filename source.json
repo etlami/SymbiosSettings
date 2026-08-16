@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.6",
+      "version": "1.9.7",
       "versionDate": "2026-08-16",
-      "versionDescription": "Merged logbook (HUD + Computer by start time), dive type (OC/CCR/...) shown, and a recalibrated battery estimate.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.6/SymbiosSettings.ipa",
-      "size": 549564,
+      "versionDescription": "Fix dive type: dcMode is header offset 13 (confirmed OC=0 / CCR-FSP=2 on-device).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.7/SymbiosSettings.ipa",
+      "size": 549571,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.7",
+          "date": "2026-08-16",
+          "localizedDescription": "Fix dive type: dcMode is header offset 13 (confirmed OC=0 / CCR-FSP=2 on-device).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.7/SymbiosSettings.ipa",
+          "size": 549571,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.6",
           "date": "2026-08-16",
