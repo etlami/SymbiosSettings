@@ -372,6 +372,16 @@
         }
       }
     },
+    "CSV-Zeit ist genähert (Sample-Index × Intervall). Datum/Tiefe/Temp sind aus dem Record. Rohdaten = unveränderter Geräte-Record (zur Diagnose).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV time is approximate (sample index × interval). Date/depth/temp come from the record. Raw = the unmodified device record (for diagnosis)."
+          }
+        }
+      }
+    },
     "Computer-Einstellungen": {
       "localizations": {
         "en": {
@@ -752,6 +762,16 @@
         }
       }
     },
+    "Geladene Tauchgänge verwerfen (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard downloaded dives (%lld)"
+          }
+        }
+      }
+    },
     "Gemisch": {
       "localizations": {
         "en": {
@@ -1112,6 +1132,16 @@
         }
       }
     },
+    "Neu laden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload"
+          }
+        }
+      }
+    },
     "Neu lesen": {
       "localizations": {
         "en": {
@@ -1448,6 +1478,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reverse-engineered; most settings verified on-device. Confirm on the computer before diving."
+          }
+        }
+      }
+    },
+    "Rohdaten (.bin) teilen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share raw data (.bin)"
           }
         }
       }
@@ -1848,6 +1888,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Support"
+          }
+        }
+      }
+    },
+    "Unvollständig geladen (vermutlich alter Teil-Download).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incomplete download (likely an old partial transfer)."
           }
         }
       }

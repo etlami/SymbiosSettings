@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.3",
+      "version": "1.9.4",
       "versionDate": "2026-08-16",
-      "versionDescription": "Fix logbook/dive download aborting mid-transfer: stale command timeouts no longer cancel the active block wait (per-request generation guard).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.3/SymbiosSettings.ipa",
-      "size": 480336,
+      "versionDescription": "Reload dives: per-dive reload button, incomplete-download warning, and bulk 'discard downloaded dives'. Depth-profile x-axis in minutes; raw .bin export for diagnosis.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.4/SymbiosSettings.ipa",
+      "size": 493987,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.4",
+          "date": "2026-08-16",
+          "localizedDescription": "Reload dives: per-dive reload button, incomplete-download warning, and bulk 'discard downloaded dives'. Depth-profile x-axis in minutes; raw .bin export for diagnosis.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.4/SymbiosSettings.ipa",
+          "size": 493987,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.3",
           "date": "2026-08-16",

@@ -135,6 +135,11 @@ struct LogbookView: View {
                           systemImage: store.index.isEmpty ? "wifi.slash" : "internaldrive")
                         .foregroundStyle(.secondary).font(.footnote)
                 }
+                if !store.downloadedIds.isEmpty {
+                    Button(role: .destructive) { store.clearDives() } label: {
+                        Label("Geladene Tauchgänge verwerfen (\(store.downloadedIds.count))", systemImage: "trash")
+                    }.disabled(loading)
+                }
             } footer: {
                 Text("Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
             }
@@ -173,6 +178,9 @@ struct DiveDetailView: View {
     @State private var loading = false
     @State private var err: String? = nil
     @State private var csvURL: URL? = nil
+    @State private var binURL: URL? = nil
+
+    private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
 
     var body: some View {
         List {
@@ -180,6 +188,14 @@ struct DiveDetailView: View {
                 Section { HStack { ProgressView(); Text(progressText).foregroundStyle(.secondary) } }
             }
             if let err { Section { Text(err).foregroundStyle(.orange) } }
+            if let d = dive, isIncomplete(d) {
+                Section {
+                    Label("Unvollständig geladen (vermutlich alter Teil-Download).", systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange).font(.footnote)
+                    Button { Task { await load(force: true) } } label: { Label("Neu laden", systemImage: "arrow.clockwise") }
+                        .disabled(loading || !ble.connected)
+                }
+            }
             if let d = dive {
                 Section("Übersicht") {
                     if let n = d.number { row("Nr.", "\(n)") }
@@ -193,31 +209,45 @@ struct DiveDetailView: View {
                 if d.samples.count > 1 {
                     Section("Tiefenprofil") {
                         Chart(d.samples) { s in
-                            LineMark(x: .value("t", s.seconds), y: .value("m", s.depth))
+                            LineMark(x: .value("min", Double(s.seconds) / 60.0), y: .value("m", s.depth))
                                 .foregroundStyle(.blue)
                         }
                         .chartYScale(domain: .automatic(includesZero: true, reversed: true))
+                        .chartXAxisLabel("min")
                         .frame(height: 180)
                     }
                 }
-                if let url = csvURL {
-                    Section {
+                Section {
+                    if let url = csvURL {
                         ShareLink(item: url) { Label("Als CSV exportieren / teilen", systemImage: "square.and.arrow.up") }
-                    } footer: {
-                        Text("CSV-Zeit ist genähert (Sample-Index × Intervall). Datum/Tiefe/Temp sind aus dem Record.")
                     }
+                    if let b = binURL {
+                        ShareLink(item: b) { Label("Rohdaten (.bin) teilen", systemImage: "doc.badge.gearshape") }
+                    }
+                } footer: {
+                    Text("CSV-Zeit ist genähert (Sample-Index × Intervall). Datum/Tiefe/Temp sind aus dem Record. Rohdaten = unveränderter Geräte-Record (zur Diagnose).")
                 }
             }
         }
         .navigationTitle(Text(verbatim: LT("Tauchgang") + " \(entry.diveId)"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if ble.connected {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { Task { await load(force: true) } } label: { Image(systemName: "arrow.clockwise") }
+                        .disabled(loading)
+                }
+            }
+        }
         .task { await load() }
     }
 
-    private func load() async {
-        guard dive == nil, !loading else { return }
+    private func load(force: Bool = false) async {
+        if !force { guard dive == nil else { return } }
+        guard !loading else { return }
         loading = true; err = nil
-        var raw = store.loadDive(entry.diveId)          // erst Offline-Cache
+        if force { store.removeDive(entry.diveId) }
+        var raw = force ? nil : store.loadDive(entry.diveId)   // erst Offline-Cache (außer erzwungen)
         if raw == nil {
             guard ble.connected else { err = LT("Nicht gespeichert – zum Laden mit dem Gerät verbinden."); loading = false; return }
             raw = await ble.downloadDive(entry.diveId)
@@ -226,10 +256,12 @@ struct DiveDetailView: View {
         guard let raw else { err = LT("Tauchgang konnte nicht geladen werden."); loading = false; return }
         let parsed = DiveParser.parse(raw)
         dive = parsed
+        let tmp = FileManager.default.temporaryDirectory
         let csv = DiveParser.csv(parsed, diveId: entry.diveId)
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("dive_\(entry.diveId).csv")
-        try? csv.data(using: .utf8)?.write(to: url)
-        csvURL = url
+        let curl = tmp.appendingPathComponent("dive_\(entry.diveId).csv")
+        try? csv.data(using: .utf8)?.write(to: curl); csvURL = curl
+        let burl = tmp.appendingPathComponent("dive_\(entry.diveId).bin")
+        try? Data(raw).write(to: burl); binURL = burl
         loading = false
     }
 

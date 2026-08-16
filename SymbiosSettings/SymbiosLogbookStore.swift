@@ -73,6 +73,20 @@ final class LogbookStore: ObservableObject {
         downloadedIds.insert(id)
     }
 
+    /// Nur die geladenen Tauchgang-Records löschen (Index bleibt) → beim Öffnen wird neu geladen.
+    func clearDives() {
+        guard let s = serial else { return }
+        for id in downloadedIds { try? fm.removeItem(at: diveURL(s, id)) }
+        downloadedIds = []
+    }
+
+    /// Einen einzelnen Tauchgang-Record löschen (für gezieltes Neu-Laden).
+    func removeDive(_ id: UInt16) {
+        guard let s = serial else { return }
+        try? fm.removeItem(at: diveURL(s, id))
+        downloadedIds.remove(id)
+    }
+
     /// Alle Offline-Daten des aktuellen Geräts löschen.
     func clearCurrent() {
         guard let s = serial else { return }
