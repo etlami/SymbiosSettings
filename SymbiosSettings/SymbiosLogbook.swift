@@ -538,6 +538,7 @@ struct DiveDetailView: View {
 struct ProfileChartView: View {
     let dive: ParsedDive
     var height: CGFloat = 220
+    var sidePanel: Bool = false          // true = Werte rechts daneben (Querformat/Fullscreen)
     @State private var showDepth = true
     @State private var showCeiling = true
     @State private var showTemp = true
@@ -564,15 +565,14 @@ struct ProfileChartView: View {
         let hasTtsData = d.samples.contains { ($0.tts ?? 0) > 0 }
         let hasGfData = d.samples.contains { $0.gfNow != nil || $0.gfSurf != nil }
 
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 12) {
-                chip(sDepth, .blue, $showDepth)
-                if hasCeil { chip(sCeil, .orange, $showCeiling) }
-                if hasTemp { chip(sTemp, .red, $showTemp) }
-                if hasPress { chip(sPress, .green, $showPressure) }
-            }.font(.caption)
+        let chips = HStack(spacing: 12) {
+            chip(sDepth, .blue, $showDepth)
+            if hasCeil { chip(sCeil, .orange, $showCeiling) }
+            if hasTemp { chip(sTemp, .red, $showTemp) }
+            if hasPress { chip(sPress, .green, $showPressure) }
+        }.font(.caption)
 
-            Chart {
+        let chartView = Chart {
                 if showDepth {
                     ForEach(d.samples) { s in
                         LineMark(x: .value("min", Double(s.seconds) / 60.0), y: .value("m", s.depth))
@@ -646,22 +646,35 @@ struct ProfileChartView: View {
                         )
                 }
             }
-            .frame(height: height)
 
-            readout(hasTemp: hasTemp, hasPress: hasPress, hasCeil: hasCeil, hasTts: hasTtsData, hasGf: hasGfData)
+        return Group {
+            if sidePanel {
+                HStack(alignment: .top, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        chips
+                        chartView.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    readout(columns: 1, hasTemp: hasTemp, hasPress: hasPress, hasCeil: hasCeil, hasTts: hasTtsData, hasGf: hasGfData)
+                        .frame(width: 210)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    chips
+                    chartView.frame(height: height)
+                    readout(columns: 2, hasTemp: hasTemp, hasPress: hasPress, hasCeil: hasCeil, hasTts: hasTtsData, hasGf: hasGfData)
+                }
+            }
         }
     }
 
     // Werte-Panel UNTER dem Diagramm (verdeckt nichts). Feste Slots pro Tauchgang → keine Verschiebung.
-    @ViewBuilder private func readout(hasTemp: Bool, hasPress: Bool, hasCeil: Bool, hasTts: Bool, hasGf: Bool) -> some View {
+    @ViewBuilder private func readout(columns: Int, hasTemp: Bool, hasPress: Bool, hasCeil: Bool, hasTts: Bool, hasGf: Bool) -> some View {
         let s: DiveSample? = selIndex.flatMap { $0 >= 0 && $0 < dive.samples.count ? dive.samples[$0] : nil }
-        let cols = [GridItem(.flexible(), spacing: 10, alignment: .leading),
-                    GridItem(.flexible(), spacing: 10, alignment: .leading),
-                    GridItem(.flexible(), spacing: 10, alignment: .leading)]
-        VStack(alignment: .leading, spacing: 4) {
+        let cols = Array(repeating: GridItem(.flexible(), spacing: 12, alignment: .leading), count: max(1, columns))
+        VStack(alignment: .leading, spacing: 6) {
             if let s {
                 Text(verbatim: timeStr(s.seconds)).font(.caption.bold()).foregroundStyle(.secondary)
-                LazyVGrid(columns: cols, alignment: .leading, spacing: 4) {
+                LazyVGrid(columns: cols, alignment: .leading, spacing: 8) {
                     metric("Tiefe", String(format: "%.1f m", s.depth), .blue)
                     if hasTemp { metric("Temp", String(format: "%.1f °C", s.temp ?? 0), .red) }
                     if hasPress { metric("Druck", String(format: "%.0f bar", s.pressure ?? 0), .green) }
@@ -684,9 +697,9 @@ struct ProfileChartView: View {
     @ViewBuilder private func metric(_ k: String, _ v: String, _ c: Color) -> some View {
         HStack(spacing: 5) {
             Circle().fill(c).frame(width: 6, height: 6)
-            Text(LocalizedStringKey(k)).foregroundStyle(.secondary)
+            Text(LocalizedStringKey(k)).foregroundStyle(.secondary).lineLimit(1)
             Spacer(minLength: 4)
-            Text(verbatim: v).bold().monospacedDigit()
+            Text(verbatim: v).bold().monospacedDigit().lineLimit(1)
         }
     }
 
@@ -724,7 +737,7 @@ struct FullscreenChart: View {
             ZStack {
                 Color(.systemBackground).ignoresSafeArea()
                 ZStack(alignment: .topTrailing) {
-                    ProfileChartView(dive: dive, height: geo.size.width - 130)
+                    ProfileChartView(dive: dive, sidePanel: true)
                     Button(action: close) {
                         Image(systemName: "xmark.circle.fill").font(.title).foregroundStyle(.secondary)
                     }
