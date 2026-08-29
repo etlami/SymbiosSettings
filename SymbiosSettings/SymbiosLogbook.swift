@@ -561,6 +561,8 @@ struct ProfileChartView: View {
         let tempTickVals: [Double] = hasTemp ? niceTicks(tMin, tMax, 4) : []
         let tempTickYs = tempTickVals.map { yMax * (1 - ($0 - tMin) / (tMax - tMin)) }
         let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp"), sPress = LT("Druck")
+        let hasTtsData = d.samples.contains { ($0.tts ?? 0) > 0 }
+        let hasGfData = d.samples.contains { $0.gfNow != nil || $0.gfSurf != nil }
 
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
@@ -644,38 +646,46 @@ struct ProfileChartView: View {
                         )
                 }
             }
-            .overlay(alignment: .top) {
-                if let i = selIndex, i >= 0, i < d.samples.count { callout(d.samples[i]) }
-            }
             .frame(height: height)
+
+            readout(hasTemp: hasTemp, hasPress: hasPress, hasCeil: hasCeil, hasTts: hasTtsData, hasGf: hasGfData)
         }
     }
 
-    @ViewBuilder private func callout(_ s: DiveSample) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(verbatim: timeStr(s.seconds)).font(.caption2.bold()).foregroundStyle(.secondary)
-            HStack(spacing: 10) {
-                metric("Tiefe", String(format: "%.1f m", s.depth), .blue)
-                if let t = s.temp { metric("Temp", String(format: "%.1f°", t), .red) }
-                if let p = s.pressure { metric("Druck", String(format: "%.0f bar", p), .green) }
-            }
-            HStack(spacing: 10) {
-                if let c = s.ceiling, c > 0 { metric("Ceiling", "\(Int(c)) m", .orange) }
-                if let tts = s.tts, tts > 0 { metric("TTS", ttsStr(tts), .gray) }
-                if let g = s.gfNow { metric("GF now", "\(g) %", .gray) }
-                if let g = s.gfSurf { metric("SurfGF", "\(g) %", .gray) }
+    // Werte-Panel UNTER dem Diagramm (verdeckt nichts). Feste Slots pro Tauchgang → keine Verschiebung.
+    @ViewBuilder private func readout(hasTemp: Bool, hasPress: Bool, hasCeil: Bool, hasTts: Bool, hasGf: Bool) -> some View {
+        let s: DiveSample? = selIndex.flatMap { $0 >= 0 && $0 < dive.samples.count ? dive.samples[$0] : nil }
+        let cols = [GridItem(.flexible(), spacing: 10, alignment: .leading),
+                    GridItem(.flexible(), spacing: 10, alignment: .leading),
+                    GridItem(.flexible(), spacing: 10, alignment: .leading)]
+        VStack(alignment: .leading, spacing: 4) {
+            if let s {
+                Text(verbatim: timeStr(s.seconds)).font(.caption.bold()).foregroundStyle(.secondary)
+                LazyVGrid(columns: cols, alignment: .leading, spacing: 4) {
+                    metric("Tiefe", String(format: "%.1f m", s.depth), .blue)
+                    if hasTemp { metric("Temp", String(format: "%.1f °C", s.temp ?? 0), .red) }
+                    if hasPress { metric("Druck", String(format: "%.0f bar", s.pressure ?? 0), .green) }
+                    if hasCeil { metric("Ceiling", "\(Int(s.ceiling ?? 0)) m", .orange) }
+                    if hasTts { metric("TTS", ttsStr(s.tts ?? 0), .gray) }
+                    if hasGf {
+                        metric("GF now", "\(s.gfNow ?? 0) %", .gray)
+                        metric("SurfGF", "\(s.gfSurf ?? 0) %", .gray)
+                    }
+                }
+            } else {
+                Label("Zum Ablesen über das Profil ziehen", systemImage: "hand.draw")
+                    .font(.caption).foregroundStyle(.secondary)
             }
         }
-        .font(.caption2)
-        .padding(8)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 8))
-        .padding(.top, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 2)
     }
 
     @ViewBuilder private func metric(_ k: String, _ v: String, _ c: Color) -> some View {
-        HStack(spacing: 3) {
+        HStack(spacing: 5) {
             Circle().fill(c).frame(width: 6, height: 6)
             Text(LocalizedStringKey(k)).foregroundStyle(.secondary)
+            Spacer(minLength: 4)
             Text(verbatim: v).bold().monospacedDigit()
         }
     }
@@ -711,17 +721,18 @@ struct FullscreenChart: View {
     let close: () -> Void
     var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .topTrailing) {
+            ZStack {
                 Color(.systemBackground).ignoresSafeArea()
-                ProfileChartView(dive: dive, height: geo.size.width - 90)
-                    .padding()
-                    .frame(width: geo.size.height, height: geo.size.width)
-                    .rotationEffect(.degrees(90))
-                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                Button(action: close) {
-                    Image(systemName: "xmark.circle.fill").font(.title).foregroundStyle(.secondary)
+                ZStack(alignment: .topTrailing) {
+                    ProfileChartView(dive: dive, height: geo.size.width - 130)
+                    Button(action: close) {
+                        Image(systemName: "xmark.circle.fill").font(.title).foregroundStyle(.secondary)
+                    }
                 }
                 .padding()
+                .frame(width: geo.size.height, height: geo.size.width)
+                .rotationEffect(.degrees(90))
+                .position(x: geo.size.width / 2, y: geo.size.height / 2)
             }
         }
     }

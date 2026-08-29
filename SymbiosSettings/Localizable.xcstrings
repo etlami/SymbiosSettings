@@ -2302,6 +2302,16 @@
         }
       }
     },
+    "Zum Ablesen über das Profil ziehen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag across the profile to read values"
+          }
+        }
+      }
+    },
     "Zusammengeführt": {
       "localizations": {
         "en": {
