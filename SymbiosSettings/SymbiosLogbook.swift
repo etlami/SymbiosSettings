@@ -12,6 +12,9 @@ struct DiveSample: Identifiable {
     var temp: Double?    // °C
     var ceiling: Double? // Deko-Decke m (0 = keine Deko)
     var pressure: Double? // Tankdruck bar (Sender)
+    var tts: Int?        // Time-to-Surface, Sekunden (DECO @8)
+    var gfNow: Int?      // GF now % (GF_DATA @2)
+    var gfSurf: Int?     // Surface-GF % (GF_DATA @4)
 }
 
 struct ParsedDive {
@@ -79,6 +82,9 @@ enum DiveParser {
         var lastTemp: Double? = nil      // zuletzt gesehener Wert (carry-forward pro Zyklus)
         var lastCeiling: Double? = nil
         var lastPressure: Double? = nil
+        var lastTts: Int? = nil
+        var lastGfNow: Int? = nil
+        var lastGfSurf: Int? = nil
         while i + 2 <= d.count {
             let id = d[i]; let len = Int(d[i+1])
             if len < 2 || i + len > d.count { break }
@@ -98,8 +104,11 @@ enum DiveParser {
                     lastTemp = t
                     p.minTemp = p.minTemp.map { min($0, t) } ?? t
                 }
-            case 0x0A:  // DECO (16): @3 u8 ceiling (m)
+            case 0x0A:  // DECO (16): @3 u8 ceiling (m), @8 u16 tts (Sekunden)
                 if rec.count >= 4 { lastCeiling = Double(rec[3]) }
+                if rec.count >= 10 { lastTts = Int(u16(rec, 8)) }
+            case 0x13, 0x15:  // GF_INFO / GF_DATA: @2 u16 gf_now %, @4 u16 gf_surface %
+                if rec.count >= 6 { lastGfNow = Int(u16(rec, 2)); lastGfSurf = Int(u16(rec, 4)) }
             case 0x06:  // GAS_TRANSMITTER (12): @6 u16 pressure ÷10 bar
                 if rec.count >= 8 { let p = Double(u16(rec, 6)) / 10.0; if p > 0 && p < 400 { lastPressure = p } }
             case 0x12:  // TANK_TRANSMITTER (8): @6 u16 pressure ÷100 bar (libdc: /10 dann /10)
@@ -109,7 +118,8 @@ enum DiveParser {
                     let m = Double(u16(rec, 2)) / 100.0
                     p.maxDepth = max(p.maxDepth, m)
                     p.samples.append(DiveSample(id: sampleIdx, seconds: sampleIdx * p.interval,
-                                                depth: m, temp: lastTemp, ceiling: lastCeiling, pressure: lastPressure))
+                                                depth: m, temp: lastTemp, ceiling: lastCeiling, pressure: lastPressure,
+                                                tts: lastTts, gfNow: lastGfNow, gfSurf: lastGfSurf))
                     sampleIdx += 1
                 }
             case 0x11:  // GAS_CONFIG
@@ -394,10 +404,7 @@ struct DiveDetailView: View {
     @State private var csvURL: URL? = nil
     @State private var binURL: URL? = nil
     @AppStorage("tankSizeL") private var tankSizeL: Double = 12
-    @State private var showDepth = true
-    @State private var showCeiling = true
-    @State private var showTemp = true
-    @State private var showPressure = true
+    @State private var fullscreen = false
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
     /// Nachladen geht nur, wenn genau dieses Gerät verbunden ist.
@@ -430,7 +437,16 @@ struct DiveDetailView: View {
                     row("Samples", "\(d.samples.count)")
                 }
                 if d.samples.count > 1 {
-                    Section("Tiefenprofil") { profileChart(d) }
+                    Section {
+                        ProfileChartView(dive: d)
+                    } header: {
+                        HStack {
+                            Text("Tiefenprofil"); Spacer()
+                            Button { fullscreen = true } label: {
+                                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                            }.textCase(nil)
+                        }
+                    }
                 }
                 if d.hasTank {
                     Section {
@@ -475,6 +491,9 @@ struct DiveDetailView: View {
             }
         }
         .task { await load() }
+        .fullScreenCover(isPresented: $fullscreen) {
+            if let d = dive { FullscreenChart(dive: d) { fullscreen = false } }
+        }
     }
 
     private func load(force: Bool = false) async {
@@ -500,10 +519,34 @@ struct DiveDetailView: View {
         loading = false
     }
 
-    // Tiefe links (m, 0…gerundetes Max), Temperatur rechts (°C, in Meter-Raum gemappt),
-    // Ceiling in Metern, Tankdruck als Trendlinie (voll oben → leer unten). Serien umschaltbar.
-    @ViewBuilder private func profileChart(_ d: ParsedDive) -> some View {
-        let yMax = max(5.0, (d.maxDepth / 5).rounded(.up) * 5)          // z. B. 43 m → 45 m
+    private func row(_ k: String, _ v: String) -> some View {
+        HStack { Text(LocalizedStringKey(k)); Spacer(); Text(v).foregroundStyle(.secondary).monospacedDigit() }
+    }
+    private var progressText: String {
+        if let x = ble.xferProgress { return "\(Int(x * 100)) %" }
+        return LT("lädt…")
+    }
+    private func dateStr(_ d: Date) -> String {
+        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short; return f.string(from: d)
+    }
+    private func durStr(_ t: TimeInterval) -> String {
+        let m = Int(t) / 60, s = Int(t) % 60; return String(format: "%d:%02d min", m, s)
+    }
+}
+
+// MARK: - Tiefenprofil-Chart mit Scrub-Tooltip (Finger über die Linie → Werte)
+struct ProfileChartView: View {
+    let dive: ParsedDive
+    var height: CGFloat = 220
+    @State private var showDepth = true
+    @State private var showCeiling = true
+    @State private var showTemp = true
+    @State private var showPressure = true
+    @State private var selIndex: Int? = nil
+
+    var body: some View {
+        let d = dive
+        let yMax = max(5.0, (d.maxDepth / 5).rounded(.up) * 5)
         let xMax = max(1.0, (d.samples.last.map { Double($0.seconds) / 60.0 } ?? 1))
         let temps = d.samples.compactMap { $0.temp }
         let tMin = temps.min() ?? 0
@@ -558,21 +601,26 @@ struct DiveDetailView: View {
                         }
                     }
                 }
+                if let i = selIndex, i >= 0, i < d.samples.count {
+                    RuleMark(x: .value("min", Double(d.samples[i].seconds) / 60.0))
+                        .foregroundStyle(.gray.opacity(0.5))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                }
             }
             .chartForegroundStyleScale([sDepth: Color.blue, sCeil: Color.orange, sTemp: Color.red, sPress: Color.green])
             .chartLegend(.hidden)
             .chartXScale(domain: 0...xMax)
-            .chartYScale(domain: [yMax, 0])          // 0 m oben, Max unten (umgekehrt)
+            .chartYScale(domain: [yMax, 0])
             .chartYAxis {
                 AxisMarks(position: .leading, values: depthTicks) { v in
                     AxisGridLine(); AxisTick()
                     AxisValueLabel { if let y = v.as(Double.self) { Text(verbatim: "\(Int(y)) m") } }
                 }
                 if hasTemp && showTemp {
-                    AxisMarks(position: .trailing, values: tempTickYs) { axisValue in
+                    AxisMarks(position: .trailing, values: tempTickYs) { av in
                         AxisTick()
                         AxisValueLabel {
-                            if let y = axisValue.as(Double.self) {
+                            if let y = av.as(Double.self) {
                                 let f = 1 - (y / yMax)
                                 Text(verbatim: String(format: "%.0f°", tMin + f * (tMax - tMin)))
                             }
@@ -581,7 +629,54 @@ struct DiveDetailView: View {
                 }
             }
             .chartXAxisLabel("min")
-            .frame(height: 220)
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle().fill(.clear).contentShape(Rectangle())
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { v in
+                                    let px = v.location.x - geo[proxy.plotAreaFrame].origin.x
+                                    if let minute = proxy.value(atX: px, as: Double.self) {
+                                        let idx = Int((minute * 60.0 / Double(max(d.interval, 1))).rounded())
+                                        selIndex = min(max(idx, 0), d.samples.count - 1)
+                                    }
+                                }
+                        )
+                }
+            }
+            .overlay(alignment: .top) {
+                if let i = selIndex, i >= 0, i < d.samples.count { callout(d.samples[i]) }
+            }
+            .frame(height: height)
+        }
+    }
+
+    @ViewBuilder private func callout(_ s: DiveSample) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(verbatim: timeStr(s.seconds)).font(.caption2.bold()).foregroundStyle(.secondary)
+            HStack(spacing: 10) {
+                metric("Tiefe", String(format: "%.1f m", s.depth), .blue)
+                if let t = s.temp { metric("Temp", String(format: "%.1f°", t), .red) }
+                if let p = s.pressure { metric("Druck", String(format: "%.0f bar", p), .green) }
+            }
+            HStack(spacing: 10) {
+                if let c = s.ceiling, c > 0 { metric("Ceiling", "\(Int(c)) m", .orange) }
+                if let tts = s.tts, tts > 0 { metric("TTS", ttsStr(tts), .gray) }
+                if let g = s.gfNow { metric("GF now", "\(g) %", .gray) }
+                if let g = s.gfSurf { metric("SurfGF", "\(g) %", .gray) }
+            }
+        }
+        .font(.caption2)
+        .padding(8)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 8))
+        .padding(.top, 4)
+    }
+
+    @ViewBuilder private func metric(_ k: String, _ v: String, _ c: Color) -> some View {
+        HStack(spacing: 3) {
+            Circle().fill(c).frame(width: 6, height: 6)
+            Text(LocalizedStringKey(k)).foregroundStyle(.secondary)
+            Text(verbatim: v).bold().monospacedDigit()
         }
     }
 
@@ -594,7 +689,9 @@ struct DiveDetailView: View {
         }.buttonStyle(.plain)
     }
 
-    /// „Schöne" Tick-Werte (1/2/5×10ⁿ) zwischen lo und hi.
+    private func timeStr(_ sec: Int) -> String { String(format: "%d:%02d min", sec / 60, sec % 60) }
+    private func ttsStr(_ sec: Int) -> String { String(format: "%d:%02d", sec / 60, sec % 60) }
+
     private func niceTicks(_ lo: Double, _ hi: Double, _ count: Int) -> [Double] {
         guard hi > lo, count > 0 else { return [lo] }
         let raw = (hi - lo) / Double(count)
@@ -606,18 +703,26 @@ struct DiveDetailView: View {
         while v <= hi + 0.0001 && out.count < 12 { out.append(v); v += step }
         return out
     }
+}
 
-    private func row(_ k: String, _ v: String) -> some View {
-        HStack { Text(LocalizedStringKey(k)); Spacer(); Text(v).foregroundStyle(.secondary).monospacedDigit() }
-    }
-    private var progressText: String {
-        if let x = ble.xferProgress { return "\(Int(x * 100)) %" }
-        return LT("lädt…")
-    }
-    private func dateStr(_ d: Date) -> String {
-        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short; return f.string(from: d)
-    }
-    private func durStr(_ t: TimeInterval) -> String {
-        let m = Int(t) / 60, s = Int(t) % 60; return String(format: "%d:%02d min", m, s)
+// MARK: - Vollbild (gedreht → Querformat, auch bei Portrait-Lock)
+struct FullscreenChart: View {
+    let dive: ParsedDive
+    let close: () -> Void
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .topTrailing) {
+                Color(.systemBackground).ignoresSafeArea()
+                ProfileChartView(dive: dive, height: geo.size.width - 90)
+                    .padding()
+                    .frame(width: geo.size.height, height: geo.size.width)
+                    .rotationEffect(.degrees(90))
+                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                Button(action: close) {
+                    Image(systemName: "xmark.circle.fill").font(.title).foregroundStyle(.secondary)
+                }
+                .padding()
+            }
+        }
     }
 }
