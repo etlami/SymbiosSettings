@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.16",
+      "version": "1.9.17",
       "versionDate": "2026-08-16",
-      "versionDescription": "Tissue view: mbar/GF toggle (Bühlmann ZH-L16C) and a slider to estimate when the leading tissue drops to X% GF.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.16/SymbiosSettings.ipa",
-      "size": 636668,
+      "versionDescription": "Tissue GF chart: clamp at 0 (no negative bars), y-axis from 0, with 0% and 100% reference lines.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.17/SymbiosSettings.ipa",
+      "size": 639479,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.17",
+          "date": "2026-08-16",
+          "localizedDescription": "Tissue GF chart: clamp at 0 (no negative bars), y-axis from 0, with 0% and 100% reference lines.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.17/SymbiosSettings.ipa",
+          "size": 639479,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.16",
           "date": "2026-08-16",

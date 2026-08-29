@@ -916,16 +916,23 @@ struct TissueChart: View {
     var body: some View {
         let leadIdx = gf.indices.max(by: { gf[$0] < gf[$1] }) ?? 0
         let hasHe = (he?.contains { $0 > 0 }) ?? false
+        let gfUpper = max(110.0, ((gf.max() ?? 100) / 10).rounded(.up) * 10 + 10)
+        let n2Upper = (Double(n2.max() ?? 1000) / 500).rounded(.up) * 500
         Chart {
             if showGF {
                 ForEach(Array(gf.enumerated()), id: \.offset) { i, v in
-                    BarMark(x: .value("Gewebe", i + 1), y: .value("GF %", v))
+                    BarMark(x: .value("Gewebe", i + 1), y: .value("GF %", max(0, v)))   // nie negativ
                         .foregroundStyle(i == leadIdx ? Color.orange : Color.blue)
                 }
                 RuleMark(y: .value("GF %", 100))
                     .foregroundStyle(.red.opacity(0.6)).lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
                     .annotation(position: .top, alignment: .leading) {
-                        Text(verbatim: "M-Wert (100%)").font(.caption2).foregroundStyle(.secondary)
+                        Text(verbatim: "M-Wert (100 %)").font(.caption2).foregroundStyle(.secondary)
+                    }
+                RuleMark(y: .value("GF %", 0))
+                    .foregroundStyle(.gray).lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .annotation(position: .top, alignment: .trailing) {
+                        Text(verbatim: "GF 0 %").font(.caption2).foregroundStyle(.secondary)
                     }
             } else {
                 ForEach(Array(n2.enumerated()), id: \.offset) { i, v in
@@ -947,6 +954,7 @@ struct TissueChart: View {
                     }
             }
         }
+        .chartYScale(domain: 0...(showGF ? gfUpper : n2Upper))
         .chartXAxis { AxisMarks(values: [1, 4, 8, 12, 16]) { AxisTick(); AxisValueLabel() } }
         .chartXAxisLabel("Kompartiment")
         .chartYAxisLabel(showGF ? "GF %" : "mbar")
