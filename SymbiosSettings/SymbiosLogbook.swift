@@ -630,7 +630,12 @@ struct ProfileChartView: View {
                     }
                 }
             }
-            .chartXAxisLabel("min")
+            .chartXAxis {
+                AxisMarks { v in
+                    AxisGridLine(); AxisTick()
+                    AxisValueLabel { if let x = v.as(Double.self) { Text(verbatim: "\(Int(x)) min") } }
+                }
+            }
             .chartOverlay { proxy in
                 GeometryReader { geo in
                     Rectangle().fill(.clear).contentShape(Rectangle())
@@ -691,15 +696,15 @@ struct ProfileChartView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 2)
+        .padding(.top, sidePanel ? 44 : 2)     // Platz oben rechts für das Schließen-X (Fullscreen)
     }
 
     @ViewBuilder private func metric(_ k: String, _ v: String, _ c: Color) -> some View {
         HStack(spacing: 5) {
             Circle().fill(c).frame(width: 6, height: 6)
             Text(LocalizedStringKey(k)).foregroundStyle(.secondary).lineLimit(1)
-            Spacer(minLength: 4)
-            Text(verbatim: v).bold().monospacedDigit().lineLimit(1)
+            Text(verbatim: v).monospacedDigit().lineLimit(1)
+            Spacer(minLength: 0)
         }
     }
 
