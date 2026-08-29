@@ -39,32 +39,69 @@ struct ParsedDive {
 }
 
 struct TankStats {
-    let startBar: Double
-    let endBar: Double
-    let sac: Double         // bar / Oberflächen-Minute
-    let rmv: Double?        // L/min (AMV) – nur mit Flaschengröße
+    let startBar: Double        // gemessen (SPG)
+    let endBar: Double          // gemessen
+    let sac: Double             // gemessener SAC bar/Oberflächen-Minute
+    let rmv: Double?            // gemessener AMV L/min
+    let sacCorr: Double?        // temperaturkorrigierter SAC
+    let rmvCorr: Double?        // temperaturkorrigierter AMV
     var usedBar: Double { max(0, startBar - endBar) }
 }
 
 extension ParsedDive {
     var hasTank: Bool { samples.contains { $0.pressure != nil } }
+    var hasTemp: Bool { samples.contains { $0.temp != nil } }
+
+    /// Modellierte Gastemperatur (°C) je Sample: relaxiert verzögert Richtung Wassertemperatur
+    /// (Zeitkonstante τ), Startwert = erste gemessene Temperatur (~Fülltemperatur).
+    func gasTempSeries(tauSec: Double) -> [Double] {
+        var out: [Double] = []; out.reserveCapacity(samples.count)
+        let dt = Double(max(interval, 1))
+        let alpha = tauSec > 0 ? (1 - exp(-dt / tauSec)) : 1.0
+        var tg = samples.first(where: { $0.temp != nil })?.temp ?? 20.0
+        for s in samples {
+            if let w = s.temp { tg += (w - tg) * alpha }
+            out.append(tg)
+        }
+        return out
+    }
+
+    /// Auf Fülltemperatur normierter Druck (ideales Gas, P/T): entfernt den Thermo-Anteil.
+    func correctedPressures(tauSec: Double) -> [Double?] {
+        let tg = gasTempSeries(tauSec: tauSec)
+        guard let f = samples.firstIndex(where: { $0.pressure != nil }) else { return samples.map { $0.pressure } }
+        let refK = tg[f] + 273.15
+        return samples.enumerated().map { i, s in
+            guard let p = s.pressure else { return nil }
+            return p * refK / (tg[i] + 273.15)
+        }
+    }
 
     /// AMV (RMV) aus Druckabfall über die Zeit, tiefenkompensiert:
     /// SAC[bar/min Oberfläche] = Δp / Σ(ATA·dt);  AMV[L/min] = SAC × Flaschengröße[L].
-    func tankStats(tankSizeL: Double?) -> TankStats? {
-        let ps = samples.filter { $0.pressure != nil }
-        guard let first = ps.first, let last = ps.last, ps.count >= 2 else { return nil }
-        let start = first.pressure!, end = last.pressure!
-        let t0 = first.seconds, t1 = last.seconds
+    /// `tauSec` gesetzt → zusätzlich temperaturkorrigierte Werte.
+    func tankStats(tankSizeL: Double?, tauSec: Double? = nil) -> TankStats? {
+        let idxs = samples.indices.filter { samples[$0].pressure != nil }
+        guard idxs.count >= 2, let f = idxs.first, let l = idxs.last else { return nil }
+        let t0 = samples[f].seconds, t1 = samples[l].seconds
         let dtMin = Double(interval) / 60.0
         var ataMin = 0.0
         for s in samples where s.seconds >= t0 && s.seconds <= t1 {
             ataMin += (s.depth / 10.0 + 1.0) * dtMin
         }
-        let used = start - end
-        let sac = (ataMin > 0 && used > 0) ? used / ataMin : 0
-        let rmv = (sac > 0) ? tankSizeL.map { sac * $0 } : nil
-        return TankStats(startBar: start, endBar: end, sac: sac, rmv: rmv)
+        func sacRmv(_ start: Double, _ end: Double) -> (Double, Double?) {
+            let used = start - end
+            let sac = (ataMin > 0 && used > 0) ? used / ataMin : 0
+            return (sac, sac > 0 ? tankSizeL.map { sac * $0 } : nil)
+        }
+        let mStart = samples[f].pressure!, mEnd = samples[l].pressure!
+        let (mSac, mRmv) = sacRmv(mStart, mEnd)
+        var cSac: Double? = nil, cRmv: Double? = nil
+        if let tau = tauSec {
+            let cp = correctedPressures(tauSec: tau)
+            if let cs = cp[f], let ce = cp[l] { let r = sacRmv(cs, ce); cSac = r.0; cRmv = r.1 }
+        }
+        return TankStats(startBar: mStart, endBar: mEnd, sac: mSac, rmv: mRmv, sacCorr: cSac, rmvCorr: cRmv)
     }
 }
 
@@ -404,6 +441,8 @@ struct DiveDetailView: View {
     @State private var csvURL: URL? = nil
     @State private var binURL: URL? = nil
     @AppStorage("tankSizeL") private var tankSizeL: Double = 12
+    @AppStorage("tempCorrect") private var tempCorrect = false
+    @AppStorage("tempTauMin") private var tempTauMin: Double = 3
     @State private var fullscreen = false
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
@@ -449,23 +488,40 @@ struct DiveDetailView: View {
                     }
                 }
                 if d.hasTank {
+                    let tau = tempCorrect && d.hasTemp ? tempTauMin * 60 : nil
                     Section {
                         Stepper(value: $tankSizeL, in: 3...30, step: 1) {
                             HStack { Text("Flaschengröße"); Spacer()
                                 Text(verbatim: "\(Int(tankSizeL)) L").foregroundStyle(.secondary).monospacedDigit() }
                         }
-                        if let ts = d.tankStats(tankSizeL: tankSizeL) {
+                        if d.hasTemp {
+                            Toggle("Temperaturkorrektur", isOn: $tempCorrect)
+                            if tempCorrect {
+                                HStack {
+                                    Text("Trägheit τ").foregroundStyle(.secondary)
+                                    Slider(value: $tempTauMin, in: 0.5...15, step: 0.5)
+                                    Text(verbatim: String(format: "%.1f min", tempTauMin)).monospacedDigit().frame(width: 64, alignment: .trailing)
+                                }
+                            }
+                        }
+                        if let ts = d.tankStats(tankSizeL: tankSizeL, tauSec: tau) {
                             row("Anfangsdruck", String(format: "%.0f bar", ts.startBar))
                             row("Enddruck", String(format: "%.0f bar", ts.endBar))
                             row("Verbraucht", String(format: "%.0f bar", ts.usedBar))
-                            if let rmv = ts.rmv {
-                                HStack { Text("AMV").bold(); Spacer()
-                                    Text(String(format: "%.1f L/min", rmv)).bold().monospacedDigit().foregroundStyle(.blue) }
+                            let rmv = (tau != nil ? ts.rmvCorr : ts.rmv) ?? ts.rmv
+                            if let rmv {
+                                HStack {
+                                    Text(tau != nil ? "AMV (T-korr)" : "AMV")
+                                    Spacer()
+                                    Text(String(format: "%.1f L/min", rmv)).monospacedDigit().foregroundStyle(.blue)
+                                }
                             }
-                            row("SAC", String(format: "%.2f bar/min", ts.sac))
+                            row("SAC", String(format: "%.2f bar/min", (tau != nil ? ts.sacCorr : ts.sac) ?? ts.sac))
                         }
                     } header: { Text("Luftverbrauch") } footer: {
-                        Text("AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.")
+                        Text(tempCorrect && d.hasTemp
+                             ? "Temperaturkorrektur: Druck auf Fülltemperatur normiert (ideales Gas, P/T). Gastemperatur ist modelliert (verzögert Richtung Wassertemp, τ) – eine Schätzung, kein Sensor."
+                             : "AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.")
                     }
                 }
                 Section {
@@ -539,6 +595,8 @@ struct ProfileChartView: View {
     let dive: ParsedDive
     var height: CGFloat = 220
     var sidePanel: Bool = false          // true = Werte rechts daneben (Querformat/Fullscreen)
+    @AppStorage("tempCorrect") private var tempCorrect = false
+    @AppStorage("tempTauMin") private var tempTauMin: Double = 3
     @State private var showDepth = true
     @State private var showCeiling = true
     @State private var showTemp = true
@@ -555,13 +613,15 @@ struct ProfileChartView: View {
         let tMax = (tMaxRaw - tMin) < 0.5 ? tMin + 1 : tMaxRaw
         let hasTemp = !temps.isEmpty
         let hasCeil = d.samples.contains { ($0.ceiling ?? 0) > 0 }
-        let pressures = d.samples.compactMap { $0.pressure }
-        let hasPress = !pressures.isEmpty
-        let pMax = max(pressures.max() ?? 1, 1)
+        let hasPress = d.samples.contains { $0.pressure != nil }
+        let tempCorrActive = tempCorrect && hasTemp && hasPress
+        let plotPress: [Double?] = tempCorrActive ? d.correctedPressures(tauSec: tempTauMin * 60) : d.samples.map { $0.pressure }
+        let pMax = max(plotPress.compactMap { $0 }.max() ?? 1, 1)
         let depthTicks = niceTicks(0, yMax, 3)
         let tempTickVals: [Double] = hasTemp ? niceTicks(tMin, tMax, 4) : []
         let tempTickYs = tempTickVals.map { yMax * (1 - ($0 - tMin) / (tMax - tMin)) }
-        let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp"), sPress = LT("Druck")
+        let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp")
+        let sPress = tempCorrActive ? LT("Druck (T-korr)") : LT("Druck")
         let hasTtsData = d.samples.contains { ($0.tts ?? 0) > 0 }
         let hasGfData = d.samples.contains { $0.gfNow != nil || $0.gfSurf != nil }
 
@@ -595,8 +655,8 @@ struct ProfileChartView: View {
                     }
                 }
                 if hasPress && showPressure {
-                    ForEach(d.samples) { s in
-                        if let p = s.pressure {
+                    ForEach(Array(d.samples.enumerated()), id: \.offset) { i, s in
+                        if let p = plotPress[i] {
                             LineMark(x: .value("min", Double(s.seconds) / 60.0),
                                      y: .value("m", yMax * (1 - p / pMax)))
                                 .foregroundStyle(by: .value("Serie", sPress))

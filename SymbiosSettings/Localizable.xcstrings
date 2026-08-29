@@ -32,6 +32,16 @@
         }
       }
     },
+    "AMV (T-korr)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RMV (T-corr)"
+          }
+        }
+      }
+    },
     "AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.": {
       "localizations": {
         "en": {
@@ -678,6 +688,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pressure"
+          }
+        }
+      }
+    },
+    "Druck (T-korr)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pressure (T-corr)"
           }
         }
       }
@@ -1962,6 +1982,26 @@
         }
       }
     },
+    "Temperaturkorrektur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temperature correction"
+          }
+        }
+      }
+    },
+    "Temperaturkorrektur: Druck auf Fülltemperatur normiert (ideales Gas, P/T). Gastemperatur ist modelliert (verzögert Richtung Wassertemp, τ) – eine Schätzung, kein Sensor.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temperature correction: pressure normalised to fill temperature (ideal gas, P/T). Gas temperature is modelled (lagging toward water temp, τ) – an estimate, not a sensor."
+          }
+        }
+      }
+    },
     "Tiefe": {
       "localizations": {
         "en": {
@@ -2028,6 +2068,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Disconnect"
+          }
+        }
+      }
+    },
+    "Trägheit τ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lag τ"
           }
         }
       }
