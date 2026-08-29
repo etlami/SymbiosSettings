@@ -394,6 +394,10 @@ struct DiveDetailView: View {
     @State private var csvURL: URL? = nil
     @State private var binURL: URL? = nil
     @AppStorage("tankSizeL") private var tankSizeL: Double = 12
+    @State private var showDepth = true
+    @State private var showCeiling = true
+    @State private var showTemp = true
+    @State private var showPressure = true
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
     /// Nachladen geht nur, wenn genau dieses Gerät verbunden ist.
@@ -496,59 +500,98 @@ struct DiveDetailView: View {
         loading = false
     }
 
-    // Tiefe links (m), Temperatur rechts (°C), Deko-Decke (m) – gemeinsame Meter-Domain,
-    // Temperatur wird in den Tiefen-Koordinatenraum abgebildet (warm oben, kalt unten).
+    // Tiefe links (m, 0…gerundetes Max), Temperatur rechts (°C, in Meter-Raum gemappt),
+    // Ceiling in Metern, Tankdruck als Trendlinie (voll oben → leer unten). Serien umschaltbar.
     @ViewBuilder private func profileChart(_ d: ParsedDive) -> some View {
-        let dMax = max(d.maxDepth, 1)
+        let yMax = max(5.0, (d.maxDepth / 5).rounded(.up) * 5)          // z. B. 43 m → 45 m
+        let xMax = max(1.0, (d.samples.last.map { Double($0.seconds) / 60.0 } ?? 1))
         let temps = d.samples.compactMap { $0.temp }
         let tMin = temps.min() ?? 0
         let tMaxRaw = temps.max() ?? 0
         let tMax = (tMaxRaw - tMin) < 0.5 ? tMin + 1 : tMaxRaw
         let hasTemp = !temps.isEmpty
         let hasCeil = d.samples.contains { ($0.ceiling ?? 0) > 0 }
+        let pressures = d.samples.compactMap { $0.pressure }
+        let hasPress = !pressures.isEmpty
+        let pMax = max(pressures.max() ?? 1, 1)
+        let depthTicks = niceTicks(0, yMax, 3)
         let tempTickVals: [Double] = hasTemp ? niceTicks(tMin, tMax, 4) : []
-        let tempTickYs = tempTickVals.map { dMax * (1 - ($0 - tMin) / (tMax - tMin)) }
-        let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp")
+        let tempTickYs = tempTickVals.map { yMax * (1 - ($0 - tMin) / (tMax - tMin)) }
+        let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp"), sPress = LT("Druck")
 
-        Chart {
-            ForEach(d.samples) { s in
-                LineMark(x: .value("min", Double(s.seconds) / 60.0), y: .value("m", s.depth))
-                    .foregroundStyle(by: .value("Serie", sDepth))
-            }
-            if hasCeil {
-                ForEach(d.samples) { s in
-                    LineMark(x: .value("min", Double(s.seconds) / 60.0), y: .value("m", s.ceiling ?? 0))
-                        .foregroundStyle(by: .value("Serie", sCeil))
-                }
-            }
-            if hasTemp {
-                ForEach(d.samples) { s in
-                    if let t = s.temp {
-                        LineMark(x: .value("min", Double(s.seconds) / 60.0),
-                                 y: .value("m", dMax * (1 - (t - tMin) / (tMax - tMin))))
-                            .foregroundStyle(by: .value("Serie", sTemp))
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                chip(sDepth, .blue, $showDepth)
+                if hasCeil { chip(sCeil, .orange, $showCeiling) }
+                if hasTemp { chip(sTemp, .red, $showTemp) }
+                if hasPress { chip(sPress, .green, $showPressure) }
+            }.font(.caption)
+
+            Chart {
+                if showDepth {
+                    ForEach(d.samples) { s in
+                        LineMark(x: .value("min", Double(s.seconds) / 60.0), y: .value("m", s.depth))
+                            .foregroundStyle(by: .value("Serie", sDepth))
                     }
                 }
-            }
-        }
-        .chartForegroundStyleScale([sDepth: Color.blue, sCeil: Color.orange, sTemp: Color.red])
-        .chartYScale(domain: .automatic(includesZero: true, reversed: true))
-        .chartYAxis {
-            AxisMarks(position: .leading)   // Tiefe (m)
-            if hasTemp {
-                AxisMarks(position: .trailing, values: tempTickYs) { axisValue in
-                    AxisTick()
-                    AxisValueLabel {
-                        if let y = axisValue.as(Double.self) {
-                            let f = 1 - (y / dMax)
-                            Text(String(format: "%.0f°", tMin + f * (tMax - tMin)))
+                if hasCeil && showCeiling {
+                    ForEach(d.samples) { s in
+                        LineMark(x: .value("min", Double(s.seconds) / 60.0), y: .value("m", s.ceiling ?? 0))
+                            .foregroundStyle(by: .value("Serie", sCeil))
+                    }
+                }
+                if hasTemp && showTemp {
+                    ForEach(d.samples) { s in
+                        if let t = s.temp {
+                            LineMark(x: .value("min", Double(s.seconds) / 60.0),
+                                     y: .value("m", yMax * (1 - (t - tMin) / (tMax - tMin))))
+                                .foregroundStyle(by: .value("Serie", sTemp))
+                        }
+                    }
+                }
+                if hasPress && showPressure {
+                    ForEach(d.samples) { s in
+                        if let p = s.pressure {
+                            LineMark(x: .value("min", Double(s.seconds) / 60.0),
+                                     y: .value("m", yMax * (1 - p / pMax)))
+                                .foregroundStyle(by: .value("Serie", sPress))
                         }
                     }
                 }
             }
+            .chartForegroundStyleScale([sDepth: Color.blue, sCeil: Color.orange, sTemp: Color.red, sPress: Color.green])
+            .chartLegend(.hidden)
+            .chartXScale(domain: 0...xMax)
+            .chartYScale(domain: [yMax, 0])          // 0 m oben, Max unten (umgekehrt)
+            .chartYAxis {
+                AxisMarks(position: .leading, values: depthTicks) { v in
+                    AxisGridLine(); AxisTick()
+                    AxisValueLabel { if let y = v.as(Double.self) { Text(verbatim: "\(Int(y)) m") } }
+                }
+                if hasTemp && showTemp {
+                    AxisMarks(position: .trailing, values: tempTickYs) { axisValue in
+                        AxisTick()
+                        AxisValueLabel {
+                            if let y = axisValue.as(Double.self) {
+                                let f = 1 - (y / yMax)
+                                Text(verbatim: String(format: "%.0f°", tMin + f * (tMax - tMin)))
+                            }
+                        }
+                    }
+                }
+            }
+            .chartXAxisLabel("min")
+            .frame(height: 220)
         }
-        .chartXAxisLabel("min")
-        .frame(height: 210)
+    }
+
+    @ViewBuilder private func chip(_ label: String, _ color: Color, _ on: Binding<Bool>) -> some View {
+        Button { on.wrappedValue.toggle() } label: {
+            HStack(spacing: 4) {
+                Circle().fill(on.wrappedValue ? color : Color.secondary.opacity(0.3)).frame(width: 8, height: 8)
+                Text(LocalizedStringKey(label)).foregroundStyle(on.wrappedValue ? .primary : .secondary)
+            }
+        }.buttonStyle(.plain)
     }
 
     /// „Schöne" Tick-Werte (1/2/5×10ⁿ) zwischen lo und hi.

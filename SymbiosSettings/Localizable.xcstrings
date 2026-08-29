@@ -672,6 +672,16 @@
         }
       }
     },
+    "Druck": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pressure"
+          }
+        }
+      }
+    },
     "Einheiten": {
       "localizations": {
         "en": {

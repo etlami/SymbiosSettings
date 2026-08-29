@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.8",
+      "version": "1.9.9",
       "versionDate": "2026-08-16",
-      "versionDescription": "Air integration: shows tank pressure and computes RMV (SAC) in L/min from your cylinder size. Chart label 'Ceiling'.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.8/SymbiosSettings.ipa",
-      "size": 556792,
+      "versionDescription": "Depth-profile chart: tight axes, depth capped to a rounded max with 'm' unit, toggleable series, and tank pressure added.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.9/SymbiosSettings.ipa",
+      "size": 570222,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.9",
+          "date": "2026-08-16",
+          "localizedDescription": "Depth-profile chart: tight axes, depth capped to a rounded max with 'm' unit, toggleable series, and tank pressure added.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.9/SymbiosSettings.ipa",
+          "size": 570222,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.8",
           "date": "2026-08-16",
