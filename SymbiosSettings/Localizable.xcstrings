@@ -982,6 +982,16 @@
         }
       }
     },
+    "Gewebesättigung (Ende)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tissue saturation (end)"
+          }
+        }
+      }
+    },
     "Gradient Factor High. Standard 80.": {
       "localizations": {
         "en": {
@@ -1058,6 +1068,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No response."
+          }
+        }
+      }
+    },
+    "Kompartiment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartment"
           }
         }
       }
@@ -1422,6 +1442,16 @@
         }
       }
     },
+    "N₂-Gewebespannung je Kompartiment (mbar), führendes Gewebe orange. Entsättigungszeit ist der Gerätewert.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N₂ tissue tension per compartment (mbar), leading tissue in orange. Desaturation time is the device's value."
+          }
+        }
+      }
+    },
     "OC PO₂ Deco": {
       "localizations": {
         "en": {
@@ -1458,6 +1488,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "OK – confirmed on the device."
+          }
+        }
+      }
+    },
+    "Oberfläche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surface"
           }
         }
       }
@@ -2218,6 +2258,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enable vibration alarms (handset only)."
+          }
+        }
+      }
+    },
+    "Vollständig entsättigt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fully desaturated"
           }
         }
       }

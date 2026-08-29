@@ -28,6 +28,9 @@ struct ParsedDive {
     var mode: Int?          // dcMode 0=OC…4=Gauge (Header @13, am Gerät bestätigt)
     var atmBar: Double?
     var gasCount: Int = 0
+    var endComp: [Int]? = nil       // 16× N₂-Gewebespannung (mbar), Ende
+    var endCompHe: [Int]? = nil     // 16× He-Gewebespannung (mbar), Ende
+    var desatSeconds: Int? = nil    // Entsättigungszeit (Footer: desat − time_end)
     var samples: [DiveSample] = []
     var interval: Int = 5   // s (Standard; echtes Intervall steht nur in der CSV/BLACKBOX)
 
@@ -133,8 +136,18 @@ enum DiveParser {
                 if rec.count >= 18 { p.atmBar = Double(u16(rec, 16)) / 1000.0; p.number = u16(rec, 18) }
                 if rec.count >= 28 { p.start = Date(timeIntervalSince1970: EPOCH_2021 + Double(u32(rec, 24))) }
                 if rec.count >= 32 { p.serial = u32(rec, 28) }
-            case 0x0C:  // FOOTER (16): @8 time_end
+            case 0x0C:  // FOOTER (16): @8 time_end, @12 desaturation (absoluter EPOCH-Zeitstempel)
                 if rec.count >= 12 { p.end = Date(timeIntervalSince1970: EPOCH_2021 + Double(u32(rec, 8))) }
+                if rec.count >= 16 {
+                    let te = Int(u32(rec, 8)), des = Int(u32(rec, 12))
+                    let diff = des - te
+                    if diff > 0 && diff < 400 * 3600 { p.desatSeconds = diff }
+                }
+            case 0x07:  // COMPARTMENTS (68): @4 16×u16 N₂ (mbar), @36 16×u16 He (mbar)
+                if rec.count >= 68 {
+                    p.endComp = (0..<16).map { u16(rec, 4 + 2 * $0) }
+                    p.endCompHe = (0..<16).map { u16(rec, 36 + 2 * $0) }
+                }
             case 0x04:  // TEMPERATURE (4): @2 u16 0,1 °C
                 if rec.count >= 4 {
                     let t = Double(u16(rec, 2)) / 10.0
@@ -524,6 +537,21 @@ struct DiveDetailView: View {
                              : "AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.")
                     }
                 }
+                if let comp = d.endComp {
+                    Section {
+                        if let ds = d.desatSeconds {
+                            HStack {
+                                Text("Vollständig entsättigt"); Spacer()
+                                Text(verbatim: desatStr(ds)).monospacedDigit().foregroundStyle(.blue)
+                            }
+                        }
+                        TissueChart(n2: comp, he: d.endCompHe,
+                                    surface: d.atmBar.map { max(0, $0 * 1000 - 63) * 0.79 } ?? 745)
+                            .frame(height: 160)
+                    } header: { Text("Gewebesättigung (Ende)") } footer: {
+                        Text("N₂-Gewebespannung je Kompartiment (mbar), führendes Gewebe orange. Entsättigungszeit ist der Gerätewert.")
+                    }
+                }
                 Section {
                     if let url = csvURL {
                         ShareLink(item: url) { Label("Als CSV exportieren / teilen", systemImage: "square.and.arrow.up") }
@@ -588,6 +616,7 @@ struct DiveDetailView: View {
     private func durStr(_ t: TimeInterval) -> String {
         let m = Int(t) / 60, s = Int(t) % 60; return String(format: "%d:%02d min", m, s)
     }
+    private func desatStr(_ s: Int) -> String { String(format: "%d:%02d h", s / 3600, (s % 3600) / 60) }
 }
 
 // MARK: - Tiefenprofil-Chart mit Scrub-Tooltip (Finger über die Linie → Werte)
@@ -813,5 +842,39 @@ struct FullscreenChart: View {
                 .position(x: geo.size.width / 2, y: geo.size.height / 2)
             }
         }
+    }
+}
+
+// MARK: - Gewebesättigung am Tauchende (16 Kompartimente)
+struct TissueChart: View {
+    let n2: [Int]
+    let he: [Int]?
+    let surface: Double
+    var body: some View {
+        let leadIdx = n2.indices.max(by: { n2[$0] < n2[$1] }) ?? 0
+        let hasHe = (he?.contains { $0 > 0 }) ?? false
+        Chart {
+            ForEach(Array(n2.enumerated()), id: \.offset) { i, v in
+                BarMark(x: .value("Gewebe", i + 1), y: .value("mbar", v))
+                    .foregroundStyle(i == leadIdx ? Color.orange : Color.blue)
+            }
+            if hasHe, let he {
+                ForEach(Array(he.enumerated()), id: \.offset) { i, v in
+                    if v > 0 {
+                        BarMark(x: .value("Gewebe", i + 1), y: .value("mbar", v))
+                            .foregroundStyle(Color.green.opacity(0.7))
+                    }
+                }
+            }
+            RuleMark(y: .value("mbar", surface))
+                .foregroundStyle(.gray)
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                .annotation(position: .top, alignment: .leading) {
+                    Text("Oberfläche").font(.caption2).foregroundStyle(.secondary)
+                }
+        }
+        .chartXAxis { AxisMarks(values: [1, 4, 8, 12, 16]) { AxisTick(); AxisValueLabel() } }
+        .chartXAxisLabel("Kompartiment")
+        .chartYAxisLabel("mbar")
     }
 }
