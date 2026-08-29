@@ -108,6 +108,37 @@ extension ParsedDive {
     }
 }
 
+// MARK: - Bühlmann ZH-L16C (N₂) – GF-Schätzung + Entsättigung (nur OC-Luft/Nitrox sinnvoll)
+enum Buhlmann {
+    static let T: [Double] = [5.0,8.0,12.5,18.5,27.0,38.3,54.3,77.0,109,146,187,239,305,390,498,635]
+    static let a: [Double] = [1.1696,1.0,0.8618,0.7562,0.6667,0.56,0.4947,0.45,0.4187,0.3798,0.3497,0.3223,0.2850,0.2737,0.2523,0.2327]
+    static let b: [Double] = [0.5578,0.6514,0.7222,0.7825,0.8126,0.8434,0.8693,0.8910,0.9092,0.9222,0.9319,0.9403,0.9477,0.9544,0.9602,0.9653]
+    /// Inertgas-Gleichgewicht an der Oberfläche (Einatem-N₂, alveolar).
+    static func peq(_ pamb: Double) -> Double { (pamb - 0.0627) * 0.7902 }
+    /// Oberflächen-GF je Kompartiment (%) aus N₂-Gewebespannung (mbar).
+    static func surfaceGF(n2mbar: [Int], pamb: Double) -> [Double] {
+        (0..<min(16, n2mbar.count)).map { k in
+            let pt = Double(n2mbar[k]) / 1000.0
+            let m0 = a[k] + pamb / b[k]
+            return (pt - pamb) / (m0 - pamb) * 100
+        }
+    }
+    /// Zeit (min), bis das führende Gewebe an der Oberfläche ≤ targetPct % ist. nil = unerreichbar.
+    static func timeToLeadingGF(n2mbar: [Int], pamb: Double, targetPct: Double) -> Double? {
+        let pe = peq(pamb); var tmax = 0.0
+        for k in 0..<min(16, n2mbar.count) {
+            let m0 = a[k] + pamb / b[k]
+            let target = pamb + (targetPct / 100.0) * (m0 - pamb)
+            let p0 = Double(n2mbar[k]) / 1000.0
+            if p0 > target {
+                if target <= pe { return nil }
+                tmax = max(tmax, T[k] * log2((p0 - pe) / (target - pe)))
+            }
+        }
+        return tmax
+    }
+}
+
 enum DiveParser {
     static let EPOCH_2021 = 1_609_459_200.0
 
@@ -456,6 +487,8 @@ struct DiveDetailView: View {
     @AppStorage("tankSizeL") private var tankSizeL: Double = 12
     @AppStorage("tempCorrect") private var tempCorrect = false
     @AppStorage("tempTauMin") private var tempTauMin: Double = 3
+    @AppStorage("tissueUnit") private var tissueUnit = "mbar"
+    @AppStorage("targetGF") private var targetGF: Double = 40
     @State private var fullscreen = false
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
@@ -538,6 +571,9 @@ struct DiveDetailView: View {
                     }
                 }
                 if let comp = d.endComp {
+                    let pamb = d.atmBar ?? 1.013
+                    let gf = Buhlmann.surfaceGF(n2mbar: comp, pamb: pamb)
+                    let lead = gf.indices.max(by: { gf[$0] < gf[$1] }) ?? 0
                     Section {
                         if let ds = d.desatSeconds {
                             HStack {
@@ -545,11 +581,33 @@ struct DiveDetailView: View {
                                 Text(verbatim: desatStr(ds)).monospacedDigit().foregroundStyle(.blue)
                             }
                         }
-                        TissueChart(n2: comp, he: d.endCompHe,
-                                    surface: d.atmBar.map { max(0, $0 * 1000 - 63) * 0.79 } ?? 745)
+                        HStack {
+                            Text("Führendes Gewebe"); Spacer()
+                            Text(verbatim: "C\(lead + 1) · \(comp[lead]) mbar · \(Int(gf[lead].rounded())) %")
+                                .foregroundStyle(.secondary).monospacedDigit()
+                        }
+                        Picker("", selection: $tissueUnit) {
+                            Text("mbar").tag("mbar"); Text("GF %").tag("gf")
+                        }.pickerStyle(.segmented)
+                        TissueChart(n2: comp, he: d.endCompHe, gf: gf,
+                                    surfaceMbar: Buhlmann.peq(pamb) * 1000, showGF: tissueUnit == "gf")
                             .frame(height: 160)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Führendes Gewebe ≤"); Spacer()
+                                Text(verbatim: "\(Int(targetGF)) %").monospacedDigit()
+                            }
+                            Slider(value: $targetGF, in: 0...90, step: 5)
+                            if let t = Buhlmann.timeToLeadingGF(n2mbar: comp, pamb: pamb, targetPct: targetGF) {
+                                let clock = d.end.map { desatClock($0.addingTimeInterval(t * 60)) } ?? ""
+                                Text(verbatim: t < 1 ? "→ jetzt erreicht" : "→ in \(desatStr(Int(t * 60)))\(clock.isEmpty ? "" : " (\(clock))")")
+                                    .font(.footnote).foregroundStyle(.blue)
+                            } else {
+                                Text("→ nicht erreichbar (unter Sättigungs-Gleichgewicht)").font(.footnote).foregroundStyle(.secondary)
+                            }
+                        }
                     } header: { Text("Gewebesättigung (Ende)") } footer: {
-                        Text("N₂-Gewebespannung je Kompartiment (mbar), führendes Gewebe orange. Entsättigungszeit ist der Gerätewert.")
+                        Text("Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF & Entsättigungs-Prognose sind berechnet (Bühlmann ZH-L16C) – die „Vollständig entsättigt“-Zeit ist der Gerätewert.")
                     }
                 }
                 Section {
@@ -617,6 +675,9 @@ struct DiveDetailView: View {
         let m = Int(t) / 60, s = Int(t) % 60; return String(format: "%d:%02d min", m, s)
     }
     private func desatStr(_ s: Int) -> String { String(format: "%d:%02d h", s / 3600, (s % 3600) / 60) }
+    private func desatClock(_ d: Date) -> String {
+        let f = DateFormatter(); f.dateFormat = "dd.MM. HH:mm"; return f.string(from: d)
+    }
 }
 
 // MARK: - Tiefenprofil-Chart mit Scrub-Tooltip (Finger über die Linie → Werte)
@@ -849,32 +910,45 @@ struct FullscreenChart: View {
 struct TissueChart: View {
     let n2: [Int]
     let he: [Int]?
-    let surface: Double
+    let gf: [Double]
+    let surfaceMbar: Double     // N₂-Oberflächen-Gleichgewicht (für mbar-Modus)
+    let showGF: Bool
     var body: some View {
-        let leadIdx = n2.indices.max(by: { n2[$0] < n2[$1] }) ?? 0
+        let leadIdx = gf.indices.max(by: { gf[$0] < gf[$1] }) ?? 0
         let hasHe = (he?.contains { $0 > 0 }) ?? false
         Chart {
-            ForEach(Array(n2.enumerated()), id: \.offset) { i, v in
-                BarMark(x: .value("Gewebe", i + 1), y: .value("mbar", v))
-                    .foregroundStyle(i == leadIdx ? Color.orange : Color.blue)
-            }
-            if hasHe, let he {
-                ForEach(Array(he.enumerated()), id: \.offset) { i, v in
-                    if v > 0 {
-                        BarMark(x: .value("Gewebe", i + 1), y: .value("mbar", v))
-                            .foregroundStyle(Color.green.opacity(0.7))
+            if showGF {
+                ForEach(Array(gf.enumerated()), id: \.offset) { i, v in
+                    BarMark(x: .value("Gewebe", i + 1), y: .value("GF %", v))
+                        .foregroundStyle(i == leadIdx ? Color.orange : Color.blue)
+                }
+                RuleMark(y: .value("GF %", 100))
+                    .foregroundStyle(.red.opacity(0.6)).lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .annotation(position: .top, alignment: .leading) {
+                        Text(verbatim: "M-Wert (100%)").font(.caption2).foregroundStyle(.secondary)
+                    }
+            } else {
+                ForEach(Array(n2.enumerated()), id: \.offset) { i, v in
+                    BarMark(x: .value("Gewebe", i + 1), y: .value("mbar", v))
+                        .foregroundStyle(i == leadIdx ? Color.orange : Color.blue)
+                }
+                if hasHe, let he {
+                    ForEach(Array(he.enumerated()), id: \.offset) { i, v in
+                        if v > 0 {
+                            BarMark(x: .value("Gewebe", i + 1), y: .value("mbar", v))
+                                .foregroundStyle(Color.green.opacity(0.7))
+                        }
                     }
                 }
+                RuleMark(y: .value("mbar", surfaceMbar))
+                    .foregroundStyle(.gray).lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .annotation(position: .top, alignment: .leading) {
+                        Text("Oberfläche").font(.caption2).foregroundStyle(.secondary)
+                    }
             }
-            RuleMark(y: .value("mbar", surface))
-                .foregroundStyle(.gray)
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                .annotation(position: .top, alignment: .leading) {
-                    Text("Oberfläche").font(.caption2).foregroundStyle(.secondary)
-                }
         }
         .chartXAxis { AxisMarks(values: [1, 4, 8, 12, 16]) { AxisTick(); AxisValueLabel() } }
         .chartXAxisLabel("Kompartiment")
-        .chartYAxisLabel("mbar")
+        .chartYAxisLabel(showGF ? "GF %" : "mbar")
     }
 }

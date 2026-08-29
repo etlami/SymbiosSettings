@@ -302,6 +302,16 @@
         }
       }
     },
+    "Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF & Entsättigungs-Prognose sind berechnet (Bühlmann ZH-L16C) – die „Vollständig entsättigt“-Zeit ist der Gerätewert.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bars: N₂ per compartment (mbar) or surface GF (%). GF and desaturation forecast are computed (Bühlmann ZH-L16C); the “fully desaturated” time is the device's value."
+          }
+        }
+      }
+    },
     "Bearbeiten": {
       "localizations": {
         "en": {
@@ -838,6 +848,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "“Hold button B” function: Best gas, stopwatch, compass heading or Off."
+          }
+        }
+      }
+    },
+    "Führendes Gewebe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leading tissue"
+          }
+        }
+      }
+    },
+    "Führendes Gewebe ≤": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leading tissue ≤"
           }
         }
       }
@@ -2548,6 +2578,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Overview"
+          }
+        }
+      }
+    },
+    "→ nicht erreichbar (unter Sättigungs-Gleichgewicht)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "→ not reachable (below saturation equilibrium)"
           }
         }
       }
