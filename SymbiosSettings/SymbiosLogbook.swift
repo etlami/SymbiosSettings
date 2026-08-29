@@ -137,6 +137,25 @@ enum Buhlmann {
         }
         return tmax
     }
+
+    /// Kabinendruck (bar) aus Kabinenhöhe (ft), barometrische Formel.
+    static func cabinPressureBar(ft: Double) -> Double {
+        let h = ft * 0.3048
+        return 1013.25 * pow(1 - 2.25577e-5 * h, 5.25588) / 1000.0
+    }
+
+    /// Zeit (min) an der Oberfläche (Luft), bis alle Gewebe ≤ Kabinendruck → keine Übersättigung im Flieger.
+    /// nil = Kabinendruck ≤ Oberflächen-Gleichgewicht (nur asymptotisch, ≈ Voll-Entsättigung).
+    static func timeToNoFly(n2mbar: [Int], surfacePamb: Double, cabinBar: Double) -> Double? {
+        let pe = peq(surfacePamb) * 1000, pc = cabinBar * 1000
+        if pc <= pe { return nil }
+        var tmax = 0.0
+        for k in 0..<min(16, n2mbar.count) {
+            let p0 = Double(n2mbar[k])
+            if p0 > pc { tmax = max(tmax, T[k] * log2((p0 - pe) / (pc - pe))) }
+        }
+        return tmax
+    }
 }
 
 enum DiveParser {
@@ -489,6 +508,7 @@ struct DiveDetailView: View {
     @AppStorage("tempTauMin") private var tempTauMin: Double = 3
     @AppStorage("tissueUnit") private var tissueUnit = "mbar"
     @AppStorage("targetGF") private var targetGF: Double = 40
+    @AppStorage("cabinFt") private var cabinFt: Double = 6000
     @State private var fullscreen = false
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
@@ -606,8 +626,24 @@ struct DiveDetailView: View {
                                 Text("→ nicht erreichbar (unter Sättigungs-Gleichgewicht)").font(.footnote).foregroundStyle(.secondary)
                             }
                         }
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Fliegen – Kabinenhöhe"); Spacer()
+                                Text(verbatim: "\(Int(cabinFt)) ft").monospacedDigit().foregroundStyle(.secondary)
+                            }
+                            Slider(value: $cabinFt, in: 5000...8000, step: 500)
+                            if let t = Buhlmann.timeToNoFly(n2mbar: comp, surfacePamb: pamb,
+                                                            cabinBar: Buhlmann.cabinPressureBar(ft: cabinFt)) {
+                                let clock = d.end.map { desatClock($0.addingTimeInterval(t * 60)) } ?? ""
+                                Text(verbatim: t < 1 ? "→ keine Übersättigung im Flieger: jetzt"
+                                     : "→ keine Übersättigung im Flieger: in \(desatStr(Int(t * 60)))\(clock.isEmpty ? "" : " (\(clock))")")
+                                    .font(.footnote).foregroundStyle(.blue)
+                            } else {
+                                Text("→ erst nach vollständiger Entsättigung").font(.footnote).foregroundStyle(.secondary)
+                            }
+                        }
                     } header: { Text("Gewebesättigung (Ende)") } footer: {
-                        Text("Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF & Entsättigungs-Prognose sind berechnet (Bühlmann ZH-L16C) – die „Vollständig entsättigt“-Zeit ist der Gerätewert.")
+                        Text("Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF, Entsättigungs- und Flug-Prognose sind berechnet (Bühlmann ZH-L16C, „null Übersättigung“ – strenger als DAN-Faustregeln, keine Freigabe); die „Vollständig entsättigt“-Zeit ist der Gerätewert.")
                     }
                 }
                 Section {
