@@ -22,6 +22,26 @@
         }
       }
     },
+    "AMV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RMV"
+          }
+        }
+      }
+    },
+    "AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RMV = depth-compensated respiratory minute volume (Δp/time × cylinder size), normalised to the surface. Transmitter parsing is reverse-engineered – verify on the first transmitter dive."
+          }
+        }
+      }
+    },
     "Abbrechen": {
       "localizations": {
         "en": {
@@ -128,6 +148,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "On"
+          }
+        }
+      }
+    },
+    "Anfangsdruck": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start pressure"
           }
         }
       }
@@ -422,6 +452,16 @@
         }
       }
     },
+    "Ceiling": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceiling"
+          }
+        }
+      }
+    },
     "Computer-Einstellungen": {
       "localizations": {
         "en": {
@@ -652,6 +692,16 @@
         }
       }
     },
+    "Enddruck": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End pressure"
+          }
+        }
+      }
+    },
     "Entwurf verwerfen": {
       "localizations": {
         "en": {
@@ -738,6 +788,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Firmware update: v%@ available (installed v%@) – update via the official app"
+          }
+        }
+      }
+    },
+    "Flaschengröße": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cylinder size"
           }
         }
       }
@@ -1088,6 +1148,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Load logbook"
+          }
+        }
+      }
+    },
+    "Luftverbrauch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gas consumption"
           }
         }
       }
@@ -2038,6 +2108,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connection"
+          }
+        }
+      }
+    },
+    "Verbraucht": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used"
           }
         }
       }

@@ -11,6 +11,7 @@ struct DiveSample: Identifiable {
     var depth: Double    // m
     var temp: Double?    // °C
     var ceiling: Double? // Deko-Decke m (0 = keine Deko)
+    var pressure: Double? // Tankdruck bar (Sender)
 }
 
 struct ParsedDive {
@@ -34,6 +35,36 @@ struct ParsedDive {
     }
 }
 
+struct TankStats {
+    let startBar: Double
+    let endBar: Double
+    let sac: Double         // bar / Oberflächen-Minute
+    let rmv: Double?        // L/min (AMV) – nur mit Flaschengröße
+    var usedBar: Double { max(0, startBar - endBar) }
+}
+
+extension ParsedDive {
+    var hasTank: Bool { samples.contains { $0.pressure != nil } }
+
+    /// AMV (RMV) aus Druckabfall über die Zeit, tiefenkompensiert:
+    /// SAC[bar/min Oberfläche] = Δp / Σ(ATA·dt);  AMV[L/min] = SAC × Flaschengröße[L].
+    func tankStats(tankSizeL: Double?) -> TankStats? {
+        let ps = samples.filter { $0.pressure != nil }
+        guard let first = ps.first, let last = ps.last, ps.count >= 2 else { return nil }
+        let start = first.pressure!, end = last.pressure!
+        let t0 = first.seconds, t1 = last.seconds
+        let dtMin = Double(interval) / 60.0
+        var ataMin = 0.0
+        for s in samples where s.seconds >= t0 && s.seconds <= t1 {
+            ataMin += (s.depth / 10.0 + 1.0) * dtMin
+        }
+        let used = start - end
+        let sac = (ataMin > 0 && used > 0) ? used / ataMin : 0
+        let rmv = (sac > 0) ? tankSizeL.map { sac * $0 } : nil
+        return TankStats(startBar: start, endBar: end, sac: sac, rmv: rmv)
+    }
+}
+
 enum DiveParser {
     static let EPOCH_2021 = 1_609_459_200.0
 
@@ -47,6 +78,7 @@ enum DiveParser {
         var sampleIdx = 0
         var lastTemp: Double? = nil      // zuletzt gesehener Wert (carry-forward pro Zyklus)
         var lastCeiling: Double? = nil
+        var lastPressure: Double? = nil
         while i + 2 <= d.count {
             let id = d[i]; let len = Int(d[i+1])
             if len < 2 || i + len > d.count { break }
@@ -68,12 +100,16 @@ enum DiveParser {
                 }
             case 0x0A:  // DECO (16): @3 u8 ceiling (m)
                 if rec.count >= 4 { lastCeiling = Double(rec[3]) }
+            case 0x06:  // GAS_TRANSMITTER (12): @6 u16 pressure ÷10 bar
+                if rec.count >= 8 { let p = Double(u16(rec, 6)) / 10.0; if p > 0 && p < 400 { lastPressure = p } }
+            case 0x12:  // TANK_TRANSMITTER (8): @6 u16 pressure ÷100 bar (libdc: /10 dann /10)
+                if rec.count >= 8 { let p = Double(u16(rec, 6)) / 100.0; if p > 0 && p < 400 { lastPressure = p } }
             case 0x03:  // DEPTH (4): @2 u16 cm  → ein Sample-Zyklus
                 if rec.count >= 4 {
                     let m = Double(u16(rec, 2)) / 100.0
                     p.maxDepth = max(p.maxDepth, m)
                     p.samples.append(DiveSample(id: sampleIdx, seconds: sampleIdx * p.interval,
-                                                depth: m, temp: lastTemp, ceiling: lastCeiling))
+                                                depth: m, temp: lastTemp, ceiling: lastCeiling, pressure: lastPressure))
                     sampleIdx += 1
                 }
             case 0x11:  // GAS_CONFIG
@@ -98,11 +134,12 @@ enum DiveParser {
         if let b = p.atmBar { s += String(format: "SURFACE PRESSURE;%.3f;bar\n", b) }
         s += "LOG INTERVAL;\(p.interval);s (approx)\n"
         if let m = modeName(p.mode) { s += "DC MODE;\(m)\n" }
-        s += "\nINDEX;SECONDS;DEPTH_M;TEMP_C;CEILING_M\n"
+        s += "\nINDEX;SECONDS;DEPTH_M;TEMP_C;CEILING_M;PRESSURE_BAR\n"
         for smp in p.samples {
             let temp = smp.temp.map { String(format: "%.1f", $0) } ?? ""
             let ceil = smp.ceiling.map { String(format: "%.0f", $0) } ?? ""
-            s += String(format: "%d;%d;%.2f;%@;%@\n", smp.id, smp.seconds, smp.depth, temp, ceil)
+            let pres = smp.pressure.map { String(format: "%.1f", $0) } ?? ""
+            s += String(format: "%d;%d;%.2f;%@;%@;%@\n", smp.id, smp.seconds, smp.depth, temp, ceil, pres)
         }
         return s
     }
@@ -356,6 +393,7 @@ struct DiveDetailView: View {
     @State private var err: String? = nil
     @State private var csvURL: URL? = nil
     @State private var binURL: URL? = nil
+    @AppStorage("tankSizeL") private var tankSizeL: Double = 12
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
     /// Nachladen geht nur, wenn genau dieses Gerät verbunden ist.
@@ -389,6 +427,26 @@ struct DiveDetailView: View {
                 }
                 if d.samples.count > 1 {
                     Section("Tiefenprofil") { profileChart(d) }
+                }
+                if d.hasTank {
+                    Section {
+                        Stepper(value: $tankSizeL, in: 3...30, step: 1) {
+                            HStack { Text("Flaschengröße"); Spacer()
+                                Text(verbatim: "\(Int(tankSizeL)) L").foregroundStyle(.secondary).monospacedDigit() }
+                        }
+                        if let ts = d.tankStats(tankSizeL: tankSizeL) {
+                            row("Anfangsdruck", String(format: "%.0f bar", ts.startBar))
+                            row("Enddruck", String(format: "%.0f bar", ts.endBar))
+                            row("Verbraucht", String(format: "%.0f bar", ts.usedBar))
+                            if let rmv = ts.rmv {
+                                HStack { Text("AMV").bold(); Spacer()
+                                    Text(String(format: "%.1f L/min", rmv)).bold().monospacedDigit().foregroundStyle(.blue) }
+                            }
+                            row("SAC", String(format: "%.2f bar/min", ts.sac))
+                        }
+                    } header: { Text("Luftverbrauch") } footer: {
+                        Text("AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.")
+                    }
                 }
                 Section {
                     if let url = csvURL {
@@ -450,7 +508,7 @@ struct DiveDetailView: View {
         let hasCeil = d.samples.contains { ($0.ceiling ?? 0) > 0 }
         let tempTickVals: [Double] = hasTemp ? niceTicks(tMin, tMax, 4) : []
         let tempTickYs = tempTickVals.map { dMax * (1 - ($0 - tMin) / (tMax - tMin)) }
-        let sDepth = LT("Tiefe"), sCeil = LT("Decke"), sTemp = LT("Temp")
+        let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp")
 
         Chart {
             ForEach(d.samples) { s in
