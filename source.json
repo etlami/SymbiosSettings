@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.18",
-      "versionDate": "2026-08-16",
-      "versionDescription": "No-fly estimate: time until the leading tissue has zero supersaturation at a chosen cabin altitude (Bühlmann, conservative).",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.18/SymbiosSettings.ipa",
-      "size": 641064,
+      "version": "1.9.19",
+      "versionDate": "2026-09-06",
+      "versionDescription": "CCR dives: the logged tank pressure is labelled 'Diluent' (chart, readout, section). GF fields validated 1:1 against the device CSV.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.19/SymbiosSettings.ipa",
+      "size": 640436,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.19",
+          "date": "2026-09-06",
+          "localizedDescription": "CCR dives: the logged tank pressure is labelled 'Diluent' (chart, readout, section). GF fields validated 1:1 against the device CSV.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.19/SymbiosSettings.ipa",
+          "size": 640436,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.18",
           "date": "2026-08-16",

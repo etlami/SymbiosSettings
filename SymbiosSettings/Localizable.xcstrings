@@ -672,6 +672,16 @@
         }
       }
     },
+    "Diluent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diluent"
+          }
+        }
+      }
+    },
     "Display-Ausrichtung": {
       "localizations": {
         "en": {
@@ -1258,6 +1268,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gas consumption"
+          }
+        }
+      }
+    },
+    "Luftverbrauch (Diluent)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gas usage (diluent)"
           }
         }
       }

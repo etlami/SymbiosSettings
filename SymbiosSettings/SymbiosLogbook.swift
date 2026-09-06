@@ -54,6 +54,8 @@ struct TankStats {
 extension ParsedDive {
     var hasTank: Bool { samples.contains { $0.pressure != nil } }
     var hasTemp: Bool { samples.contains { $0.temp != nil } }
+    var isCCR: Bool { mode == 1 || mode == 2 }               // CCR / CCR-FSP
+    var pressureLabel: String { isCCR ? "Diluent" : "Druck" } // bei CCR ist der geloggte Druck das Diluent
 
     /// Modellierte Gastemperatur (°C) je Sample: relaxiert verzögert Richtung Wassertemperatur
     /// (Zeitkonstante τ), Startwert = erste gemessene Temperatur (~Fülltemperatur).
@@ -584,7 +586,7 @@ struct DiveDetailView: View {
                             }
                             row("SAC", String(format: "%.2f bar/min", (tau != nil ? ts.sacCorr : ts.sac) ?? ts.sac))
                         }
-                    } header: { Text("Luftverbrauch") } footer: {
+                    } header: { Text(d.isCCR ? "Luftverbrauch (Diluent)" : "Luftverbrauch") } footer: {
                         Text(tempCorrect && d.hasTemp
                              ? "Temperaturkorrektur: Druck auf Fülltemperatur normiert (ideales Gas, P/T). Gastemperatur ist modelliert (verzögert Richtung Wassertemp, τ) – eine Schätzung, kein Sensor."
                              : "AMV = tiefenkompensiertes Atemminutenvolumen (Δp/Zeit × Flaschengröße), auf Oberfläche normiert. Sender-Auswertung ist reverse-engineert – beim ersten Sender-Tauchgang gegenprüfen.")
@@ -747,7 +749,7 @@ struct ProfileChartView: View {
         let tempTickVals: [Double] = hasTemp ? niceTicks(tMin, tMax, 4) : []
         let tempTickYs = tempTickVals.map { yMax * (1 - ($0 - tMin) / (tMax - tMin)) }
         let sDepth = LT("Tiefe"), sCeil = LT("Ceiling"), sTemp = LT("Temp")
-        let sPress = tempCorrActive ? LT("Druck (T-korr)") : LT("Druck")
+        let sPress = LT(String.LocalizationValue(dive.pressureLabel)) + (tempCorrActive ? " (T-korr)" : "")
         let hasTtsData = d.samples.contains { ($0.tts ?? 0) > 0 }
         let hasGfData = d.samples.contains { $0.gfNow != nil || $0.gfSurf != nil }
 
@@ -868,7 +870,7 @@ struct ProfileChartView: View {
                 LazyVGrid(columns: cols, alignment: .leading, spacing: 8) {
                     metric("Tiefe", String(format: "%.1f m", s.depth), .blue)
                     if hasTemp { metric("Temp", String(format: "%.1f °C", s.temp ?? 0), .red) }
-                    if hasPress { metric("Druck", String(format: "%.0f bar", s.pressure ?? 0), .green) }
+                    if hasPress { metric(dive.pressureLabel, String(format: "%.0f bar", s.pressure ?? 0), .green) }
                     if hasCeil { metric("Ceiling", "\(Int(s.ceiling ?? 0)) m", .orange) }
                     if hasTts { metric("TTS", ttsStr(s.tts ?? 0), .gray) }
                     if hasGf {
