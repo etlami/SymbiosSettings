@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.19",
+      "version": "1.9.20",
       "versionDate": "2026-09-06",
-      "versionDescription": "CCR dives: the logged tank pressure is labelled 'Diluent' (chart, readout, section). GF fields validated 1:1 against the device CSV.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.19/SymbiosSettings.ipa",
-      "size": 640436,
+      "versionDescription": "GF calibrated to the device; editable dive number (continues), swipe between dives, and list shows depth/time + editable dive-site name.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.20/SymbiosSettings.ipa",
+      "size": 673820,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.20",
+          "date": "2026-09-06",
+          "localizedDescription": "GF calibrated to the device; editable dive number (continues), swipe between dives, and list shows depth/time + editable dive-site name.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.20/SymbiosSettings.ipa",
+          "size": 673820,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.19",
           "date": "2026-09-06",

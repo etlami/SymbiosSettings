@@ -9,6 +9,8 @@ final class LogbookStore: ObservableObject {
     @Published private(set) var serial: UInt32? = nil
     @Published private(set) var index: [SymbiosBLE.DiveIndexEntry] = []
     @Published private(set) var downloadedIds: Set<UInt16> = []
+    @Published private(set) var sites: [String: String] = [:]      // "serial-diveId" → Tauchplatz
+    @Published private(set) var offsets: [String: Int] = [:]       // "serial" → Nummern-Offset
 
     private let fm = FileManager.default
     private var dir: URL {
@@ -18,8 +20,32 @@ final class LogbookStore: ObservableObject {
     }
 
     init() {
+        if let d = UserDefaults.standard.data(forKey: "diveSites"),
+           let m = try? JSONDecoder().decode([String: String].self, from: d) { sites = m }
+        if let d = UserDefaults.standard.data(forKey: "diveOffsets"),
+           let m = try? JSONDecoder().decode([String: Int].self, from: d) { offsets = m }
         let s = UserDefaults.standard.integer(forKey: "lastSerial")
         if s > 0 { serial = UInt32(s); reload() }
+    }
+
+    // MARK: Tauchplatz-Namen (je Gerät+Dive)
+    func siteName(_ serial: UInt32, _ id: UInt16) -> String? {
+        let v = sites["\(serial)-\(id)"]; return (v?.isEmpty ?? true) ? nil : v
+    }
+    func setSiteName(_ serial: UInt32, _ id: UInt16, _ name: String) {
+        let key = "\(serial)-\(id)"
+        let t = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if t.isEmpty { sites.removeValue(forKey: key) } else { sites[key] = t }
+        if let d = try? JSONEncoder().encode(sites) { UserDefaults.standard.set(d, forKey: "diveSites") }
+    }
+
+    // MARK: Tauchgang-Nummerierung (Offset je Gerät)
+    func numberOffset(_ serial: UInt32) -> Int { offsets["\(serial)"] ?? 0 }
+    func displayedNumber(serial: UInt32, recordNumber: Int) -> Int { recordNumber + numberOffset(serial) }
+    /// Setzt den Offset so, dass dieser Tauchgang die gewünschte Nummer bekommt; alle anderen ziehen mit.
+    func setDisplayedNumber(serial: UInt32, recordNumber: Int, displayed: Int) {
+        offsets["\(serial)"] = displayed - recordNumber
+        if let d = try? JSONEncoder().encode(offsets) { UserDefaults.standard.set(d, forKey: "diveOffsets") }
     }
 
     /// Beim Verbinden aufrufen: aktives Gerät setzen (lädt dessen Offline-Index).

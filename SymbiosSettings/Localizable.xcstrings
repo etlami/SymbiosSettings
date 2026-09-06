@@ -312,6 +312,16 @@
         }
       }
     },
+    "Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF ist Bühlmann ZH-L16C, an den Geräte-SurfGF kalibriert. Entsättigungs-/Flug-Prognose berechnet („null Übersättigung“ – strenger als DAN, keine Freigabe); „Vollständig entsättigt“ ist der Gerätewert.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bars: N₂ per compartment (mbar) or surface GF (%). GF is Bühlmann ZH-L16C, calibrated to the device SurfGF. Desaturation/flying forecasts are computed (“zero supersaturation” – stricter than DAN, not a clearance); “fully desaturated” is the device's value."
+          }
+        }
+      }
+    },
     "Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF, Entsättigungs- und Flug-Prognose sind berechnet (Bühlmann ZH-L16C, „null Übersättigung“ – strenger als DAN-Faustregeln, keine Freigabe); die „Vollständig entsättigt“-Zeit ist der Gerätewert.": {
       "localizations": {
         "en": {
@@ -1502,6 +1512,16 @@
         }
       }
     },
+    "Nummer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Number"
+          }
+        }
+      }
+    },
     "Nur mit verbundenem Gerät aufspielbar.": {
       "localizations": {
         "en": {
@@ -1882,6 +1902,26 @@
         }
       }
     },
+    "Setzen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set"
+          }
+        }
+      }
+    },
+    "Setzt die Nummer für diesen Tauchgang; die folgenden zählen automatisch weiter.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sets the number for this dive; the following dives continue automatically."
+          }
+        }
+      }
+    },
     "Sicherheitsstopp": {
       "localizations": {
         "en": {
@@ -2042,6 +2082,16 @@
         }
       }
     },
+    "Tauchgang-Nr.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive no."
+          }
+        }
+      }
+    },
     "Tauchgänge": {
       "localizations": {
         "en": {
@@ -2068,6 +2118,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dive mode: open circuit, CCR, CCR fixed setpoint, sidemount or bottom timer."
+          }
+        }
+      }
+    },
+    "Tauchplatz": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dive site"
           }
         }
       }
@@ -2528,6 +2588,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "loading…"
+          }
+        }
+      }
+    },
+    "nicht geladen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not downloaded"
           }
         }
       }

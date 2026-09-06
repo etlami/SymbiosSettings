@@ -280,12 +280,16 @@ struct DiveMeta: Identifiable {
     let serial: UInt32
     let model: UInt8?
     let diveId: UInt16
+    let number: Int?
     let start: Date?
     let maxDepth: Double
     let duration: TimeInterval?
     let mode: Int?
     let samples: Int
 }
+
+/// Referenz auf einen Tauchgang (für das Durchblättern per Swipe).
+struct DiveRef: Hashable { let serial: UInt32; let diveId: UInt16 }
 
 struct MergedDive: Identifiable {
     let id: String
@@ -334,6 +338,7 @@ struct LogbookView: View {
     @State private var err: String? = nil
     @State private var tab = 0                    // 0 = dieses Gerät, 1 = zusammengeführt
     @State private var merged: [MergedDive] = []
+    @State private var metaByKey: [String: DiveMeta] = [:]
 
     private var curSerial: UInt32 { store.serial ?? ble.deviceInfo?.serial ?? 0 }
 
@@ -360,16 +365,23 @@ struct LogbookView: View {
 
     private func rebuildMerged() {
         var metas: [DiveMeta] = []
+        var byKey: [String: DiveMeta] = [:]
         for s in store.allSerials() {
             for id in store.downloadedIds(for: s) {
                 guard let raw = store.rawDive(serial: s, id: id) else { continue }
                 let p = DiveParser.parse(raw)
-                metas.append(DiveMeta(id: "\(s)-\(id)", serial: s, model: p.model, diveId: id,
-                                      start: p.start, maxDepth: p.maxDepth, duration: p.duration,
-                                      mode: p.mode, samples: p.samples.count))
+                let m = DiveMeta(id: "\(s)-\(id)", serial: s, model: p.model, diveId: id, number: p.number,
+                                 start: p.start, maxDepth: p.maxDepth, duration: p.duration,
+                                 mode: p.mode, samples: p.samples.count)
+                metas.append(m); byKey[m.id] = m
             }
         }
+        metaByKey = byKey
         merged = DiveMerge.merge(metas)
+    }
+
+    private func dispNum(_ serial: UInt32, _ recNum: Int?) -> Int? {
+        recNum.map { store.displayedNumber(serial: serial, recordNumber: $0) }
     }
 
     var body: some View {
@@ -422,16 +434,16 @@ struct LogbookView: View {
             Text("Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
         }
         if !store.index.isEmpty {
+            let entries = Array(store.index.reversed())
+            let refs = entries.map { DiveRef(serial: curSerial, diveId: $0.diveId) }
             Section {
-                ForEach(store.index.reversed()) { e in
-                    NavigationLink { DiveDetailView(ble: ble, store: store, serial: curSerial, diveId: e.diveId) } label: {
-                        HStack {
-                            Label { Text(verbatim: LT("Tauchgang") + " · ID \(e.diveId)") } icon: { Image(systemName: "water.waves") }
-                            Spacer()
-                            if store.hasDive(e.diveId) {
-                                Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green).font(.caption)
-                            }
-                        }
+                ForEach(Array(entries.enumerated()), id: \.element.id) { idx, e in
+                    NavigationLink {
+                        DivePager(ble: ble, store: store, refs: refs, start: idx)
+                    } label: {
+                        diveRow(serial: curSerial, diveId: e.diveId,
+                                meta: metaByKey["\(curSerial)-\(e.diveId)"], sources: nil,
+                                downloaded: store.hasDive(e.diveId))
                     }
                 }
             } header: { Text(verbatim: LT("Tauchgänge") + " (\(store.index.count))") }
@@ -444,10 +456,14 @@ struct LogbookView: View {
             Section { Text("Noch keine geladenen Tauchgänge. Im Reiter „Dieses Gerät“ laden (auch „Alle laden“), auch vom HUD.")
                 .foregroundStyle(.secondary).font(.footnote) }
         } else {
+            let refs = merged.map { DiveRef(serial: $0.primary.serial, diveId: $0.primary.diveId) }
             Section {
-                ForEach(merged) { m in
-                    NavigationLink { DiveDetailView(ble: ble, store: store, serial: m.primary.serial, diveId: m.primary.diveId) } label: {
-                        mergedRow(m)
+                ForEach(Array(merged.enumerated()), id: \.element.id) { idx, m in
+                    NavigationLink {
+                        DivePager(ble: ble, store: store, refs: refs, start: idx)
+                    } label: {
+                        diveRow(serial: m.primary.serial, diveId: m.primary.diveId,
+                                meta: m.primary, sources: m.sources, downloaded: true)
                     }
                 }
             } header: { Text(verbatim: LT("Tauchgänge") + " (\(merged.count))") }
@@ -455,31 +471,40 @@ struct LogbookView: View {
         }
     }
 
-    @ViewBuilder private func mergedRow(_ m: MergedDive) -> some View {
+    // Einheitliche Listenzeile: Nummer · Datum · Modus · Tauchplatz · Tiefe/Zeit · Badges
+    @ViewBuilder private func diveRow(serial: UInt32, diveId: UInt16, meta: DiveMeta?, sources: [DiveMeta]?, downloaded: Bool) -> some View {
+        let site = store.siteName(serial, diveId)
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 6) {
-                Text(m.start.map { dateStr($0) } ?? "—").font(.subheadline)
-                if let mode = DiveParser.modeName(m.mode) {
+                if let n = dispNum(serial, meta?.number) {
+                    Text(verbatim: "#\(n)").font(.subheadline.bold())
+                } else {
+                    Text(verbatim: "ID \(diveId)").font(.subheadline).foregroundStyle(.secondary)
+                }
+                if let d = meta?.start { Text(dateStr(d)).font(.subheadline).foregroundStyle(.secondary) }
+                if let mode = DiveParser.modeName(meta?.mode) {
                     Text(mode).font(.caption2).padding(.horizontal, 5).padding(.vertical, 1)
                         .background(.blue.opacity(0.15), in: Capsule()).foregroundStyle(.blue)
                 }
                 Spacer()
-                ForEach(m.sources) { src in
-                    Text(DiveParser.modelShort(src.model)).font(.caption2.bold())
-                        .padding(.horizontal, 5).padding(.vertical, 1)
-                        .background(.secondary.opacity(0.15), in: Capsule()).foregroundStyle(.secondary)
-                }
+                if let sources { ForEach(sources) { s in tag(DiveParser.modelShort(s.model)) } }
+                else if downloaded { Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green).font(.caption) }
             }
-            HStack(spacing: 10) {
-                Label(String(format: "%.1f m", m.maxDepth), systemImage: "arrow.down").font(.caption).foregroundStyle(.secondary)
-                if let dur = m.duration {
-                    Label(durShort(dur), systemImage: "clock").font(.caption).foregroundStyle(.secondary)
+            if let site { Text(site).font(.subheadline) }
+            if let meta {
+                HStack(spacing: 12) {
+                    Label(String(format: "%.1f m", meta.maxDepth), systemImage: "arrow.down").font(.caption).foregroundStyle(.secondary)
+                    if let dur = meta.duration { Label(durShort(dur), systemImage: "clock").font(.caption).foregroundStyle(.secondary) }
+                    if (sources?.count ?? 0) > 1 { Label("zusammengeführt", systemImage: "arrow.triangle.merge").font(.caption2).foregroundStyle(.green) }
                 }
-                if m.sources.count > 1 {
-                    Label("zusammengeführt", systemImage: "arrow.triangle.merge").font(.caption2).foregroundStyle(.green)
-                }
+            } else {
+                Text("nicht geladen").font(.caption).foregroundStyle(.secondary)
             }
         }
+    }
+    @ViewBuilder private func tag(_ s: String) -> some View {
+        Text(verbatim: s).font(.caption2.bold()).padding(.horizontal, 5).padding(.vertical, 1)
+            .background(.secondary.opacity(0.15), in: Capsule()).foregroundStyle(.secondary)
     }
 
     private func dateStr(_ d: Date) -> String {
@@ -491,6 +516,30 @@ struct LogbookView: View {
     private var progressText: String {
         if let x = ble.xferProgress { return "\(Int(x * 100)) %" }
         return LT("lädt…")
+    }
+}
+
+// MARK: - Durchblättern per Swipe (links/rechts) über die Tauchgänge
+struct DivePager: View {
+    @ObservedObject var ble: SymbiosBLE
+    @ObservedObject var store: LogbookStore
+    let refs: [DiveRef]
+    @State private var index: Int
+
+    init(ble: SymbiosBLE, store: LogbookStore, refs: [DiveRef], start: Int) {
+        self.ble = ble; self.store = store; self.refs = refs
+        _index = State(initialValue: min(max(start, 0), max(refs.count - 1, 0)))
+    }
+
+    var body: some View {
+        TabView(selection: $index) {
+            ForEach(refs.indices, id: \.self) { i in
+                DiveDetailView(ble: ble, store: store, serial: refs[i].serial, diveId: refs[i].diveId)
+                    .tag(i)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -512,6 +561,8 @@ struct DiveDetailView: View {
     @AppStorage("targetGF") private var targetGF: Double = 40
     @AppStorage("cabinFt") private var cabinFt: Double = 6000
     @State private var fullscreen = false
+    @State private var showNumEdit = false
+    @State private var numText = ""
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
     /// Nachladen geht nur, wenn genau dieses Gerät verbunden ist.
@@ -533,7 +584,24 @@ struct DiveDetailView: View {
             }
             if let d = dive {
                 Section("Übersicht") {
-                    if let n = d.number { row("Nr.", "\(n)") }
+                    if let n = d.number {
+                        Button {
+                            numText = "\(store.displayedNumber(serial: serial, recordNumber: n))"; showNumEdit = true
+                        } label: {
+                            HStack {
+                                Text("Nr.").foregroundStyle(.primary); Spacer()
+                                Text(verbatim: "\(store.displayedNumber(serial: serial, recordNumber: n))").foregroundStyle(.secondary).monospacedDigit()
+                                Image(systemName: "pencil").font(.caption2).foregroundStyle(.tertiary)
+                            }.contentShape(Rectangle())
+                        }.buttonStyle(.plain)
+                    }
+                    HStack {
+                        Text("Tauchplatz")
+                        TextField("Name", text: Binding(
+                            get: { store.siteName(serial, diveId) ?? "" },
+                            set: { store.setSiteName(serial, diveId, $0) }))
+                            .multilineTextAlignment(.trailing)
+                    }
                     if let m = DiveParser.modeName(d.mode) { row("Art", m) }
                     row("Gerät", DiveParser.modelName(d.model))
                     if let s = d.start { row("Start", dateStr(s)) }
@@ -594,7 +662,11 @@ struct DiveDetailView: View {
                 }
                 if let comp = d.endComp {
                     let pamb = d.atmBar ?? 1.013
-                    let gf = Buhlmann.surfaceGF(n2mbar: comp, pamb: pamb)
+                    let gfRaw = Buhlmann.surfaceGF(n2mbar: comp, pamb: pamb)
+                    let devSurf = d.samples.last(where: { $0.gfSurf != nil })?.gfSurf   // Geräte-SurfGF am Ende
+                    let rawMax = gfRaw.max() ?? 0
+                    let cal = (devSurf != nil && rawMax > 1) ? Double(devSurf!) / rawMax : 1.0   // an Gerät kalibriert
+                    let gf = gfRaw.map { $0 * cal }
                     let lead = gf.indices.max(by: { gf[$0] < gf[$1] }) ?? 0
                     Section {
                         if let ds = d.desatSeconds {
@@ -620,7 +692,7 @@ struct DiveDetailView: View {
                                 Text(verbatim: "\(Int(targetGF)) %").monospacedDigit()
                             }
                             Slider(value: $targetGF, in: 0...90, step: 5)
-                            if let t = Buhlmann.timeToLeadingGF(n2mbar: comp, pamb: pamb, targetPct: targetGF) {
+                            if let t = Buhlmann.timeToLeadingGF(n2mbar: comp, pamb: pamb, targetPct: targetGF / cal) {
                                 let clock = d.end.map { desatClock($0.addingTimeInterval(t * 60)) } ?? ""
                                 Text(verbatim: t < 1 ? "→ jetzt erreicht" : "→ in \(desatStr(Int(t * 60)))\(clock.isEmpty ? "" : " (\(clock))")")
                                     .font(.footnote).foregroundStyle(.blue)
@@ -645,7 +717,7 @@ struct DiveDetailView: View {
                             }
                         }
                     } header: { Text("Gewebesättigung (Ende)") } footer: {
-                        Text("Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF, Entsättigungs- und Flug-Prognose sind berechnet (Bühlmann ZH-L16C, „null Übersättigung“ – strenger als DAN-Faustregeln, keine Freigabe); die „Vollständig entsättigt“-Zeit ist der Gerätewert.")
+                        Text("Balken: N₂ je Kompartiment (mbar) bzw. Oberflächen-GF (%). GF ist Bühlmann ZH-L16C, an den Geräte-SurfGF kalibriert. Entsättigungs-/Flug-Prognose berechnet („null Übersättigung“ – strenger als DAN, keine Freigabe); „Vollständig entsättigt“ ist der Gerätewert.")
                     }
                 }
                 Section {
@@ -660,7 +732,7 @@ struct DiveDetailView: View {
                 }
             }
         }
-        .navigationTitle(Text(verbatim: LT("Tauchgang") + " \(diveId)"))
+        .navigationTitle(Text(verbatim: LT("Tauchgang") + " " + (dive?.number.map { "#\(store.displayedNumber(serial: serial, recordNumber: $0))" } ?? "\(diveId)")))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if canDownload {
@@ -674,6 +746,15 @@ struct DiveDetailView: View {
         .fullScreenCover(isPresented: $fullscreen) {
             if let d = dive { FullscreenChart(dive: d) { fullscreen = false } }
         }
+        .alert("Tauchgang-Nr.", isPresented: $showNumEdit) {
+            TextField("Nummer", text: $numText).keyboardType(.numberPad)
+            Button("Abbrechen", role: .cancel) {}
+            Button("Setzen") {
+                if let n = Int(numText), let rec = dive?.number {
+                    store.setDisplayedNumber(serial: serial, recordNumber: rec, displayed: n)
+                }
+            }
+        } message: { Text("Setzt die Nummer für diesen Tauchgang; die folgenden zählen automatisch weiter.") }
     }
 
     private func load(force: Bool = false) async {
