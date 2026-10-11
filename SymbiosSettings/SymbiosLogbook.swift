@@ -414,6 +414,7 @@ struct LogbookView: View {
     private func rebuildMerged() {
         var metas: [DiveMeta] = []
         var byKey: [String: DiveMeta] = [:]
+        var rec: [String: Int] = [:]
         for s in store.allSerials() {
             for id in store.downloadedIds(for: s) {
                 guard let raw = store.rawDive(serial: s, id: id) else { continue }
@@ -422,9 +423,11 @@ struct LogbookView: View {
                                  start: p.start, maxDepth: p.maxDepth, duration: p.duration,
                                  mode: p.mode, samples: p.samples.count)
                 metas.append(m); byKey[m.id] = m
+                if let n = p.number { rec[m.id] = n }
             }
         }
         metaByKey = byKey
+        store.setRecNums(rec)
         merged = DiveMerge.merge(metas)
     }
 

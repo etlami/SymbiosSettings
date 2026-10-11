@@ -73,12 +73,31 @@ final class LogbookStore: ObservableObject {
         if let d = try? JSONEncoder().encode(groups) { UserDefaults.standard.set(d, forKey: "mergeGroups") }
     }
 
-    // MARK: Tauchgang-Nummerierung (Offset je Gerät)
+    // MARK: Tauchgang-Nummerierung (Offset je Gerät, Sessions zählen als 1)
+    @Published private(set) var recNums: [String: Int] = [:]    // "serial-diveId" → Record-Nummer (aus Parse)
+    func setRecNums(_ m: [String: Int]) { if m != recNums { recNums = m } }
+
     func numberOffset(_ serial: UInt32) -> Int { offsets["\(serial)"] ?? 0 }
-    func displayedNumber(serial: UInt32, recordNumber: Int) -> Int { recordNumber + numberOffset(serial) }
+
+    /// Record-Nummern, die durch Zusammenführen „wegfallen" (pro Session alle außer der ersten).
+    private func removedRecordNumbers(_ serial: UInt32) -> [Int] {
+        var out: [Int] = []
+        for g in groups["\(serial)"] ?? [] {
+            let nums = g.compactMap { recNums["\(serial)-\($0)"] }.sorted()
+            if nums.count >= 2 { out.append(contentsOf: nums.dropFirst()) }
+        }
+        return out
+    }
+
+    /// Angezeigte Nummer: Record-Nummer + Offset − zusammengeführte Segmente davor (lückenlos).
+    func displayedNumber(serial: UInt32, recordNumber: Int) -> Int {
+        let cut = removedRecordNumbers(serial).filter { $0 <= recordNumber }.count
+        return recordNumber + numberOffset(serial) - cut
+    }
     /// Setzt den Offset so, dass dieser Tauchgang die gewünschte Nummer bekommt; alle anderen ziehen mit.
     func setDisplayedNumber(serial: UInt32, recordNumber: Int, displayed: Int) {
-        offsets["\(serial)"] = displayed - recordNumber
+        let cut = removedRecordNumbers(serial).filter { $0 <= recordNumber }.count
+        offsets["\(serial)"] = displayed - recordNumber + cut
         if let d = try? JSONEncoder().encode(offsets) { UserDefaults.standard.set(d, forKey: "diveOffsets") }
     }
 

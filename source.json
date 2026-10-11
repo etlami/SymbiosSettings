@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.21",
+      "version": "1.9.22",
       "versionDate": "2026-10-11",
-      "versionDescription": "Merge several consecutive dives into one session (surface breaks shown as 0 m); combined profile, stats and CSV; non-destructive, splittable.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.21/SymbiosSettings.ipa",
-      "size": 721854,
+      "versionDescription": "Dive numbering is now gap-free after merging: a session counts as one dive and the following dives renumber automatically.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.22/SymbiosSettings.ipa",
+      "size": 724847,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.22",
+          "date": "2026-10-11",
+          "localizedDescription": "Dive numbering is now gap-free after merging: a session counts as one dive and the following dives renumber automatically.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.22/SymbiosSettings.ipa",
+          "size": 724847,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.21",
           "date": "2026-10-11",
