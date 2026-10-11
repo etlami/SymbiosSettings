@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.20",
-      "versionDate": "2026-09-06",
-      "versionDescription": "GF calibrated to the device; editable dive number (continues), swipe between dives, and list shows depth/time + editable dive-site name.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.20/SymbiosSettings.ipa",
-      "size": 673820,
+      "version": "1.9.21",
+      "versionDate": "2026-10-11",
+      "versionDescription": "Merge several consecutive dives into one session (surface breaks shown as 0 m); combined profile, stats and CSV; non-destructive, splittable.",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.21/SymbiosSettings.ipa",
+      "size": 721854,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.21",
+          "date": "2026-10-11",
+          "localizedDescription": "Merge several consecutive dives into one session (surface breaks shown as 0 m); combined profile, stats and CSV; non-destructive, splittable.",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.21/SymbiosSettings.ipa",
+          "size": 721854,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.20",
           "date": "2026-09-06",
