@@ -274,6 +274,52 @@ enum DiveParser {
     }
 }
 
+// MARK: - Session: mehrere Tauchgänge (Segmente) → ein kombinierter Tauchgang
+struct CombinedDive {
+    let dive: ParsedDive        // auf echter Zeitachse aneinandergereiht
+    let segmentCount: Int
+    let inWater: TimeInterval   // Summe der Segment-Dauern
+}
+
+extension DiveParser {
+    /// Reiht Segmente auf echter Zeitachse (Startzeit) aneinander; Pausen fallen auf 0 m.
+    /// Gewebe/Entsättigung aus dem letzten Segment (Gerät rechnet über die Pausen durch).
+    static func combine(_ partsIn: [ParsedDive]) -> CombinedDive {
+        let parts = partsIn.sorted { ($0.start ?? .distantPast) < ($1.start ?? .distantPast) }
+        guard let first = parts.first else { return CombinedDive(dive: ParsedDive(), segmentCount: 0, inWater: 0) }
+        var out = ParsedDive()
+        out.number = first.number; out.serial = first.serial; out.model = first.model
+        out.mode = first.mode; out.atmBar = first.atmBar; out.interval = first.interval
+        out.start = first.start
+        let anchor = first.start ?? Date(timeIntervalSince1970: 0)
+        var samples: [DiveSample] = []; var idx = 0
+        var inWater: TimeInterval = 0; var maxDepth = 0.0; var minTemp: Double? = nil; var gasCount = 0
+        for (pi, p) in parts.enumerated() {
+            let off = Int((p.start ?? anchor).timeIntervalSince(anchor))
+            if pi > 0, let prev = samples.last {       // Brücke auf 0 m über die Oberflächenpause
+                samples.append(DiveSample(id: idx, seconds: prev.seconds + p.interval, depth: 0)); idx += 1
+                samples.append(DiveSample(id: idx, seconds: max(off - p.interval, prev.seconds + 2 * p.interval), depth: 0)); idx += 1
+            }
+            for s in p.samples {
+                samples.append(DiveSample(id: idx, seconds: off + s.seconds, depth: s.depth,
+                                          temp: s.temp, ceiling: s.ceiling, pressure: s.pressure,
+                                          tts: s.tts, gfNow: s.gfNow, gfSurf: s.gfSurf)); idx += 1
+            }
+            maxDepth = max(maxDepth, p.maxDepth)
+            if let t = p.minTemp { minTemp = minTemp.map { min($0, t) } ?? t }
+            gasCount = max(gasCount, p.gasCount)
+            if let d = p.duration { inWater += d }
+        }
+        out.samples = samples; out.maxDepth = maxDepth; out.minTemp = minTemp; out.gasCount = gasCount
+        out.end = parts.last?.end
+        out.endComp = parts.last?.endComp; out.endCompHe = parts.last?.endCompHe; out.desatSeconds = parts.last?.desatSeconds
+        return CombinedDive(dive: out, segmentCount: parts.count, inWater: inWater)
+    }
+}
+
+/// Listen-/Pager-Eintrag: einzelner Tauchgang oder (groupIds>1) eine Session.
+struct DivePageItem: Hashable { let serial: UInt32; let diveId: UInt16; let groupIds: [UInt16] }
+
 // MARK: - Merge-Modelle (HUD + Computer zusammenführen)
 struct DiveMeta: Identifiable {
     let id: String            // "<serial>-<diveId>"
@@ -339,6 +385,8 @@ struct LogbookView: View {
     @State private var tab = 0                    // 0 = dieses Gerät, 1 = zusammengeführt
     @State private var merged: [MergedDive] = []
     @State private var metaByKey: [String: DiveMeta] = [:]
+    @State private var selecting = false
+    @State private var selected: Set<UInt16> = []
 
     private var curSerial: UInt32 { store.serial ?? ble.deviceInfo?.serial ?? 0 }
 
@@ -384,6 +432,46 @@ struct LogbookView: View {
         recNum.map { store.displayedNumber(serial: serial, recordNumber: $0) }
     }
 
+    private func startOf(_ id: UInt16) -> Date { metaByKey["\(curSerial)-\(id)"]?.start ?? .distantFuture }
+
+    /// Anzeige-Einträge des aktuellen Geräts: Sessions (Gruppen) als ein Eintrag, Rest einzeln (neueste zuerst).
+    private func deviceItems() -> [DivePageItem] {
+        var out: [DivePageItem] = []; var seen = Set<UInt16>()
+        for e in store.index.reversed() {
+            if seen.contains(e.diveId) { continue }
+            if let g = store.group(curSerial, e.diveId) {
+                let rep = g.min(by: { startOf($0) < startOf($1) }) ?? e.diveId
+                out.append(DivePageItem(serial: curSerial, diveId: rep, groupIds: g.sorted()))
+                seen.formUnion(g)
+            } else {
+                out.append(DivePageItem(serial: curSerial, diveId: e.diveId, groupIds: []))
+                seen.insert(e.diveId)
+            }
+        }
+        return out
+    }
+
+    /// Synthetische Meta für eine Session-Zeile (aus den Segment-Metas).
+    private func sessionMeta(_ ids: [UInt16], rep: UInt16) -> DiveMeta {
+        let ms = ids.compactMap { metaByKey["\(curSerial)-\($0)"] }
+        let starts = ms.compactMap { $0.start }
+        let firstStart = starts.min()
+        let lastEnd = ms.compactMap { m in m.start.map { $0.addingTimeInterval(m.duration ?? 0) } }.max()
+        let wall = (firstStart != nil && lastEnd != nil) ? lastEnd!.timeIntervalSince(firstStart!) : nil
+        let firstM = ms.min(by: { ($0.start ?? .distantFuture) < ($1.start ?? .distantFuture) })
+        return DiveMeta(id: "\(curSerial)-\(rep)", serial: curSerial, model: firstM?.model, diveId: rep,
+                        number: firstM?.number, start: firstStart, maxDepth: ms.map { $0.maxDepth }.max() ?? 0,
+                        duration: wall, mode: firstM?.mode, samples: 0)
+    }
+
+    /// Sind die ausgewählten Tauchgänge zeitlich zusammenhängend (benachbart in der Start-Reihenfolge)?
+    private func selectionContiguous() -> Bool {
+        guard selected.count >= 2 else { return false }
+        let ordered = store.index.map { $0.diveId }.sorted { startOf($0) < startOf($1) }
+        let pos = selected.compactMap { ordered.firstIndex(of: $0) }.sorted()
+        return pos.count == selected.count && (pos.last! - pos.first! == pos.count - 1)
+    }
+
     var body: some View {
         List {
             Section {
@@ -398,6 +486,7 @@ struct LogbookView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { rebuildMerged() }
         .onChange(of: store.downloadedIds) { _, _ in rebuildMerged() }
+        .onChange(of: tab) { _, _ in selecting = false; selected = [] }
     }
 
     // MARK: dieses Gerät
@@ -434,19 +523,51 @@ struct LogbookView: View {
             Text("Read-only. Geladene Tauchgänge bleiben offline verfügbar (pro Gerät gespeichert). Download-Mechanik nach libdivecomputer; beim ersten Gerät gegenprüfen.")
         }
         if !store.index.isEmpty {
-            let entries = Array(store.index.reversed())
-            let refs = entries.map { DiveRef(serial: curSerial, diveId: $0.diveId) }
+            let items = deviceItems()
             Section {
-                ForEach(Array(entries.enumerated()), id: \.element.id) { idx, e in
-                    NavigationLink {
-                        DivePager(ble: ble, store: store, refs: refs, start: idx)
-                    } label: {
-                        diveRow(serial: curSerial, diveId: e.diveId,
-                                meta: metaByKey["\(curSerial)-\(e.diveId)"], sources: nil,
-                                downloaded: store.hasDive(e.diveId))
+                if selecting {
+                    Button {
+                        if selectionContiguous() {
+                            store.mergeDives(curSerial, Array(selected)); selected = []; selecting = false; rebuildMerged()
+                        }
+                    } label: { Label("Zu einem Tauchgang zusammenführen (\(selected.count))", systemImage: "arrow.triangle.merge") }
+                        .disabled(!selectionContiguous())
+                    if selected.count >= 2 && !selectionContiguous() {
+                        Text("Nur zeitlich zusammenhängende Tauchgänge wählbar.").font(.caption).foregroundStyle(.orange)
+                    }
+                    Button("Abbrechen") { selected = []; selecting = false }
+                } else {
+                    Button { selecting = true } label: { Label("Tauchgänge zusammenführen …", systemImage: "square.on.square") }
+                }
+            }
+            Section {
+                ForEach(Array(items.enumerated()), id: \.element) { idx, it in
+                    if selecting && it.groupIds.isEmpty {
+                        Button {
+                            if selected.contains(it.diveId) { selected.remove(it.diveId) } else { selected.insert(it.diveId) }
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: selected.contains(it.diveId) ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(selected.contains(it.diveId) ? .blue : .secondary)
+                                diveRow(serial: curSerial, diveId: it.diveId,
+                                        meta: metaByKey["\(curSerial)-\(it.diveId)"], sources: nil, downloaded: store.hasDive(it.diveId))
+                            }
+                        }.buttonStyle(.plain)
+                    } else {
+                        NavigationLink {
+                            DivePager(ble: ble, store: store, items: items, start: idx)
+                        } label: {
+                            if it.groupIds.count > 1 {
+                                diveRow(serial: curSerial, diveId: it.diveId, meta: sessionMeta(it.groupIds, rep: it.diveId),
+                                        sources: nil, downloaded: true, segments: it.groupIds.count)
+                            } else {
+                                diveRow(serial: curSerial, diveId: it.diveId,
+                                        meta: metaByKey["\(curSerial)-\(it.diveId)"], sources: nil, downloaded: store.hasDive(it.diveId))
+                            }
+                        }.disabled(selecting)
                     }
                 }
-            } header: { Text(verbatim: LT("Tauchgänge") + " (\(store.index.count))") }
+            } header: { Text(verbatim: LT("Tauchgänge") + " (\(items.count))") }
         }
     }
 
@@ -456,11 +577,11 @@ struct LogbookView: View {
             Section { Text("Noch keine geladenen Tauchgänge. Im Reiter „Dieses Gerät“ laden (auch „Alle laden“), auch vom HUD.")
                 .foregroundStyle(.secondary).font(.footnote) }
         } else {
-            let refs = merged.map { DiveRef(serial: $0.primary.serial, diveId: $0.primary.diveId) }
+            let items = merged.map { DivePageItem(serial: $0.primary.serial, diveId: $0.primary.diveId, groupIds: []) }
             Section {
                 ForEach(Array(merged.enumerated()), id: \.element.id) { idx, m in
                     NavigationLink {
-                        DivePager(ble: ble, store: store, refs: refs, start: idx)
+                        DivePager(ble: ble, store: store, items: items, start: idx)
                     } label: {
                         diveRow(serial: m.primary.serial, diveId: m.primary.diveId,
                                 meta: m.primary, sources: m.sources, downloaded: true)
@@ -472,7 +593,7 @@ struct LogbookView: View {
     }
 
     // Einheitliche Listenzeile: Nummer · Datum · Modus · Tauchplatz · Tiefe/Zeit · Badges
-    @ViewBuilder private func diveRow(serial: UInt32, diveId: UInt16, meta: DiveMeta?, sources: [DiveMeta]?, downloaded: Bool) -> some View {
+    @ViewBuilder private func diveRow(serial: UInt32, diveId: UInt16, meta: DiveMeta?, sources: [DiveMeta]?, downloaded: Bool, segments: Int = 1) -> some View {
         let site = store.siteName(serial, diveId)
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 6) {
@@ -485,6 +606,10 @@ struct LogbookView: View {
                 if let mode = DiveParser.modeName(meta?.mode) {
                     Text(mode).font(.caption2).padding(.horizontal, 5).padding(.vertical, 1)
                         .background(.blue.opacity(0.15), in: Capsule()).foregroundStyle(.blue)
+                }
+                if segments > 1 {
+                    Text(verbatim: "\(segments) Seg.").font(.caption2).padding(.horizontal, 5).padding(.vertical, 1)
+                        .background(.green.opacity(0.15), in: Capsule()).foregroundStyle(.green)
                 }
                 Spacer()
                 if let sources { ForEach(sources) { s in tag(DiveParser.modelShort(s.model)) } }
@@ -523,18 +648,19 @@ struct LogbookView: View {
 struct DivePager: View {
     @ObservedObject var ble: SymbiosBLE
     @ObservedObject var store: LogbookStore
-    let refs: [DiveRef]
+    let items: [DivePageItem]
     @State private var index: Int
 
-    init(ble: SymbiosBLE, store: LogbookStore, refs: [DiveRef], start: Int) {
-        self.ble = ble; self.store = store; self.refs = refs
-        _index = State(initialValue: min(max(start, 0), max(refs.count - 1, 0)))
+    init(ble: SymbiosBLE, store: LogbookStore, items: [DivePageItem], start: Int) {
+        self.ble = ble; self.store = store; self.items = items
+        _index = State(initialValue: min(max(start, 0), max(items.count - 1, 0)))
     }
 
     var body: some View {
         TabView(selection: $index) {
-            ForEach(refs.indices, id: \.self) { i in
-                DiveDetailView(ble: ble, store: store, serial: refs[i].serial, diveId: refs[i].diveId)
+            ForEach(items.indices, id: \.self) { i in
+                DiveDetailView(ble: ble, store: store, serial: items[i].serial,
+                               diveId: items[i].diveId, groupIds: items[i].groupIds)
                     .tag(i)
             }
         }
@@ -549,6 +675,9 @@ struct DiveDetailView: View {
     @ObservedObject var store: LogbookStore
     let serial: UInt32
     let diveId: UInt16
+    var groupIds: [UInt16] = []            // >1 → Session aus Segmenten
+    @Environment(\.dismiss) private var dismiss
+    @State private var combinedInfo: CombinedDive? = nil
     @State private var dive: ParsedDive? = nil
     @State private var loading = false
     @State private var err: String? = nil
@@ -605,11 +734,22 @@ struct DiveDetailView: View {
                     if let m = DiveParser.modeName(d.mode) { row("Art", m) }
                     row("Gerät", DiveParser.modelName(d.model))
                     if let s = d.start { row("Start", dateStr(s)) }
-                    if let dur = d.duration { row("Dauer", durStr(dur)) }
+                    if let dur = d.duration { row(combinedInfo != nil ? "Dauer (gesamt)" : "Dauer", durStr(dur)) }
+                    if let c = combinedInfo {
+                        row("im Wasser", durStr(c.inWater))
+                        row("Segmente", "\(c.segmentCount)")
+                    }
                     row("Max. Tiefe", String(format: "%.1f m", d.maxDepth))
                     if let t = d.minTemp { row("Min. Temp", String(format: "%.1f °C", t)) }
                     if d.gasCount > 0 { row("Gase", "\(d.gasCount)") }
                     row("Samples", "\(d.samples.count)")
+                }
+                if combinedInfo != nil {
+                    Section {
+                        Button(role: .destructive) { store.splitGroup(serial, diveId); dismiss() } label: {
+                            Label("Session auflösen", systemImage: "arrow.triangle.branch")
+                        }
+                    } footer: { Text("Trennt die Session wieder in einzelne Tauchgänge.") }
                 }
                 if d.samples.count > 1 {
                     Section {
@@ -735,7 +875,7 @@ struct DiveDetailView: View {
         .navigationTitle(Text(verbatim: LT("Tauchgang") + " " + (dive?.number.map { "#\(store.displayedNumber(serial: serial, recordNumber: $0))" } ?? "\(diveId)")))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if canDownload {
+            if canDownload && groupIds.count <= 1 {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Task { await load(force: true) } } label: { Image(systemName: "arrow.clockwise") }
                         .disabled(loading)
@@ -761,6 +901,28 @@ struct DiveDetailView: View {
         if !force { guard dive == nil else { return } }
         guard !loading else { return }
         loading = true; err = nil
+        let tmp = FileManager.default.temporaryDirectory
+
+        // Session (mehrere Segmente) → kombinieren
+        if groupIds.count > 1 {
+            var parts: [ParsedDive] = []
+            for gid in groupIds {
+                var raw = store.rawDive(serial: serial, id: gid)
+                if raw == nil, canDownload {
+                    raw = await ble.downloadDive(gid); if let r = raw { store.saveDive(gid, r) }
+                }
+                if let raw { parts.append(DiveParser.parse(raw)) }
+            }
+            guard parts.count >= 2 else { err = LT("Segmente nicht vollständig geladen."); loading = false; return }
+            let c = DiveParser.combine(parts)
+            combinedInfo = c; dive = c.dive
+            let csv = DiveParser.csv(c.dive, diveId: diveId)
+            let curl = tmp.appendingPathComponent("session_\(serial)_\(diveId).csv")
+            try? csv.data(using: .utf8)?.write(to: curl); csvURL = curl
+            binURL = nil
+            loading = false; return
+        }
+
         if force { store.removeDive(diveId) }
         var raw = force ? nil : store.rawDive(serial: serial, id: diveId)   // erst Offline-Cache (außer erzwungen)
         if raw == nil {
@@ -771,7 +933,6 @@ struct DiveDetailView: View {
         guard let raw else { err = LT("Tauchgang konnte nicht geladen werden."); loading = false; return }
         let parsed = DiveParser.parse(raw)
         dive = parsed
-        let tmp = FileManager.default.temporaryDirectory
         let csv = DiveParser.csv(parsed, diveId: diveId)
         let curl = tmp.appendingPathComponent("dive_\(diveId).csv")
         try? csv.data(using: .utf8)?.write(to: curl); csvURL = curl

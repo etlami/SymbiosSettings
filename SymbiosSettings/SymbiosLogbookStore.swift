@@ -11,6 +11,7 @@ final class LogbookStore: ObservableObject {
     @Published private(set) var downloadedIds: Set<UInt16> = []
     @Published private(set) var sites: [String: String] = [:]      // "serial-diveId" → Tauchplatz
     @Published private(set) var offsets: [String: Int] = [:]       // "serial" → Nummern-Offset
+    @Published private(set) var groups: [String: [[UInt16]]] = [:] // "serial" → Sessions (je Gruppe diveIds)
 
     private let fm = FileManager.default
     private var dir: URL {
@@ -24,6 +25,8 @@ final class LogbookStore: ObservableObject {
            let m = try? JSONDecoder().decode([String: String].self, from: d) { sites = m }
         if let d = UserDefaults.standard.data(forKey: "diveOffsets"),
            let m = try? JSONDecoder().decode([String: Int].self, from: d) { offsets = m }
+        if let d = UserDefaults.standard.data(forKey: "mergeGroups"),
+           let m = try? JSONDecoder().decode([String: [[UInt16]]].self, from: d) { groups = m }
         let s = UserDefaults.standard.integer(forKey: "lastSerial")
         if s > 0 { serial = UInt32(s); reload() }
     }
@@ -37,6 +40,37 @@ final class LogbookStore: ObservableObject {
         let t = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if t.isEmpty { sites.removeValue(forKey: key) } else { sites[key] = t }
         if let d = try? JSONEncoder().encode(sites) { UserDefaults.standard.set(d, forKey: "diveSites") }
+    }
+
+    // MARK: Sessions (mehrere Tauchgänge → einer)
+    /// Gruppe (diveIds), die diesen Tauchgang enthält – nil, wenn ungruppiert.
+    func group(_ serial: UInt32, _ id: UInt16) -> [UInt16]? {
+        groups["\(serial)"]?.first { $0.contains(id) }
+    }
+    func isGrouped(_ serial: UInt32, _ id: UInt16) -> Bool { group(serial, id) != nil }
+    /// Mehrere Tauchgänge zu einer Session zusammenführen (vorhandene Mitgliedschaften werden gelöst).
+    func mergeDives(_ serial: UInt32, _ ids: [UInt16]) {
+        guard ids.count >= 2 else { return }
+        let key = "\(serial)"
+        var list = groups[key] ?? []
+        let set = Set(ids)
+        list = list.compactMap { g in
+            let rest = g.filter { !set.contains($0) }
+            return rest.count >= 2 ? rest : nil      // Restgruppen < 2 auflösen
+        }
+        list.append(Array(set))
+        groups[key] = list
+        persistGroups()
+    }
+    /// Session auflösen, die diesen Tauchgang enthält.
+    func splitGroup(_ serial: UInt32, _ id: UInt16) {
+        let key = "\(serial)"
+        groups[key] = (groups[key] ?? []).filter { !$0.contains(id) }
+        if groups[key]?.isEmpty ?? false { groups.removeValue(forKey: key) }
+        persistGroups()
+    }
+    private func persistGroups() {
+        if let d = try? JSONEncoder().encode(groups) { UserDefaults.standard.set(d, forKey: "mergeGroups") }
     }
 
     // MARK: Tauchgang-Nummerierung (Offset je Gerät)

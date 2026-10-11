@@ -562,6 +562,16 @@
         }
       }
     },
+    "Dauer (gesamt)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration (total)"
+          }
+        }
+      }
+    },
     "Decke": {
       "localizations": {
         "en": {
@@ -1532,6 +1542,16 @@
         }
       }
     },
+    "Nur zeitlich zusammenhängende Tauchgänge wählbar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only consecutive dives can be merged."
+          }
+        }
+      }
+    },
     "N₂-Gewebespannung je Kompartiment (mbar), führendes Gewebe orange. Entsättigungszeit ist der Gerätewert.": {
       "localizations": {
         "en": {
@@ -1882,12 +1902,42 @@
         }
       }
     },
+    "Segmente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segments"
+          }
+        }
+      }
+    },
+    "Segmente nicht vollständig geladen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segments not fully loaded."
+          }
+        }
+      }
+    },
     "Sender nötig": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Requires transmitter"
+          }
+        }
+      }
+    },
+    "Session auflösen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split session"
           }
         }
       }
@@ -2102,6 +2152,16 @@
         }
       }
     },
+    "Tauchgänge zusammenführen …": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge dives …"
+          }
+        }
+      }
+    },
     "Tauchmodus": {
       "localizations": {
         "en": {
@@ -2238,6 +2298,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Disconnect"
+          }
+        }
+      }
+    },
+    "Trennt die Session wieder in einzelne Tauchgänge.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splits the session back into individual dives."
           }
         }
       }
@@ -2522,6 +2592,16 @@
         }
       }
     },
+    "Zu einem Tauchgang zusammenführen (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge into one dive (%lld)"
+          }
+        }
+      }
+    },
     "Zugriff auf die Wireless-Daten des Buddys.": {
       "localizations": {
         "en": {
@@ -2578,6 +2658,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "off"
+          }
+        }
+      }
+    },
+    "im Wasser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In water"
           }
         }
       }
