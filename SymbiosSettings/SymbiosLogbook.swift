@@ -692,9 +692,12 @@ struct DiveDetailView: View {
     @AppStorage("tissueUnit") private var tissueUnit = "mbar"
     @AppStorage("targetGF") private var targetGF: Double = 40
     @AppStorage("cabinFt") private var cabinFt: Double = 6000
+    @AppStorage("logbookURL") private var logbookURL = ""   // eigene Logbuch-URL in der App eintragen
     @State private var fullscreen = false
     @State private var showNumEdit = false
     @State private var numText = ""
+    @State private var sending = false
+    @State private var sendMsg: String? = nil
 
     private func isIncomplete(_ d: ParsedDive) -> Bool { d.end == nil || d.samples.isEmpty }
     /// Nachladen geht nur, wenn genau dieses Gerät verbunden ist.
@@ -873,6 +876,22 @@ struct DiveDetailView: View {
                 } footer: {
                     Text("CSV-Zeit ist genähert (Sample-Index × Intervall). Datum/Tiefe/Temp sind aus dem Record. Rohdaten = unveränderter Geräte-Record (zur Diagnose).")
                 }
+                Section {
+                    HStack {
+                        Text("Logbuch-URL")
+                        TextField("https://…", text: $logbookURL)
+                            .textInputAutocapitalization(.never).autocorrectionDisabled()
+                            .keyboardType(.URL).multilineTextAlignment(.trailing)
+                    }
+                    Button {
+                        Task { await sendToLogbook(d) }
+                    } label: {
+                        Label(sending ? "Sende…" : "Ans Logbuch senden", systemImage: "icloud.and.arrow.up")
+                    }.disabled(sending || d.start == nil || logbookURL.trimmingCharacters(in: .whitespaces).isEmpty)
+                    if let m = sendMsg { Text(m).font(.footnote).foregroundStyle(.secondary) }
+                } header: { Text("Logbuch") } footer: {
+                    Text("Sendet Datum, Tiefe, Dauer, Tauchplatz und Tiefenprofil ans eigene Logbuch. Erneutes Senden wird erkannt (kein Duplikat).")
+                }
             }
         }
         .navigationTitle(Text(verbatim: LT("Tauchgang") + " " + (dive?.number.map { "#\(store.displayedNumber(serial: serial, recordNumber: $0))" } ?? "\(diveId)")))
@@ -942,6 +961,21 @@ struct DiveDetailView: View {
         let burl = tmp.appendingPathComponent("dive_\(diveId).bin")
         try? Data(raw).write(to: burl); binURL = burl
         loading = false
+    }
+
+    private func sendToLogbook(_ d: ParsedDive) async {
+        sending = true; sendMsg = nil
+        do {
+            let site = store.siteName(serial, diveId)
+            let r = try await LogbookUpload.send(dive: d, serial: serial, diveId: diveId,
+                                                 groupIds: groupIds, site: site, baseURL: logbookURL)
+            if r.created > 0 { sendMsg = "✓ Ans Logbuch gesendet." }
+            else if r.dup > 0 { sendMsg = "Schon im Logbuch (kein Duplikat)." }
+            else { sendMsg = "Keine Änderung." }
+        } catch {
+            sendMsg = "Fehler: \(error.localizedDescription)"
+        }
+        sending = false
     }
 
     private func row(_ k: String, _ v: String) -> some View {

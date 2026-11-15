@@ -14,13 +14,21 @@
       "tintColor": "40C4DC",
       "category": "utilities",
       "screenshotURLs": [],
-      "version": "1.9.22",
-      "versionDate": "2026-10-11",
-      "versionDescription": "Dive numbering is now gap-free after merging: a session counts as one dive and the following dives renumber automatically.",
-      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.22/SymbiosSettings.ipa",
-      "size": 724847,
+      "version": "1.9.23",
+      "versionDate": "2026-11-15",
+      "versionDescription": "New: send dives to your own self-hosted logbook („Ans Logbuch senden“) – posts date, depth, duration, dive site and the depth profile. Set your logbook URL once in the dive detail; already-sent dives are detected (no duplicates).",
+      "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.23/SymbiosSettings.ipa",
+      "size": 726922,
       "minOSVersion": "17.0",
       "versions": [
+        {
+          "version": "1.9.23",
+          "date": "2026-11-15",
+          "localizedDescription": "New: send dives to your own self-hosted logbook („Ans Logbuch senden“) – posts date, depth, duration, dive site and the depth profile. Set your logbook URL once in the dive detail; already-sent dives are detected (no duplicates).",
+          "downloadURL": "https://github.com/etlami/SymbiosSettings/releases/download/v1.9.23/SymbiosSettings.ipa",
+          "size": 726922,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.9.22",
           "date": "2026-10-11",
