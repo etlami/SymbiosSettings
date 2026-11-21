@@ -967,8 +967,15 @@ struct DiveDetailView: View {
         sending = true; sendMsg = nil
         do {
             let site = store.siteName(serial, diveId)
+            var amv: Double? = nil
+            if d.hasTank {
+                let tau = tempCorrect && d.hasTemp ? tempTauMin * 60 : nil
+                let ts = d.tankStats(tankSizeL: tankSizeL, tauSec: tau)
+                amv = (tau != nil ? ts?.rmvCorr : ts?.rmv) ?? ts?.rmv
+            }
             let r = try await LogbookUpload.send(dive: d, serial: serial, diveId: diveId,
-                                                 groupIds: groupIds, site: site, baseURL: logbookURL)
+                                                 groupIds: groupIds, site: site, baseURL: logbookURL,
+                                                 amv: amv, ccr: d.isCCR)
             if r.created > 0 { sendMsg = "✓ Ans Logbuch gesendet." }
             else if r.dup > 0 { sendMsg = "Schon im Logbuch (kein Duplikat)." }
             else { sendMsg = "Keine Änderung." }

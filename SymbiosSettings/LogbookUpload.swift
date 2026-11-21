@@ -27,7 +27,8 @@ enum LogbookUpload {
 
     /// Einen Tauchgang (ggf. Session) ans Logbuch senden.
     static func send(dive: ParsedDive, serial: UInt32, diveId: UInt16,
-                     groupIds: [UInt16], site: String?, baseURL: String) async throws -> Result {
+                     groupIds: [UInt16], site: String?, baseURL: String,
+                     amv: Double? = nil, ccr: Bool? = nil) async throws -> Result {
         guard let start = dive.start else { throw NSError(domain: "logbook", code: 1,
             userInfo: [NSLocalizedDescriptionKey: "Tauchgang ohne Startzeit"]) }
         let base = baseURL.trimmingCharacters(in: .whitespaces).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
@@ -53,6 +54,8 @@ enum LogbookUpload {
         if let durMin { payload["duration_min"] = durMin }
         if let site, !site.isEmpty { payload["site"] = site }
         if let note { payload["notes"] = note }
+        if let ccr { payload["ccr"] = ccr }
+        if let amv, amv > 0 { payload["amv"] = (amv * 10).rounded() / 10 }
         if !pts.isEmpty {
             let ptsJSON: [[Any]] = pts.map { row in row.map { $0 == nil ? NSNull() : $0! as Any } }
             var prof = [String: Any]()
